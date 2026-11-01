@@ -1,0 +1,104 @@
+import { createHash } from 'node:crypto';
+import { askWithSearch, json, costOf } from '../../../lib/openai.js';
+import { findMention, host, EXTRACTION_SCHEMA, extractionPrompt, buildPrompts } from '../../../lib/analyze.js';
+import { getJSON, setJSON } from '../../../lib/store.js';
+
+export const runtime = 'nodejs';
+export const maxDuration = 60;
+
+const PER_IP_DAILY = +(process.env.PER_IP_DAILY ?? 3);
+const GLOBAL_DAILY = +(process.env.GLOBAL_DAILY ?? 25);
+const MONTHLY_BUDGET = +(process.env.MONTHLY_BUDGET_USD ?? 10);
+const EST_COST = +(process.env.EST_COST_PER_CHECK ?? 0.12); // reserve per check before calling OpenAI
+const CACHE_MS = 24 * 3600 * 1000;
+
+const sha = (s) => createHash('sha256').update(s + (process.env.HASH_SALT ?? 'aivc')).digest('hex').slice(0, 24);
+const bad = (msg, status = 400) => Response.json({ error: msg }, { status });
+const clean = (s, max) => String(s ?? '').replace(/[\u0000-\u001f<>{}\[\]`]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
+const VALID = /^[\p{L}\p{N} .,&'+\-/()!]+$/u;
+
+export async function POST(req) {
+  // Basic bot protection: same-origin, JSON only, honeypot, minimum fill time.
+  const origin = req.headers.get('origin');
+  const hostHdr = req.headers.get('host');
+  let oh = null; try { oh = new URL(origin).host; } catch {}
+  if (!oh || oh !== hostHdr) return bad('Forbidden', 403);
+  let body;
+  try { body = await req.json(); } catch { return bad('Bad request'); }
+  if (body.website) return bad('Forbidden', 403);
+  if (!(Number(body.elapsed) >= 1500)) return bad('Please try again.', 400);
+
+  const brand = clean(body.brand, 60);
+  const category = clean(body.category, 80);
+  const competitors = String(body.competitors ?? '').split(',').map((c) => clean(c, 60)).filter(Boolean).slice(0, 5);
+  if (brand.length < 2 || category.length < 3) return bad('Enter a brand name and a category.');
+  if (![brand, category, ...competitors].every((s) => VALID.test(s))) return bad('Please use plain letters and numbers only.');
+
+  const day = new Date().toISOString().slice(0, 10);
+  const month = day.slice(0, 7);
+  const cacheKey = `cache/${sha(`${brand}|${category}|${competitors.join(',')}`.toLowerCase())}`;
+  const cached = await getJSON(cacheKey);
+  if (cached && Date.now() - cached.at < CACHE_MS) return Response.json({ ...cached.result, cached: true });
+
+  const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
+  const ipKey = `ip/${day}/${sha(ip)}`;
+  const [ipCount, dayStats, monthStats] = await Promise.all([getJSON(ipKey), getJSON(`day/${day}`), getJSON(`month/${month}`)]);
+  const tomorrow = 'Free checks are used up for today. Please come back tomorrow!';
+  if ((ipCount?.n ?? 0) >= PER_IP_DAILY) return bad(`You've used your ${PER_IP_DAILY} free checks for today. Come back tomorrow!`, 429);
+  if ((dayStats?.n ?? 0) >= GLOBAL_DAILY) return bad(tomorrow, 429);
+  if ((monthStats?.cost ?? 0) + EST_COST > MONTHLY_BUDGET) return bad('The free checker has hit its monthly limit. Please come back next month, or use the full tracker below.', 429);
+
+  // Reserve the slot before spending money.
+  await Promise.all([
+    setJSON(ipKey, { n: (ipCount?.n ?? 0) + 1 }),
+    setJSON(`day/${day}`, { n: (dayStats?.n ?? 0) + 1 }),
+    setJSON(`month/${month}`, { cost: (monthStats?.cost ?? 0) + EST_COST, n: (monthStats?.n ?? 0) + 1 }),
+  ]);
+
+  let cost = 0;
+  try {
+    const prompts = buildPrompts(category);
+    const answers = await Promise.all(prompts.map((p) => askWithSearch(p)));
+    answers.forEach((a) => { cost += costOf(a.usage, 'search', a.searches || 1); });
+    const ex = await json(extractionPrompt(brand, answers.map((a, i) => ({ prompt: prompts[i], text: a.text }))), EXTRACTION_SCHEMA);
+    cost += costOf(ex.usage, 'util');
+
+    const brandLc = brand.toLowerCase();
+    const rows = answers.map((a, i) => {
+      const brands = (ex.data.answers[i]?.brands ?? []).map((b) => String(b).trim()).filter(Boolean);
+      const idx = brands.findIndex((b) => b.toLowerCase() === brandLc || b.toLowerCase().includes(brandLc) || brandLc.includes(b.toLowerCase()));
+      const mentioned = idx >= 0 || findMention(a.text, brand) >= 0;
+      return {
+        prompt: prompts[i], mentioned, rank: idx >= 0 ? idx + 1 : (mentioned ? brands.length + 1 : null),
+        brands: brands.slice(0, 10), sentiment: ex.data.answers[i]?.sentiment ?? 'not_mentioned',
+        excerpt: a.text.slice(0, 600),
+        cited: a.citations.some((c) => (host(c.url) ?? '').includes(brandLc.replace(/\s+/g, ''))),
+      };
+    });
+    const mentionedIn = rows.filter((r) => r.mentioned).length;
+    const ranks = rows.map((r) => r.rank).filter(Boolean);
+    const others = {};
+    rows.forEach((r) => r.brands.forEach((b) => { if (b.toLowerCase() !== brandLc && !b.toLowerCase().includes(brandLc)) others[b] = (others[b] ?? 0) + 1; }));
+    const competitorHits = competitors.map((c) => ({ name: c, mentionedIn: answers.filter((a) => findMention(a.text, c) >= 0).length }));
+    const srcCount = {};
+    answers.forEach((a) => new Set(a.citations.map((c) => host(c.url)).filter(Boolean)).forEach((h) => { srcCount[h] = (srcCount[h] ?? 0) + 1; }));
+    const result = {
+      brand, category, mentionedIn, total: rows.length,
+      score: Math.round((mentionedIn / rows.length) * 100 * (ranks.length ? Math.max(0.4, 1 - (ranks.reduce((s, x) => s + x, 0) / ranks.length - 1) * 0.08) : 1)),
+      avgRank: ranks.length ? +(ranks.reduce((s, x) => s + x, 0) / ranks.length).toFixed(1) : null,
+      rows, competitorHits,
+      topBrands: Object.entries(others).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, n]) => ({ name, n })),
+      topSources: Object.entries(srcCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([domain, n]) => ({ domain, n })),
+      checkedAt: new Date().toISOString(),
+    };
+    await setJSON(cacheKey, { at: Date.now(), result });
+    // Replace the reservation with the measured cost.
+    const m = await getJSON(`month/${month}`);
+    await setJSON(`month/${month}`, { ...m, cost: Math.max(0, (m?.cost ?? 0) - EST_COST + cost) });
+    console.log(`check ok cost=$${cost.toFixed(4)}`);
+    return Response.json({ ...result, cached: false, ...(process.env.SHOW_COST === '1' ? { cost } : {}) });
+  } catch (e) {
+    console.error('check failed', e.message);
+    return bad('The AI check failed. Please try again in a minute.', 502);
+  }
+}

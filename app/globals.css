@@ -1,0 +1,18 @@
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f6f7fb;color:#141a2e;line-height:1.55}
+a{color:#2f5bff}.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+header.hero{background:linear-gradient(135deg,#0b1020,#1e2a5a);color:#fff;padding:56px 0 40px}
+.hero h1{font-size:clamp(28px,5vw,44px);line-height:1.15;margin:0 0 12px}.hero p{color:#c9d4f0;font-size:18px;margin:0 0 24px}
+form.card{background:#fff;color:#141a2e;border-radius:14px;padding:20px;display:grid;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+label{font-weight:600;font-size:14px;display:grid;gap:6px}input{font:inherit;padding:12px;border:1px solid #cfd5e6;border-radius:10px;width:100%}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:620px){.row{grid-template-columns:1fr}}
+button,.cta{font:inherit;font-weight:700;background:#2f5bff;color:#fff;border:0;border-radius:10px;padding:14px 18px;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+button:disabled{opacity:.6;cursor:wait}.hp{position:absolute;left:-9999px}
+.err{background:#fff1f1;color:#a40000;border-radius:10px;padding:12px}
+.result{margin:28px 0;background:#fff;border-radius:14px;padding:24px;box-shadow:0 4px 16px rgba(20,26,46,.08)}
+.score{display:flex;gap:24px;align-items:center;flex-wrap:wrap}.big{font-size:56px;font-weight:800;line-height:1}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:600;margin:2px}.yes{background:#e3f8ea;color:#11793a}.no{background:#fde8e8;color:#a40000}.n{background:#eef1f8;color:#33405e}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media(max-width:620px){.grid{grid-template-columns:1fr}}
+.q{border-top:1px solid #eef1f8;padding:12px 0}.q p{margin:4px 0;font-size:14px;color:#4a5370}
+.ctabox{background:#0b1020;color:#fff;border-radius:14px;padding:22px;margin-top:20px}.ctabox p{color:#c9d4f0}
+section{padding:28px 0}h2{font-size:26px}details{background:#fff;border-radius:10px;padding:14px 16px;margin:10px 0}summary{font-weight:700;cursor:pointer}
+footer{padding:30px 0 50px;color:#5a6380;font-size:14px;border-top:1px solid #e3e7f1}.muted{color:#5a6380;font-size:13px}
