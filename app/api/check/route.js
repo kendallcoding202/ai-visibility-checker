@@ -34,6 +34,7 @@ export async function POST(req) {
   if (brand.length < 2 || category.length < 3) return bad('Enter a brand name and a category.');
   if (![brand, category, ...competitors].every((s) => VALID.test(s))) return bad('Please use plain letters and numbers only.');
 
+  if ((process.env.OPENAI_API_KEY ?? '').length < 20) return bad('The checker is warming up. Please try again later.', 503);
   const day = new Date().toISOString().slice(0, 10);
   const month = day.slice(0, 7);
   const cacheKey = `cache/${sha(`${brand}|${category}|${competitors.join(',')}`.toLowerCase())}`;
@@ -99,6 +100,13 @@ export async function POST(req) {
     return Response.json({ ...result, cached: false, ...(process.env.SHOW_COST === '1' ? { cost } : {}) });
   } catch (e) {
     console.error('check failed', e.message);
+    // Refund the reserved slot so failures don't burn quota.
+    const [i2, d2, m2] = await Promise.all([getJSON(ipKey), getJSON(`day/${day}`), getJSON(`month/${month}`)]);
+    await Promise.all([
+      setJSON(ipKey, { n: Math.max(0, (i2?.n ?? 1) - 1) }),
+      setJSON(`day/${day}`, { n: Math.max(0, (d2?.n ?? 1) - 1) }),
+      setJSON(`month/${month}`, { ...m2, cost: Math.max(0, (m2?.cost ?? 0) - EST_COST + cost), n: Math.max(0, (m2?.n ?? 1) - 1) }),
+    ]).catch(() => {});
     return bad('The AI check failed. Please try again in a minute.', 502);
   }
 }
