@@ -1,5 +1,6 @@
 import Checker from './Checker.js';
 import { TRACKER, ADS } from './links.js';
+import { Ld, orgLd, appLd } from './site.js';
 
 const faq = [
   ['What is AI search visibility?', 'AI search visibility is how often AI assistants such as ChatGPT, Gemini and Perplexity mention or recommend your brand when people ask questions in your category. It is the AI-era version of ranking on Google.'],
@@ -25,6 +26,10 @@ export default function Page() {
         <p>This free tool gives you a quick snapshot of your <strong>ChatGPT brand mentions</strong>: mention rate, ranking position, competitor share and the cited sources that shape AI answers. To measure share of voice over time, use the <a href={TRACKER('explainer')}>AI Search Visibility Tracker</a>.</p>
       </section>
       <section>
+        <h2>Compare and learn</h2>
+        <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a></p>
+      </section>
+      <section>
         <h2>FAQ</h2>
         {faq.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}
       </section>
@@ -34,6 +39,7 @@ export default function Page() {
       <p>Tools: <a href={TRACKER('footer')}>AI Search Visibility Tracker (ChatGPT &amp; Gemini)</a> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>
     </div></footer>
+    <Ld data={orgLd} /><Ld data={appLd} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
   </>);
 }

@@ -3,3 +3,5 @@ node_modules
 .env*
 .vercel
 screenshot-*.png
+screenshot.png
+compare-screenshot.png
