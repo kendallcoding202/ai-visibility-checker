@@ -37,9 +37,10 @@ export async function POST(req) {
   if ((process.env.OPENAI_API_KEY ?? '').length < 20) return bad('The checker is warming up. Please try again later.', 503);
   const day = new Date().toISOString().slice(0, 10);
   const month = day.slice(0, 7);
-  const cacheKey = `cache/${sha(`${brand}|${category}|${competitors.join(',')}`.toLowerCase())}`;
+  const shareId = sha(`${brand}|${category}|${competitors.join(',')}`.toLowerCase());
+  const cacheKey = `cache/${shareId}`;
   const cached = await getJSON(cacheKey);
-  if (cached && Date.now() - cached.at < CACHE_MS) return Response.json({ ...cached.result, cached: true });
+  if (cached && Date.now() - cached.at < CACHE_MS) return Response.json({ ...cached.result, id: shareId, cached: true });
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
   const ipKey = `ip/${day}/${sha(ip)}`;
@@ -97,7 +98,7 @@ export async function POST(req) {
     const m = await getJSON(`month/${month}`);
     await setJSON(`month/${month}`, { ...m, cost: Math.max(0, (m?.cost ?? 0) - EST_COST + cost) });
     console.log(`check ok cost=$${cost.toFixed(4)}`);
-    return Response.json({ ...result, cached: false, ...(process.env.SHOW_COST === '1' ? { cost } : {}) });
+    return Response.json({ ...result, id: shareId, cached: false, ...(process.env.SHOW_COST === '1' ? { cost } : {}) });
   } catch (e) {
     console.error('check failed', e.message);
     // Refund the reserved slot so failures don't burn quota.

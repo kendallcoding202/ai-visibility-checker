@@ -18,3 +18,10 @@ section{padding:28px 0}h2{font-size:26px}details{background:#fff;border-radius:1
 footer{padding:30px 0 50px;color:#5a6380;font-size:14px;border-top:1px solid #e3e7f1}.muted{color:#5a6380;font-size:13px}
 .result{color:#141a2e}.result p{color:#4a5370}.result h3{color:#141a2e}.result .ctabox p{color:#c9d4f0}.result .ctabox h3{color:#fff}.result a.cta{color:#fff}
 table.cmp{width:100%;border-collapse:collapse;background:#fff;font-size:14px}table.cmp th,table.cmp td{border:1px solid #e1e5f0;padding:8px;text-align:left;vertical-align:top}table.cmp th{background:#eef1fa}
+
+.share{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.ghost{font:inherit;font-weight:600;background:#eef1f8;color:#22305a;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-block}
+.engines{display:grid;grid-template-columns:1fr 1fr;gap:10px}.engine{display:flex;flex-direction:column;gap:6px;border:1px solid #e3e7f2;border-radius:12px;padding:12px;color:#141a2e;text-decoration:none}
+.engine.locked{background:repeating-linear-gradient(45deg,#f6f7fb,#f6f7fb 8px,#eef1f8 8px,#eef1f8 16px)}.engine.locked:hover{border-color:#2f5bff}
+.steps{color:#c9d4f0;margin:8px 0 0}.ctabox .ghost{background:#222b48;color:#fff}
+@media(max-width:640px){.engines{grid-template-columns:1fr}}

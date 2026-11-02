@@ -8,7 +8,7 @@ const faq = [
   ['How does this free checker work?', 'We ask ChatGPT (an OpenAI model with live web search) three buyer-style questions about your category, then detect whether your brand is mentioned, where it ranks, which competitors appear and which websites are cited.'],
   ['Is it really free?', 'Yes. You get 3 free checks per day. Results are cached for 24 hours. For ongoing tracking across ChatGPT and Gemini with your own prompts, use the full AI Search Visibility Tracker.'],
   ['Why do results change between checks?', 'AI answers are non-deterministic and depend on wording, location and fresh web results. That is why one snapshot is a starting point, and weekly tracking shows the real trend.'],
-  ['Do you store my data?', 'We store the anonymous result for 24 hours so repeat checks are instant, plus a hashed counter for rate limiting. No accounts, no email required.'],
+  ['Do you store my data?', 'We store the anonymous result (brand, category and the AI answers) so repeat checks are instant and share links work, plus a hashed counter for rate limiting. No accounts, no email, no personal data.'],
 ];
 
 export default function Page() {
