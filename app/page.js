@@ -1,5 +1,5 @@
 import Checker from './Checker.js';
-import { TRACKER, ADS } from './links.js';
+import { TRACKER, ADS, CITATIONS } from './links.js';
 import { Ld, orgLd, appLd } from './site.js';
 
 const faq = [
@@ -36,7 +36,7 @@ export default function Page() {
     </main>
     <footer><div className="wrap">
       <p>Built by Kendall Sorenson.</p>
-      <p>Tools: <a href={TRACKER('footer')}>AI Search Visibility Tracker (ChatGPT &amp; Gemini)</a> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
+      <p>Tools: <a href={TRACKER('footer')}>AI Search Visibility Tracker (ChatGPT &amp; Gemini)</a> · <a href={CITATIONS}>AI Citation Tracker (which sites ChatGPT cites)</a> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>
     </div></footer>
     <Ld data={orgLd} /><Ld data={appLd} />
