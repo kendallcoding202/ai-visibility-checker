@@ -66,7 +66,7 @@ export async function POST(req) {
 
     const brandLc = brand.toLowerCase();
     const rows = answers.map((a, i) => {
-      const brands = (ex.data.answers[i]?.brands ?? []).map((b) => String(b).trim()).filter(Boolean);
+      const brands = (ex.data.answers[i]?.brands ?? []).map((b) => String(b).trim()).filter(Boolean).filter((b, j, arr) => arr.findIndex((x) => x.toLowerCase() === b.toLowerCase()) === j);
       const idx = brands.findIndex((b) => b.toLowerCase() === brandLc || b.toLowerCase().includes(brandLc) || brandLc.includes(b.toLowerCase()));
       const mentioned = idx >= 0 || findMention(a.text, brand) >= 0;
       return {
