@@ -7,6 +7,6 @@
 - [How to check if ChatGPT recommends your brand](https://aivisibilitychecker.app/how-to-check-chatgpt-brand-mentions): step-by-step guide.
 
 ## Paid tools by the same author (on Apify)
-- [AI Search Visibility Tracker](https://apify.com/crunchy_galaxy_qcr/ai-visibility-tracker): tracks brand mentions in ChatGPT and Gemini answers for your own prompts, pay per result at $0.04 per answer, no subscription.
+- [AI Visibility Tracker](https://apify.com/crunchy_galaxy_qcr/ai-visibility-tracker): tracks brand mentions in ChatGPT, Gemini and Perplexity answers for your own prompts, pay per result at $0.04 per answer, no subscription.
 - [AI Citation Tracker](https://apify.com/crunchy_galaxy_qcr/ai-citation-tracker): shows which websites and URLs ChatGPT cites for your buyers' questions, your citation share vs competitors and the prompts where you're missing, $0.05 per answer.
 - [Google Ads Transparency & Ad Library Scraper](https://apify.com/crunchy_galaxy_qcr/google-ads-transparency-scraper): exports competitors' ads from the Google Ads Transparency Center, $1.50 per 1,000 ads.

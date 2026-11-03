@@ -35,7 +35,7 @@ export function TrackerCTA({ d }) {
   const input = trackerInput(d);
   const answers = input.prompts.length * input.engines.length;
   return (<div className="ctabox" id="track">
-    <h3 style={{ marginTop: 0 }}>Track this weekly on ChatGPT + Gemini</h3>
+    <h3 style={{ marginTop: 0 }}>Track this weekly on ChatGPT, Gemini + Perplexity</h3>
     <p>Run these same {input.prompts.length} questions for {d.brand} vs {input.competitors.slice(0, 3).join(', ') || 'your competitors'} on both engines every week, with share of voice, sentiment, gap prompts and a shareable report. {answers} answers = ${(answers * 0.04).toFixed(2)} per run, no API keys, no subscription.</p>
     <div className="share">
       <button type="button" onClick={() => copy(JSON.stringify(input, null, 2))}>{done ? 'Input copied ✓' : '1. Copy your tracker input'}</button>

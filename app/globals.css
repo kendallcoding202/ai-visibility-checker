@@ -25,3 +25,4 @@ table.cmp{width:100%;border-collapse:collapse;background:#fff;font-size:14px}tab
 .engine.locked{background:repeating-linear-gradient(45deg,#f6f7fb,#f6f7fb 8px,#eef1f8 8px,#eef1f8 16px)}.engine.locked:hover{border-color:#2f5bff}
 .steps{color:#c9d4f0;margin:8px 0 0}.ctabox .ghost{background:#222b48;color:#fff}
 @media(max-width:640px){.engines{grid-template-columns:1fr}}
+.fazier{margin:8px 0 0}.fazier img{display:block;height:auto}

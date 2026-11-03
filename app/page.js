@@ -6,7 +6,7 @@ const faq = [
   ['What is AI search visibility?', 'AI search visibility is how often AI assistants such as ChatGPT, Gemini and Perplexity mention or recommend your brand when people ask questions in your category. It is the AI-era version of ranking on Google.'],
   ['What is GEO (generative engine optimization)?', 'GEO, also called AEO (answer engine optimization) or LLM SEO, is the practice of improving how often and how favorably AI answers mention your brand, for example by earning mentions on the sources AI cites, publishing clear comparison content and keeping your product facts consistent across the web.'],
   ['How does this free checker work?', 'We ask ChatGPT (an OpenAI model with live web search) three buyer-style questions about your category, then detect whether your brand is mentioned, where it ranks, which competitors appear and which websites are cited.'],
-  ['Is it really free?', 'Yes. You get 3 free checks per day. Results are cached for 24 hours. For ongoing tracking across ChatGPT and Gemini with your own prompts, use the full AI Search Visibility Tracker.'],
+  ['Is it really free?', 'Yes. You get 3 free checks per day. Results are cached for 24 hours. For ongoing tracking across ChatGPT, Gemini and Perplexity with your own prompts, use the full AI Visibility Tracker.'],
   ['Why do results change between checks?', 'AI answers are non-deterministic and depend on wording, location and fresh web results. That is why one snapshot is a starting point, and weekly tracking shows the real trend.'],
   ['Do you store my data?', 'We store the anonymous result (brand, category and the AI answers) so repeat checks are instant and share links work, plus a hashed counter for rate limiting. No accounts, no email, no personal data.'],
 ];
@@ -23,7 +23,7 @@ export default function Page() {
       <section>
         <h2>Why AI search visibility matters</h2>
         <p>More buyers now ask ChatGPT, Gemini and Perplexity “what's the best tool for…” instead of searching Google. If AI assistants don't mention your brand, you're invisible at the exact moment a buyer is choosing. <strong>Generative engine optimization (GEO)</strong>, also called AEO or LLM SEO, is how brands win those AI answers.</p>
-        <p>This free tool gives you a quick snapshot of your <strong>ChatGPT brand mentions</strong>: mention rate, ranking position, competitor share and the cited sources that shape AI answers. To measure share of voice over time, use the <a href={TRACKER('explainer')}>AI Search Visibility Tracker</a>.</p>
+        <p>This free tool gives you a quick snapshot of your <strong>ChatGPT brand mentions</strong>: mention rate, ranking position, competitor share and the cited sources that shape AI answers. To measure share of voice over time, use the <a href={TRACKER('explainer')}>AI Visibility Tracker</a>.</p>
       </section>
       <section>
         <h2>Compare and learn</h2>
@@ -36,8 +36,9 @@ export default function Page() {
     </main>
     <footer><div className="wrap">
       <p>Built by Kendall Sorenson.</p>
-      <p>Tools: <a href={TRACKER('footer')}>AI Search Visibility Tracker (ChatGPT &amp; Gemini)</a> · <a href={CITATIONS}>AI Citation Tracker (which sites ChatGPT cites)</a> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
+      <p>Tools: <a href={TRACKER('footer')}>AI Visibility Tracker (ChatGPT, Gemini &amp; Perplexity)</a> · <a href={CITATIONS}>AI Citation Tracker (which sites ChatGPT cites)</a> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>
+      <p className="fazier"><a href="https://fazier.com" target="_blank" rel="noopener"><img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light" width={160} alt="Fazier badge" /></a></p>
     </div></footer>
     <Ld data={orgLd} /><Ld data={appLd} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
