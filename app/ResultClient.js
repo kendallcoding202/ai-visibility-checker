@@ -1,4 +1,5 @@
 'use client';
+import { SITE } from './site.js';
 import { useState } from 'react';
 import { TRACKER } from './links.js';
 
@@ -9,7 +10,7 @@ function useCopy() {
 
 export function ShareLink({ id, brand, score }) {
   const [done, copy] = useCopy();
-  const url = typeof window !== 'undefined' ? `${window.location.origin}/r/${id}` : `/r/${id}`;
+  const url = `${SITE}/r/${id}`;
   const text = `ChatGPT gave ${brand} an AI visibility score of ${score}/100. Check yours free:`;
   return (<div className="share">
     <button type="button" className="ghost" onClick={() => copy(url)}>{done ? 'Link copied ✓' : '🔗 Copy share link'}</button>
