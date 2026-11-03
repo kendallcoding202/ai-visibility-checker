@@ -4,7 +4,7 @@ import Footer from '../Footer.js';
 
 const title = 'How to Check if ChatGPT Recommends Your Brand (Free, 2026)';
 const description = 'Step-by-step: how to check whether ChatGPT mentions or recommends your brand, manually or with a free tool, and how to track it over time.';
-export const metadata = { title, description, alternates: { canonical: '/how-to-check-chatgpt-brand-mentions' }, openGraph: { title, description, type: 'article' }, authors: [{ name: 'Kendall Sorenson' }] };
+export const metadata = { title, description, alternates: { canonical: '/how-to-check-chatgpt-brand-mentions' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, authors: [{ name: 'Kendall Sorenson' }] };
 
 const steps = [
   ['Write 3–10 buyer questions', 'Use the words a customer would type, e.g. "What is the best project management tool for small teams?" Avoid naming your brand in the question.'],

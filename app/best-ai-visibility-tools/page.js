@@ -4,7 +4,7 @@ import Footer from '../Footer.js';
 
 const title = 'Best Tools to Check if ChatGPT Recommends Your Brand (2026)';
 const description = 'Honest comparison of free and paid AI visibility tools: HubSpot AEO Grader, this free checker, an Apify pay-per-answer tracker, Otterly.AI, Peec AI and Semrush. Real prices with sources, checked Nov 2026.';
-export const metadata = { title, description, alternates: { canonical: '/best-ai-visibility-tools' }, openGraph: { title, description, type: 'article' }, authors: [{ name: 'Kendall Sorenson' }] };
+export const metadata = { title, description, alternates: { canonical: '/best-ai-visibility-tools' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, authors: [{ name: 'Kendall Sorenson' }] };
 
 const tools = [
   { name: 'Free AI Visibility Checker (this site)', price: 'Free, 3 checks/day', engines: 'ChatGPT (with web search)', best: 'A fast, no-signup snapshot: are you mentioned, your rank, competitors, cited sources', note: 'Disclosure: built by the author of this page. One snapshot of 3 questions, not ongoing tracking.', href: '/', src: '/' },
