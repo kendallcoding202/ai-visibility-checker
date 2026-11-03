@@ -35,8 +35,8 @@ export function TrackerCTA({ d }) {
   const input = trackerInput(d);
   const answers = input.prompts.length * input.engines.length;
   return (<div className="ctabox" id="track">
-    <h3 style={{ marginTop: 0 }}>Track this weekly on ChatGPT, Gemini + Perplexity</h3>
-    <p>Run these same {input.prompts.length} questions for {d.brand} vs {input.competitors.slice(0, 3).join(', ') || 'your competitors'} on both engines every week, with share of voice, sentiment, gap prompts and a shareable report. {answers} answers = ${(answers * 0.04).toFixed(2)} per run, no API keys, no subscription.</p>
+    <h3 style={{ marginTop: 0 }}>Track this weekly in the AI Visibility Tracker</h3>
+    <p>Run these same {input.prompts.length} questions for {d.brand} vs {input.competitors.slice(0, 3).join(', ') || 'your competitors'} on ChatGPT + Gemini every week, with share of voice, sentiment, gap prompts and a shareable report. {answers} answers = ${(answers * 0.04).toFixed(2)} per run with the prefilled input, no API keys, no subscription. You can add Perplexity too.</p>
     <div className="share">
       <button type="button" onClick={() => copy(JSON.stringify(input, null, 2))}>{done ? 'Input copied ✓' : '1. Copy your tracker input'}</button>
       <a className="cta" target="_blank" rel="noopener" href={TRACKER('result-cta')}>2. Open the tracker on Apify →</a>
