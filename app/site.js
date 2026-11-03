@@ -1,4 +1,4 @@
-export const SITE = 'https://ai-visibility-checker-lac.vercel.app';
+export const SITE = 'https://aivisibilitychecker.app';
 export const ONE_LINER = 'Free AI visibility checker that shows in about 30 seconds whether ChatGPT recommends your brand, where you rank and which competitors it picks instead.';
 export const AUTHOR = 'Kendall Sorenson';
 export const orgLd = { '@context': 'https://schema.org', '@type': 'Organization', name: 'AI Visibility Checker', url: SITE, founder: { '@type': 'Person', name: AUTHOR }, description: ONE_LINER,

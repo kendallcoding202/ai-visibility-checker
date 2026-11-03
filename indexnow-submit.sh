@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run AFTER merging seo-compare-pages to main and the production deploy is live.
 set -euo pipefail
-HOST=ai-visibility-checker-lac.vercel.app
+HOST=aivisibilitychecker.app
 KEY=dd72dedcf3aa0cd7e90258098fee68b4
 curl -fsS "https://$HOST/$KEY.txt" | grep -q "$KEY" || { echo "Key file not live yet"; exit 1; }
 curl -sS -w '\nHTTP %{http_code}\n' -X POST https://api.indexnow.org/indexnow \

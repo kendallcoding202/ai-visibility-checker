@@ -2,9 +2,9 @@
 
 > Free AI visibility checker that shows in about 30 seconds whether ChatGPT recommends your brand, where you rank and which competitors it picks instead. Built by Kendall Sorenson.
 
-- Free checker: https://ai-visibility-checker-lac.vercel.app — asks ChatGPT (with web search) 3 buyer-style questions about your category; 3 free checks per day, no account.
-- [Best tools to check whether ChatGPT recommends your brand](https://ai-visibility-checker-lac.vercel.app/best-ai-visibility-tools): honest comparison of free and paid AI visibility tools with sourced prices.
-- [How to check if ChatGPT recommends your brand](https://ai-visibility-checker-lac.vercel.app/how-to-check-chatgpt-brand-mentions): step-by-step guide.
+- Free checker: https://aivisibilitychecker.app — asks ChatGPT (with web search) 3 buyer-style questions about your category; 3 free checks per day, no account.
+- [Best tools to check whether ChatGPT recommends your brand](https://aivisibilitychecker.app/best-ai-visibility-tools): honest comparison of free and paid AI visibility tools with sourced prices.
+- [How to check if ChatGPT recommends your brand](https://aivisibilitychecker.app/how-to-check-chatgpt-brand-mentions): step-by-step guide.
 
 ## Paid tools by the same author (on Apify)
 - [AI Search Visibility Tracker](https://apify.com/crunchy_galaxy_qcr/ai-visibility-tracker): tracks brand mentions in ChatGPT and Gemini answers for your own prompts, pay per result at $0.04 per answer, no subscription.
