@@ -15,6 +15,10 @@ const LAUNCH_DAYS = (process.env.LAUNCH_DAYS ?? '2026-11-10,2026-11-11,2026-11-1
 const LAUNCH_DAILY = +(process.env.LAUNCH_DAILY ?? 150);
 const dailyCap = (day) => (LAUNCH_DAYS.includes(day) ? LAUNCH_DAILY : GLOBAL_DAILY);
 const MONTHLY_BUDGET = +(process.env.MONTHLY_BUDGET_USD ?? 10);
+// Launch month gets +$10 (~105 more checks at ~$0.093 each) so the 150/day launch cap isn't blocked by the budget.
+const LAUNCH_MONTH = process.env.LAUNCH_MONTH ?? '2026-11';
+const LAUNCH_BUDGET = +(process.env.LAUNCH_MONTHLY_BUDGET_USD ?? 20);
+const monthBudget = (month) => (month === LAUNCH_MONTH ? Math.max(LAUNCH_BUDGET, MONTHLY_BUDGET) : MONTHLY_BUDGET);
 const EST_COST = +(process.env.EST_COST_PER_CHECK ?? 0.12); // reserve per check before calling OpenAI
 const CACHE_MS = 24 * 3600 * 1000;
 
@@ -54,7 +58,7 @@ export async function POST(req) {
   const tomorrow = 'Free checks are used up for today. Please come back tomorrow!';
   if ((ipCount?.n ?? 0) >= PER_IP_DAILY) return bad(`You've used your ${PER_IP_DAILY} free checks for today. Come back tomorrow!`, 429);
   if ((dayStats?.n ?? 0) >= dailyCap(day)) return bad(tomorrow, 429);
-  if ((monthStats?.cost ?? 0) + EST_COST > MONTHLY_BUDGET) return bad('The free checker has hit its monthly limit. Please come back next month, or use the full tracker below.', 429);
+  if ((monthStats?.cost ?? 0) + EST_COST > monthBudget(month)) return bad('The free checker has hit its monthly limit. Please come back next month, or use the full tracker below.', 429);
 
   // Reserve the slot before spending money.
   await Promise.all([
