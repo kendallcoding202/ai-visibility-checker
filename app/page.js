@@ -27,7 +27,7 @@ export default function Page() {
       </section>
       <section>
         <h2>Compare and learn</h2>
-        <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a></p>
+        <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a> · <a href="/why-chatgpt-recommends-competitors">Why ChatGPT recommends your competitors</a> · <a href="/which-sites-ai-cites-in-your-niche">Which sites AI Overviews and ChatGPT cite</a></p>
       </section>
       <section>
         <h2>FAQ</h2>
