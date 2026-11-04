@@ -36,7 +36,7 @@ export default function Page() {
     </main>
     <footer><div className="wrap">
       <p>Built by Kendall Sorenson.</p>
-      <p>Tools: <a href={TRACKER('footer')}>AI Visibility Tracker (ChatGPT, Gemini &amp; Perplexity)</a> · <a href={CITATIONS}>AI Citation Tracker (which sites ChatGPT cites)</a> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
+      <p>Tools: <a href={TRACKER('footer')}>AI Visibility Tracker (ChatGPT, Gemini &amp; Perplexity)</a> · <a href={CITATIONS}>AI Citation Tracker (which sites ChatGPT, Perplexity &amp; Google AI Overviews cite)</a> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>
       <p className="fazier"><a href="https://fazier.com" target="_blank" rel="noopener"><img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light" width={160} alt="Fazier badge" /></a><span className="muted"> <a href="https://twelve.tools">Listed on Twelve.tools</a> · <a href="https://dang.ai">Featured on Dang.ai</a></span></p>
     </div></footer>
