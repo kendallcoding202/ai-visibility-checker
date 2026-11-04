@@ -25,7 +25,7 @@ export function trackerInput(d) {
   const comps = [...new Set([...(d.competitorHits ?? []).map((c) => c.name), ...(d.topBrands ?? []).map((b) => b.name)])].slice(0, 5);
   return {
     brand: d.brand, competitors: comps, prompts: d.rows.map((r) => r.prompt), category: d.category,
-    engines: ['chatgpt-search', 'gemini-knowledge'], samplesPerPrompt: 1,
+    engines: ['chatgpt-search', 'gemini-knowledge', 'perplexity-search'], samplesPerPrompt: 1,
     trackingName: `${d.brand}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-weekly',
   };
 }
@@ -36,7 +36,7 @@ export function TrackerCTA({ d }) {
   const answers = input.prompts.length * input.engines.length;
   return (<div className="ctabox" id="track">
     <h3 style={{ marginTop: 0 }}>Track this weekly in the AI Visibility Tracker</h3>
-    <p>Run these same {input.prompts.length} questions for {d.brand} vs {input.competitors.slice(0, 3).join(', ') || 'your competitors'} on ChatGPT + Gemini every week, with share of voice, sentiment, gap prompts and a shareable report. {answers} answers = ${(answers * 0.04).toFixed(2)} per run with the prefilled input, no API keys, no subscription. You can add Perplexity too.</p>
+    <p>Run these same {input.prompts.length} questions for {d.brand} vs {input.competitors.slice(0, 3).join(', ') || 'your competitors'} on ChatGPT, Gemini &amp; Perplexity every week, with share of voice, sentiment, gap prompts and a shareable report. {answers} answers = ${(answers * 0.04).toFixed(2)} per run with the prefilled input, no API keys, no subscription.</p>
     <div className="share">
       <button type="button" onClick={() => copy(JSON.stringify(input, null, 2))}>{done ? 'Input copied ✓' : '1. Copy your tracker input'}</button>
       <a className="cta" target="_blank" rel="noopener" href={TRACKER('result-cta')}>2. Open the tracker on Apify →</a>

@@ -8,6 +8,12 @@ export const maxDuration = 60;
 
 const PER_IP_DAILY = +(process.env.PER_IP_DAILY ?? 3);
 const GLOBAL_DAILY = +(process.env.GLOBAL_DAILY ?? 25);
+// Launch-day boost: on these UTC dates (the day/ counter key) the global cap is LAUNCH_DAILY instead.
+// Product Hunt launch 12:01 AM PT Tue Nov 10, 2026 = 08:01 UTC Nov 10. Covers UTC Nov 10-12
+// (= 5 PM MT Nov 9 through 5 PM MT Nov 12), then falls back to GLOBAL_DAILY automatically.
+const LAUNCH_DAYS = (process.env.LAUNCH_DAYS ?? '2026-11-10,2026-11-11,2026-11-12').split(',').map((s) => s.trim()).filter(Boolean);
+const LAUNCH_DAILY = +(process.env.LAUNCH_DAILY ?? 150);
+const dailyCap = (day) => (LAUNCH_DAYS.includes(day) ? LAUNCH_DAILY : GLOBAL_DAILY);
 const MONTHLY_BUDGET = +(process.env.MONTHLY_BUDGET_USD ?? 10);
 const EST_COST = +(process.env.EST_COST_PER_CHECK ?? 0.12); // reserve per check before calling OpenAI
 const CACHE_MS = 24 * 3600 * 1000;
@@ -47,7 +53,7 @@ export async function POST(req) {
   const [ipCount, dayStats, monthStats] = await Promise.all([getJSON(ipKey), getJSON(`day/${day}`), getJSON(`month/${month}`)]);
   const tomorrow = 'Free checks are used up for today. Please come back tomorrow!';
   if ((ipCount?.n ?? 0) >= PER_IP_DAILY) return bad(`You've used your ${PER_IP_DAILY} free checks for today. Come back tomorrow!`, 429);
-  if ((dayStats?.n ?? 0) >= GLOBAL_DAILY) return bad(tomorrow, 429);
+  if ((dayStats?.n ?? 0) >= dailyCap(day)) return bad(tomorrow, 429);
   if ((monthStats?.cost ?? 0) + EST_COST > MONTHLY_BUDGET) return bad('The free checker has hit its monthly limit. Please come back next month, or use the full tracker below.', 429);
 
   // Reserve the slot before spending money.
