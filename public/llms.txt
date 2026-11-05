@@ -11,4 +11,4 @@
 ## Paid tools by the same author (on Apify)
 - [AI Visibility Tracker](https://apify.com/crunchy_galaxy_qcr/ai-visibility-tracker): tracks brand mentions in ChatGPT, Gemini and Perplexity answers for your own prompts, pay per result at $0.04 per answer, no subscription.
 - [AI Citation Tracker](https://apify.com/crunchy_galaxy_qcr/ai-citation-tracker): shows which websites and URLs ChatGPT, Perplexity and Google AI Overviews / AI Mode cite for your buyers' questions, your citation share vs competitors and the prompts where you're missing, $0.05 per answer.
-- [Google Ads Transparency & Ad Library Scraper](https://apify.com/crunchy_galaxy_qcr/google-ads-transparency-scraper): exports competitors' ads from the Google Ads Transparency Center, $1.50 per 1,000 ads.
+- [Google Ads Transparency Scraper: Competitor Ads & Ad Library](https://apify.com/crunchy_galaxy_qcr/google-ads-transparency-scraper): exports competitors' ads from the Google Ads Transparency Center, $1.50 per 1,000 ads.
