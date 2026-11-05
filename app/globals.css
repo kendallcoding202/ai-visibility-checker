@@ -26,3 +26,4 @@ table.cmp{width:100%;border-collapse:collapse;background:#fff;font-size:14px}tab
 .steps{color:#c9d4f0;margin:8px 0 0}.ctabox .ghost{background:#222b48;color:#fff}
 @media(max-width:640px){.engines{grid-template-columns:1fr}}
 .fazier{margin:8px 0 0}.fazier{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.fazier img{display:block;height:auto}
+.result p.weekly{background:#eef2ff;border-radius:10px;padding:10px 14px;color:#141a2e}

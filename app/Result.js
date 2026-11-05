@@ -11,6 +11,7 @@ export default function Result({ d, shared = false }) {
     </div>
     <p>{d.mentionedIn === 0 ? `ChatGPT didn't mention ${d.brand} for "${d.category}" questions. Buyers asking AI are seeing your competitors instead.`
       : d.mentionedIn < d.total ? `${d.brand} shows up in some answers, but not consistently.` : `${d.brand} shows up in every answer. Nice! Keep tracking it, since AI answers change weekly.`}</p>
+    <p className="weekly">This is one snapshot, and AI answers shift from week to week. To see whether {d.brand} is gaining or losing ground, <a href={TRACKER('result-top')} target="_blank" rel="noopener">track it weekly on Apify</a>. The ready-made input is <a href="#track">below</a>.</p>
     {d.id && <ShareLink id={d.id} brand={d.brand} score={d.score} />}
     <h3>Engines</h3>
     <div className="engines">
