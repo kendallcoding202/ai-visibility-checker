@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { askWithSearch, json, costOf } from '../../../lib/openai.js';
-import { findMention, host, EXTRACTION_SCHEMA, extractionPrompt, buildPrompts } from '../../../lib/analyze.js';
+import { findBrandMention, brandsMatch, host, EXTRACTION_SCHEMA, extractionPrompt, buildPrompts } from '../../../lib/analyze.js';
 import { getJSON, setJSON } from '../../../lib/store.js';
 
 export const runtime = 'nodejs';
@@ -78,8 +78,8 @@ export async function POST(req) {
     const brandLc = brand.toLowerCase();
     const rows = answers.map((a, i) => {
       const brands = (ex.data.answers[i]?.brands ?? []).map((b) => String(b).trim()).filter(Boolean).filter((b, j, arr) => arr.findIndex((x) => x.toLowerCase() === b.toLowerCase()) === j);
-      const idx = brands.findIndex((b) => b.toLowerCase() === brandLc || b.toLowerCase().includes(brandLc) || brandLc.includes(b.toLowerCase()));
-      const mentioned = idx >= 0 || findMention(a.text, brand) >= 0;
+      const idx = brands.findIndex((b) => brandsMatch(brand, b));
+      const mentioned = idx >= 0 || findBrandMention(a.text, brand) >= 0;
       return {
         prompt: prompts[i], mentioned, rank: idx >= 0 ? idx + 1 : (mentioned ? brands.length + 1 : null),
         brands: brands.slice(0, 10), sentiment: ex.data.answers[i]?.sentiment ?? 'not_mentioned',
@@ -90,8 +90,15 @@ export async function POST(req) {
     const mentionedIn = rows.filter((r) => r.mentioned).length;
     const ranks = rows.map((r) => r.rank).filter(Boolean);
     const others = {};
-    rows.forEach((r) => r.brands.forEach((b) => { if (b.toLowerCase() !== brandLc && !b.toLowerCase().includes(brandLc)) others[b] = (others[b] ?? 0) + 1; }));
-    const competitorHits = competitors.map((c) => ({ name: c, mentionedIn: answers.filter((a) => findMention(a.text, c) >= 0).length }));
+    rows.forEach((r) => r.brands.forEach((b) => {
+      if (brandsMatch(brand, b)) return;
+      if (competitors.some((c) => brandsMatch(c, b))) return;
+      others[b] = (others[b] ?? 0) + 1;
+    }));
+    const competitorHits = competitors.map((c) => ({
+      name: c,
+      mentionedIn: rows.filter((r, i) => findBrandMention(answers[i].text, c) >= 0 || r.brands.some((b) => brandsMatch(c, b))).length,
+    }));
     const srcCount = {};
     answers.forEach((a) => new Set(a.citations.map((c) => host(c.url)).filter(Boolean)).forEach((h) => { srcCount[h] = (srcCount[h] ?? 0) + 1; }));
     const result = {
