@@ -50,7 +50,7 @@ export default function Page() {
       </section>
       <section>
         <h2>Compare and learn</h2>
-        <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/free-ai-visibility-checker">Free AI visibility checker</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a> · <a href="/how-to-see-which-sources-chatgpt-cites">How to see which sources ChatGPT cites</a> · <a href="/why-chatgpt-recommends-competitors">Why ChatGPT recommends your competitors</a> · <a href="/which-sites-ai-cites-in-your-niche">Which sites AI Overviews and ChatGPT cite</a></p>
+        <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/free-ai-visibility-checker">Free AI visibility checker</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a> · <a href="/how-to-see-which-sources-chatgpt-cites">How to see which sources ChatGPT cites</a> · <a href="/why-chatgpt-recommends-competitors">Why ChatGPT recommends your competitors</a> · <a href="/which-sites-ai-cites-in-your-niche">Which sites AI Overviews and ChatGPT cite</a> · <a href="/what-chatgpt-business-dashboard-wont-tell-you">What ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
       </section>
       <section>
         <h2>FAQ</h2>

@@ -56,7 +56,7 @@ export default function Page() {
           <li><a href={citations}>AI Citation Tracker</a> — ChatGPT citations, Perplexity and Google AI Overviews / AI Mode, structured export</li>
           <li><a href={tracker}>AI Visibility Tracker</a> — whether the answer names your brand (LLM brand monitoring)</li>
         </ul>
-        <p>Related: <a href="/which-sites-ai-cites-in-your-niche">which sites AI cites in your niche</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">tracker vs Otterly / Profound / Peec / Semrush</a></p>
+        <p>Related: <a href="/which-sites-ai-cites-in-your-niche">which sites AI cites in your niche</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">tracker vs Otterly / Profound / Peec / Semrush</a> · <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
       </section>
       <section>
         <h2>FAQ</h2>

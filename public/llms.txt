@@ -10,6 +10,7 @@
 - [Free AI visibility checker](https://aivisibilitychecker.app/free-ai-visibility-checker): landing page for the no-signup ChatGPT snapshot. Three checks per day, no account, plus FAQ.
 - [AI Visibility Tracker vs Otterly vs Profound vs Peec AI vs Semrush](https://aivisibilitychecker.app/ai-visibility-tracker-vs-otterly-profound-peec-semrush): honest comparison of prices, engines and who each fits. Prices checked November 9, 2026.
 - [How to see which sources ChatGPT cites for a keyword](https://aivisibilitychecker.app/how-to-see-which-sources-chatgpt-cites): a practical method to see which URLs and domains ChatGPT cites, manually or with AI Citation Tracker.
+- [What ChatGPT's new business dashboard won't tell you](https://aivisibilitychecker.app/what-chatgpt-business-dashboard-wont-tell-you): reported OpenAI Business Hub analytics show mention/click counts only; no prompts or competitor ranking. How free checker + Visibility/Citation trackers fill that gap.
 
 ## Paid tools by the same author (on Apify)
 - [AI Visibility Tracker](https://apify.com/crunchy_galaxy_qcr/ai-visibility-tracker): tracks brand mentions in ChatGPT, Gemini and Perplexity answers for your own prompts, pay per result at $0.04 per answer, no subscription.

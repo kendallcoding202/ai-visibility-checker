@@ -34,7 +34,7 @@ export default function Page() {
       <section><h2>Where the tools help</h2>
         <p>For a first look, <a href="/">run the free checker</a>. It does steps 2 and 3 for three questions in about 30 seconds.</p>
         <p>Once you are making changes and want to know if they work, the <a href={TRACKER('article-competitors')}>AI Visibility Tracker</a> repeats your exact prompts on a schedule and shows how often you are mentioned, your rank against competitors and the sources each engine cited.</p>
-        <p>Related: <a href="/how-to-check-chatgpt-brand-mentions">how to check if ChatGPT recommends your brand</a> · <a href="/which-sites-ai-cites-in-your-niche">which sites Google AI Overviews and ChatGPT cite in your niche</a> · <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a></p></section>
+        <p>Related: <a href="/how-to-check-chatgpt-brand-mentions">how to check if ChatGPT recommends your brand</a> · <a href="/which-sites-ai-cites-in-your-niche">which sites Google AI Overviews and ChatGPT cite in your niche</a> · <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a> · <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p></section>
       <section><h2>FAQ</h2>{faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}</section>
     </main>
     <Footer />

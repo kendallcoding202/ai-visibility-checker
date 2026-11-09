@@ -35,7 +35,7 @@ export default function Page() {
       <section><h2>Where the tools help</h2>
         <p>Steps 2 to 5 are the slow part. The <a href={cit}>AI Citation Tracker</a> on Apify does them for your full question list and hands back the cited URLs, domain share and the questions where competitors are cited and you are not.</p>
         <p>If you care more about whether your brand is named in the answer than about the sources, use the <a href="/">free checker</a> for a quick look or the <a href={TRACKER('article-citations')}>AI Visibility Tracker</a> to follow it over time.</p>
-        <p>Related: <a href="/why-chatgpt-recommends-competitors">why ChatGPT recommends your competitors</a> · <a href="/best-ai-visibility-tools">best AI visibility tools compared</a> · <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a> · <a href="/free-ai-visibility-checker">free AI visibility checker</a></p></section>
+        <p>Related: <a href="/why-chatgpt-recommends-competitors">why ChatGPT recommends your competitors</a> · <a href="/best-ai-visibility-tools">best AI visibility tools compared</a> · <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a> · <a href="/free-ai-visibility-checker">free AI visibility checker</a> · <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p></section>
       <section><h2>FAQ</h2>{faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}</section>
     </main>
     <Footer />

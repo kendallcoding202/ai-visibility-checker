@@ -50,6 +50,7 @@ export default function Page() {
         <h2>FAQ</h2>
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
+      <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
       <p><a className="cta" href="/">Run a free check now</a></p>
     </main>
     <Footer />
