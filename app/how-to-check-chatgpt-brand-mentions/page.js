@@ -30,7 +30,7 @@ export default function Page() {
     <main className="wrap">
       <section><ol>{steps.map(([n, t]) => <li key={n}><strong>{n}.</strong> {t}</li>)}</ol>
         <p><a className="cta" href="/">Run a free check</a> &nbsp; <a href={TRACKER('howto')}>Track weekly on Apify →</a></p></section>
-      <section><h2>Want to compare tools?</h2><p>See the <a href="/best-ai-visibility-tools">best tools to check whether ChatGPT recommends your brand</a>, with sourced prices. If competitors keep showing up instead of you, read <a href="/why-chatgpt-recommends-competitors">why ChatGPT recommends your competitors</a>, or map <a href="/which-sites-ai-cites-in-your-niche">which sites AI cites in your niche</a>.</p></section>
+      <section><h2>Want to compare tools?</h2><p>See the <a href="/best-ai-visibility-tools">best tools to check whether ChatGPT recommends your brand</a>, with sourced prices, or the November 9, 2026 check on <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a>. The <a href="/free-ai-visibility-checker">free AI visibility checker</a> page explains the snapshot. If competitors keep showing up instead of you, read <a href="/why-chatgpt-recommends-competitors">why ChatGPT recommends your competitors</a>, map <a href="/which-sites-ai-cites-in-your-niche">which sites AI cites in your niche</a>, or follow <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a>.</p></section>
       <section><h2>FAQ</h2>{faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}</section>
     </main>
     <Footer />
