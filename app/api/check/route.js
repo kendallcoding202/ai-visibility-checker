@@ -1,7 +1,7 @@
-import { createHash } from 'node:crypto';
 import { askWithSearch, json, costOf } from '../../../lib/openai.js';
 import { findBrandMention, brandsMatch, host, EXTRACTION_SCHEMA, extractionPrompt, buildPrompts } from '../../../lib/analyze.js';
 import { getJSON, setJSON } from '../../../lib/store.js';
+import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -22,12 +22,21 @@ const monthBudget = (month) => (month === LAUNCH_MONTH ? Math.max(LAUNCH_BUDGET,
 const EST_COST = +(process.env.EST_COST_PER_CHECK ?? 0.12); // reserve per check before calling OpenAI
 const CACHE_MS = 24 * 3600 * 1000;
 
-const sha = (s) => createHash('sha256').update(s + (process.env.HASH_SALT ?? 'aivc')).digest('hex').slice(0, 24);
 const bad = (msg, status = 400) => Response.json({ error: msg }, { status });
 const clean = (s, max) => String(s ?? '').replace(/[\u0000-\u001f<>{}\[\]`]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 const VALID = /^[\p{L}\p{N} .,&'+\-/()!]+$/u;
 
 export async function POST(req) {
+  try {
+    assertHashSalt();
+  } catch (e) {
+    if (e instanceof HashSaltError) {
+      console.error('HASH_SALT is required');
+      return bad('The checker is temporarily unavailable. Please try again later.', 503);
+    }
+    throw e;
+  }
+
   // Basic bot protection: same-origin, JSON only, honeypot, minimum fill time.
   const origin = req.headers.get('origin');
   const hostHdr = req.headers.get('host');
@@ -47,13 +56,13 @@ export async function POST(req) {
   if ((process.env.OPENAI_API_KEY ?? '').length < 20) return bad('The checker is warming up. Please try again later.', 503);
   const day = new Date().toISOString().slice(0, 10);
   const month = day.slice(0, 7);
-  const shareId = sha(`${brand}|${category}|${competitors.join(',')}`.toLowerCase());
+  const shareId = hashKey(`${brand}|${category}|${competitors.join(',')}`.toLowerCase());
   const cacheKey = `cache/${shareId}`;
   const cached = await getJSON(cacheKey);
   if (cached && Date.now() - cached.at < CACHE_MS) return Response.json({ ...cached.result, id: shareId, cached: true });
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
-  const ipKey = `ip/${day}/${sha(ip)}`;
+  const ipKey = `ip/${day}/${hashKey(ip)}`;
   const [ipCount, dayStats, monthStats] = await Promise.all([getJSON(ipKey), getJSON(`day/${day}`), getJSON(`month/${month}`)]);
   const tomorrow = 'Free checks are used up for today. Please come back tomorrow!';
   if ((ipCount?.n ?? 0) >= PER_IP_DAILY) return bad(`You've used your ${PER_IP_DAILY} free checks for today. Come back tomorrow!`, 429);

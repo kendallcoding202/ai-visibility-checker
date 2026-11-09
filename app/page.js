@@ -5,11 +5,34 @@ import { Ld, orgLd, appLd } from './site.js';
 const faq = [
   ['What is AI search visibility?', 'AI search visibility is how often AI assistants such as ChatGPT, Gemini and Perplexity mention or recommend your brand when people ask questions in your category. It is the AI-era version of ranking on Google.'],
   ['What is GEO (generative engine optimization)?', 'GEO, also called AEO (answer engine optimization) or LLM SEO, is the practice of improving how often and how favorably AI answers mention your brand, for example by earning mentions on the sources AI cites, publishing clear comparison content and keeping your product facts consistent across the web.'],
-  ['How does this free checker work?', 'We ask ChatGPT (an OpenAI model with live web search) three buyer-style questions about your category, then detect whether your brand is mentioned, where it ranks, which competitors appear and which websites are cited.'],
-  ['Is it really free?', 'Yes. You get 3 free checks per day. Results are cached for 24 hours. For ongoing tracking across ChatGPT, Gemini and Perplexity with your own prompts, use the full AI Visibility Tracker.'],
+  ['How does this free checker work?', 'We ask ChatGPT (an OpenAI model with live web search) three buyer-style questions about your category, then detect whether your brand is mentioned, where it ranks, which competitors appear and which websites are cited. For a manual method, read how to see which sources ChatGPT cites.'],
+  ['Is it really free?', 'Yes. You get 3 free checks per day. Results are cached for 24 hours. For ongoing tracking across ChatGPT, Gemini and Perplexity with your own prompts, use the full AI Visibility Tracker. The free AI visibility checker page explains what each check includes. For sourced prices, see AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush.'],
   ['Why do results change between checks?', 'AI answers are non-deterministic and depend on wording, location and fresh web results. That is why one snapshot is a starting point, and weekly tracking shows the real trend.'],
   ['Do you store my data?', 'We store the anonymous result (brand, category and the AI answers) so repeat checks are instant and share links work, plus a hashed counter for rate limiting. No accounts, no email, no personal data.'],
 ];
+
+const faqLinks = [
+  ['how to see which sources ChatGPT cites', '/how-to-see-which-sources-chatgpt-cites'],
+  ['free AI visibility checker page', '/free-ai-visibility-checker'],
+  ['AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush', '/ai-visibility-tracker-vs-otterly-profound-peec-semrush'],
+];
+function LinkedText({ text }) {
+  const out = [];
+  let rest = text;
+  let k = 0;
+  while (rest) {
+    let hit = null;
+    for (const [phrase, href] of faqLinks) {
+      const i = rest.indexOf(phrase);
+      if (i !== -1 && (!hit || i < hit.i)) hit = { i, phrase, href };
+    }
+    if (!hit) { out.push(rest); break; }
+    if (hit.i) out.push(rest.slice(0, hit.i));
+    out.push(<a key={k++} href={hit.href}>{hit.phrase}</a>);
+    rest = rest.slice(hit.i + hit.phrase.length);
+  }
+  return out;
+}
 
 export default function Page() {
   const ld = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) };
@@ -27,11 +50,11 @@ export default function Page() {
       </section>
       <section>
         <h2>Compare and learn</h2>
-        <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a> · <a href="/why-chatgpt-recommends-competitors">Why ChatGPT recommends your competitors</a> · <a href="/which-sites-ai-cites-in-your-niche">Which sites AI Overviews and ChatGPT cite</a> · <a href="/what-chatgpt-business-dashboard-wont-tell-you">What ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
+        <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/free-ai-visibility-checker">Free AI visibility checker</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a> · <a href="/how-to-see-which-sources-chatgpt-cites">How to see which sources ChatGPT cites</a> · <a href="/why-chatgpt-recommends-competitors">Why ChatGPT recommends your competitors</a> · <a href="/which-sites-ai-cites-in-your-niche">Which sites AI Overviews and ChatGPT cite</a> · <a href="/what-chatgpt-business-dashboard-wont-tell-you">What ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
       </section>
       <section>
         <h2>FAQ</h2>
-        {faq.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}
+        {faq.map(([q, a]) => <details key={q}><summary>{q}</summary><p><LinkedText text={a} /></p></details>)}
       </section>
     </main>
     <footer><div className="wrap">
