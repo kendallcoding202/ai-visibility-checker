@@ -1,7 +1,8 @@
 'use client';
 import { SITE } from './site.js';
 import { useState } from 'react';
-import { TRACKER } from './links.js';
+import { TRACKER, CITATION } from './links.js';
+import { trackerInput, citationInput, runCost, VIS_PRICE, CIT_PRICE } from '../lib/apifyInput.js';
 
 function useCopy() {
   const [done, setDone] = useState(false);
@@ -20,27 +21,53 @@ export function ShareLink({ id, brand, score }) {
   </div>);
 }
 
-// Apify has no URL parameter for prefilling Actor input, so we hand over a ready JSON input to paste.
-export function trackerInput(d) {
-  const comps = [...new Set([...(d.competitorHits ?? []).map((c) => c.name), ...(d.topBrands ?? []).map((b) => b.name)])].slice(0, 5);
-  return {
-    brand: d.brand, competitors: comps, prompts: d.rows.map((r) => r.prompt), category: d.category,
-    engines: ['chatgpt-search', 'gemini-knowledge', 'perplexity-search'], samplesPerPrompt: 1,
-    trackingName: `${d.brand}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-weekly',
-  };
+// Copy during the click, before the new tab takes focus. The async clipboard API can hang or
+// reject once focus moves; the textarea path finishes in the same turn, and a blocked clipboard
+// falls back to a prompt that shows the JSON.
+function copyNow(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    if (ok) return true;
+  } catch { /* prompt below */ }
+  window.prompt('Copy this:', text);
+  return false;
+}
+
+// Apify Store has no URL parameter for per-visitor Actor input, so one click copies the ready JSON
+// and opens the Actor in a new tab. The href is a fixed apify.com URL; user input never enters it.
+function CopyAndOpen({ json, href, children }) {
+  const [done, setDone] = useState(false);
+  return (<a className="cta" target="_blank" rel="noopener" href={href}
+    onClick={() => { copyNow(json); setDone(true); setTimeout(() => setDone(false), 2500); }}>{done ? 'Input copied ✓ Apify opened in a new tab' : children}</a>);
 }
 
 export function TrackerCTA({ d }) {
-  const [done, copy] = useCopy();
   const input = trackerInput(d);
+  const json = JSON.stringify(input, null, 2);
   const answers = input.prompts.length * input.engines.length;
   return (<div className="ctabox" id="track">
     <h3 style={{ marginTop: 0 }}>Track this weekly on Apify</h3>
-    <p>Run these same {input.prompts.length} questions for {d.brand} vs {input.competitors.slice(0, 3).join(', ') || 'your competitors'} on ChatGPT, Gemini &amp; Perplexity every week, with share of voice, sentiment, gap prompts and a shareable report. {answers} answers = ${(answers * 0.04).toFixed(2)} per run with the prefilled input, no API keys, no subscription.</p>
+    <p>Run these same {input.prompts.length} questions for {d.brand} vs {input.competitors.slice(0, 3).join(', ') || 'your competitors'} on ChatGPT, Gemini &amp; Perplexity every week, with share of voice, sentiment, gap prompts and a shareable report. {answers} answers = ${runCost(input, VIS_PRICE).toFixed(2)} per run with the prefilled input, no API keys, no subscription.</p>
     <div className="share">
-      <button type="button" onClick={() => copy(JSON.stringify(input, null, 2))}>{done ? 'Input copied ✓' : '1. Copy your tracker input'}</button>
-      <a className="cta" target="_blank" rel="noopener" href={TRACKER('result-cta')}>2. Open the tracker on Apify →</a>
+      <CopyAndOpen json={json} href={TRACKER('result-cta')}>Copy my input &amp; open the tracker →</CopyAndOpen>
     </div>
-    <ol className="steps"><li>Click <b>Copy your tracker input</b>.</li><li>On Apify, click <b>Try for free</b>, then switch the input from <b>Manual</b> to <b>JSON</b> and paste.</li><li>Click <b>Start</b>. Add a weekly schedule to keep tracking.</li></ol>
+    <ol className="steps"><li>Click <b>Copy my input &amp; open the tracker</b>. Your input is now on the clipboard.</li><li>On Apify, click <b>Try for free</b>, then switch the input from <b>Manual</b> to <b>JSON</b> and paste.</li><li>Click <b>Start</b>. Add a weekly schedule to keep tracking.</li></ol>
   </div>);
+}
+
+export function CitationCTA({ d }) {
+  const input = citationInput(d);
+  if (!input.prompts.length) return null;
+  const answers = input.prompts.length * input.engines.length;
+  return (<p className="muted">See every URL ChatGPT and Perplexity cite for these {input.prompts.length} questions, and whether your domain is one of them:{' '}
+    <CopyAndOpen json={JSON.stringify(input, null, 2)} href={CITATION('result-sources')}>Copy input &amp; open the AI Citation Tracker →</CopyAndOpen>{' '}
+    {answers} answers = ${runCost(input, CIT_PRICE).toFixed(2)}. Add your domain to <code>yourDomains</code> after pasting.</p>);
 }

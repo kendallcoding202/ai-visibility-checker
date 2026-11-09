@@ -1,5 +1,5 @@
 import { TRACKER } from './links.js';
-import { TrackerCTA, ShareLink } from './ResultClient.js';
+import { TrackerCTA, CitationCTA, ShareLink } from './ResultClient.js';
 
 // Shared result view, used on the homepage (after a check) and on /r/[id] share pages.
 export default function Result({ d, shared = false }) {
@@ -16,13 +16,14 @@ export default function Result({ d, shared = false }) {
     <h3>Engines</h3>
     <div className="engines">
       <div className="engine"><strong>ChatGPT (web search)</strong><span className={`pill ${d.mentionedIn ? 'yes' : 'no'}`}>{d.mentionedIn}/{d.total} answers</span></div>
-      <a className="engine locked" href={TRACKER('gemini-locked')}><strong>🔒 Gemini</strong><span className="muted">ChatGPT and Gemini often disagree (Gemini ranks Notion #1 for docs tools, ChatGPT picks Confluence). See Gemini's answer in the tracker →</span></a>
+      <a className="engine locked" href={TRACKER('gemini-locked')} target="_blank" rel="noopener"><strong>🔒 Gemini</strong><span className="muted">ChatGPT and Gemini often disagree (Gemini ranks Notion #1 for docs tools, ChatGPT picks Confluence). See Gemini's answer in the tracker →</span></a>
     </div>
     <div className="grid">
       <div><h3>Brands ChatGPT recommended</h3>{d.topBrands.length ? d.topBrands.map((b) => <span key={b.name} className="pill n">{b.name} · {b.n}/{d.total}</span>) : <span className="muted">None found</span>}
         {d.competitorHits.length > 0 && <><h3>Your competitors</h3>{d.competitorHits.map((c) => <span key={c.name} className={`pill ${c.mentionedIn ? 'yes' : 'no'}`}>{c.name}: {c.mentionedIn}/{d.total}</span>)}</>}</div>
       <div><h3>Top cited sources</h3>{d.topSources.length ? <ol>{d.topSources.map((s) => <li key={s.domain}>{s.domain} <span className="muted">({s.n})</span></li>)}</ol> : <span className="muted">No sources cited</span>}
-        <p className="muted">Getting featured on these sites is the fastest way to show up in AI answers.</p></div>
+        <p className="muted">Getting featured on these sites is the fastest way to show up in AI answers.</p>
+        <CitationCTA d={d} /></div>
     </div>
     <h3>The questions we asked</h3>
     {d.rows.map((r) => <div className="q" key={r.prompt}><strong>{r.prompt}</strong><br />
