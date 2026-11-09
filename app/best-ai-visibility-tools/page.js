@@ -46,9 +46,34 @@ export default function Page() {
         {tools.map((t) => <div key={t.name}><h3>{t.name}</h3><p><strong>{t.price}.</strong> {t.best}. {t.note} <a href={t.src}>Source</a>.</p></div>)}
       </section>
       <section>
+        <h2>Cost per prompt, said plainly</h2>
+        <p><strong>AI Visibility Tracker</strong> charges <strong>$0.04 per AI answer</strong> (FREE tier on Apify, checked 2026-11-09). One answer = one prompt on one engine, one sample. Failed answers are free. You do not need your own OpenAI / Gemini / Perplexity key.</p>
+        <div style={{ overflowX: 'auto' }}><table className="cmp">
+          <thead><tr><th>You want…</th><th>Rough Visibility cost</th></tr></thead>
+          <tbody>
+            <tr><td>15 prompts × 1 engine, once</td><td><strong>$0.60</strong></td></tr>
+            <tr><td>15 prompts × 2 engines, once</td><td><strong>$1.20</strong></td></tr>
+            <tr><td>Same 15×2 check, weekly for a month</td><td><strong>~$4.80</strong></td></tr>
+            <tr><td>Same 15×2 check, daily for a month</td><td><strong>~$36</strong></td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>AI Citation Tracker</strong> is <strong>$0.05 per answer</strong> the same way (and $0 when Google shows no AI Overview / AI Mode).</p>
+        <p>For comparison, entry SaaS plans (vendor pages 2026-11-09; also listed on <a href="https://geocitely.com/pricing">geocitely.com/pricing</a>):</p>
+        <div style={{ overflowX: 'auto' }}><table className="cmp">
+          <thead><tr><th>Tool</th><th>Entry plan</th><th>Simple $/tracked prompt / month</th></tr></thead>
+          <tbody>
+            <tr><td>Otterly.AI Lite</td><td>$29 / 15 prompts, daily, 4 engines</td><td><strong>$1.93</strong></td></tr>
+            <tr><td>Peec AI Starter</td><td>$95 / 50 prompts, daily, 3 models</td><td><strong>$1.90</strong></td></tr>
+          </tbody>
+        </table></div>
+        <p>Those subscriptions include a dashboard and daily refreshes. Matching Otterly’s daily volume on our actor (15 prompts × 4 engines × 30 days = 1,800 answers × $0.04) would be about <strong>$72/mo</strong> in PPE — so for <em>daily</em> multi-engine tracking a Lite SaaS seat can be cheaper. For <em>weekly</em> audits, spot checks, agencies exporting JSON/CSV, or one-off research, pay-per-answer is usually cheaper and has no seat.</p>
+        <p>Free snapshot: <a href="/">aivisibilitychecker.app</a> — 3 ChatGPT checks/day, $0.</p>
+      </section>
+      <section>
         <h2>FAQ</h2>
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
+      <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
       <p><a className="cta" href="/">Run a free check now</a></p>
     </main>
     <Footer />

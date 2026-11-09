@@ -7,6 +7,7 @@
 - [How to check if ChatGPT recommends your brand](https://aivisibilitychecker.app/how-to-check-chatgpt-brand-mentions): step-by-step guide.
 - [Why ChatGPT recommends your competitors](https://aivisibilitychecker.app/why-chatgpt-recommends-competitors): how to find the pages behind ChatGPT's recommendations.
 - [Which sites Google AI Overviews and ChatGPT cite in your niche](https://aivisibilitychecker.app/which-sites-ai-cites-in-your-niche): a manual method for mapping AI citations.
+- [What ChatGPT's new business dashboard won't tell you](https://aivisibilitychecker.app/what-chatgpt-business-dashboard-wont-tell-you): reported OpenAI Business Hub analytics show mention/click counts only; no prompts or competitor ranking. How free checker + Visibility/Citation trackers fill that gap.
 
 ## Paid tools by the same author (on Apify)
 - [AI Visibility Tracker](https://apify.com/crunchy_galaxy_qcr/ai-visibility-tracker): tracks brand mentions in ChatGPT, Gemini and Perplexity answers for your own prompts, pay per result at $0.04 per answer, no subscription.
