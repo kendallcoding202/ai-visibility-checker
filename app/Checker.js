@@ -1,6 +1,8 @@
 'use client';
 import { useRef, useState } from 'react';
+import { track } from '@vercel/analytics';
 import Result from './Result.js';
+import { EVENTS, categoryBucket, trackEvent } from '../lib/analyticsEvents.js';
 
 export default function Checker() {
   const start = useRef(Date.now());
@@ -8,14 +10,23 @@ export default function Checker() {
   async function submit(e) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
+    const entries = Object.fromEntries(f);
+    trackEvent(track, EVENTS.CHECK_SUBMITTED, {
+      has_competitors: String(entries.competitors ?? '').split(',').map((s) => s.trim()).filter(Boolean).length > 0,
+      category_bucket: categoryBucket(entries.category),
+      engine: 'chatgpt',
+    });
     setState({ loading: true, error: null, data: null });
     try {
       const r = await fetch('/api/check', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...Object.fromEntries(f), elapsed: Date.now() - start.current }) });
+        body: JSON.stringify({ ...entries, elapsed: Date.now() - start.current }) });
       const j = await r.json();
       setState({ loading: false, error: r.ok ? null : j.error, data: r.ok ? j : null });
       if (r.ok) setTimeout(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth' }), 50);
-    } catch { setState({ loading: false, error: 'Network error. Please try again.', data: null }); }
+    } catch {
+      trackEvent(track, EVENTS.CHECK_ERROR, { type: 'network', engine: 'chatgpt' });
+      setState({ loading: false, error: 'Network error. Please try again.', data: null });
+    }
   }
   const d = state.data;
   return (<>

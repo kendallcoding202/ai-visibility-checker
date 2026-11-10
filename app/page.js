@@ -1,6 +1,8 @@
 import Checker from './Checker.js';
 import { TRACKER, ADS, CITATIONS } from './links.js';
 import { Ld, orgLd, appLd } from './site.js';
+import TrackLink from './TrackLink.js';
+import { EVENTS } from '../lib/analyticsEvents.js';
 
 const faq = [
   ['What is AI search visibility?', 'AI search visibility is how often AI assistants such as ChatGPT, Gemini and Perplexity mention or recommend your brand when people ask questions in your category. It is the AI-era version of ranking on Google.'],
@@ -8,7 +10,7 @@ const faq = [
   ['How does this free checker work?', 'We ask ChatGPT (an OpenAI model with live web search) three buyer-style questions about your category, then detect whether your brand is mentioned, where it ranks, which competitors appear and which websites are cited. For a manual method, read how to see which sources ChatGPT cites.'],
   ['Is it really free?', 'Yes. You get 3 free checks per day. Results are cached for 24 hours. For ongoing tracking across ChatGPT, Gemini and Perplexity with your own prompts, use the full AI Visibility Tracker. The free AI visibility checker page explains what each check includes. For sourced prices, see AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush.'],
   ['Why do results change between checks?', 'AI answers are non-deterministic and depend on wording, location and fresh web results. That is why one snapshot is a starting point, and weekly tracking shows the real trend.'],
-  ['Do you store my data?', 'We store the anonymous result (brand, category and the AI answers) so repeat checks are instant and share links work, plus a hashed counter for rate limiting. No accounts, no email, no personal data.'],
+  ['Do you store my data?', 'We store the anonymous result (brand, category and the AI answers) so repeat checks are instant and share links work, plus a hashed counter for rate limiting. No accounts, no email, no personal data. We also use Vercel Web Analytics for aggregate page views and actions; event properties do not include your brand name, email, IP, or the text you type.'],
 ];
 
 const faqLinks = [
@@ -46,7 +48,7 @@ export default function Page() {
       <section>
         <h2>Why AI search visibility matters</h2>
         <p>More buyers now ask ChatGPT, Gemini and Perplexity “what's the best tool for…” instead of searching Google. If AI assistants don't mention your brand, you're invisible at the exact moment a buyer is choosing. <strong>Generative engine optimization (GEO)</strong>, also called AEO or LLM SEO, is how brands win those AI answers.</p>
-        <p>This free tool gives you a quick snapshot of your <strong>ChatGPT brand mentions</strong>: mention rate, ranking position, competitor share and the cited sources that shape AI answers. To measure share of voice over time, use the <a href={TRACKER('explainer')}>AI Visibility Tracker</a>.</p>
+        <p>This free tool gives you a quick snapshot of your <strong>ChatGPT brand mentions</strong>: mention rate, ranking position, competitor share and the cited sources that shape AI answers. To measure share of voice over time, use the <TrackLink href={TRACKER('explainer')} event={EVENTS.TRACKER_CTA_CLICK} location="explainer">AI Visibility Tracker</TrackLink>.</p>
       </section>
       <section>
         <h2>Compare and learn</h2>
@@ -59,7 +61,8 @@ export default function Page() {
     </main>
     <footer><div className="wrap">
       <p>Built by Kendall Sorenson.</p>
-      <p>Tools: <a href={TRACKER('footer')}>AI Visibility Tracker (ChatGPT, Gemini &amp; Perplexity)</a> · <a href={CITATIONS}>AI Citation Tracker (which sites ChatGPT, Perplexity &amp; Google AI Overviews cite)</a> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
+      <p>Tools: <TrackLink href={TRACKER('footer')} event={EVENTS.TRACKER_CTA_CLICK} location="footer">AI Visibility Tracker (ChatGPT, Gemini &amp; Perplexity)</TrackLink> · <TrackLink href={CITATIONS} event={EVENTS.CITATION_CTA_CLICK} location="footer">AI Citation Tracker (which sites ChatGPT, Perplexity &amp; Google AI Overviews cite)</TrackLink> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
+      <p className="muted">We use Vercel Web Analytics for aggregate page views and actions. Event properties do not include your brand name, email, IP, or the text you type.</p>
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>
       <p className="fazier"><a href="https://fazier.com" target="_blank" rel="noopener"><img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light" width={160} alt="Fazier badge" /></a><span className="muted"> <a href="https://twelve.tools">Listed on Twelve.tools</a> · <a href="https://dang.ai">Featured on Dang.ai</a></span></p>
     </div></footer>
