@@ -60,7 +60,7 @@ export default function Page() {
       <section>
         <h2>Why AI search visibility matters</h2>
         <p>More buyers now ask ChatGPT, Gemini and Perplexity “what's the best tool for…” instead of searching Google. If AI assistants don't mention your brand, you're invisible at the exact moment a buyer is choosing. <strong>Generative engine optimization (GEO)</strong>, also called AEO or LLM SEO, is how brands win those AI answers.</p>
-        <p>This free tool gives you a quick snapshot of your <strong>ChatGPT brand mentions</strong>: mention rate, ranking position, competitor share and the cited sources that shape AI answers. To measure share of voice over time, use the <TrackLink href={TRACKER('explainer')} event={EVENTS.TRACKER_CTA_CLICK} location="explainer">AI Visibility Tracker</TrackLink>.</p>
+        <p>This free tool gives you a quick snapshot of your <strong>ChatGPT brand mentions</strong>: mention rate, ranking position, competitor share and the cited sources that shape AI answers. Business Hub shows your own ChatGPT totals. This checker shows which questions, which competitors, and whether ChatGPT named you. To measure share of voice over time across ChatGPT, Gemini and Perplexity, use the <TrackLink href={TRACKER('explainer')} event={EVENTS.TRACKER_CTA_CLICK} location="explainer">AI Visibility Tracker</TrackLink>.</p>
       </section>
       <section>
         <h2>Compare and learn</h2>
