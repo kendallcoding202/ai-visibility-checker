@@ -25,7 +25,7 @@ function CostCompare() {
     <p><strong>No monthly fee. No minimum. Pay only per check.</strong> This checker is free, {freeChecker.checksPerIpPerDay} checks per IP per day. The <a href={tracker.source}>AI Visibility Tracker</a> is ${tracker.pricePerAnswer.toFixed(2)} per answer on Apify.</p>
     <ul className="costs">
       <li><strong>Otterly.AI from ${otterly.monthlyPrice}/mo</strong> ({otterly.plan}). As of {COST_AS_OF_LABEL}. <a href={otterly.source}>Source</a>.</li>
-      <li><strong>Keyword.com from ${keyword.monthlyPrice}/mo</strong> ({keyword.plan}). As of {COST_AS_OF_LABEL}. <a href={keyword.source}>Source</a>.</li>
+      <li><strong>Keyword.com from ${keyword.monthlyPrice.toFixed(2)}/mo</strong> ({keyword.plan}). As of {COST_AS_OF_LABEL}. <a href={keyword.source}>Source</a>.</li>
     </ul>
   </section>);
 }
