@@ -3,6 +3,7 @@ import { TRACKER, ADS, CITATIONS } from './links.js';
 import { Ld, orgLd, appLd } from './site.js';
 import TrackLink from './TrackLink.js';
 import { EVENTS } from '../lib/analyticsEvents.js';
+import { COST_AS_OF, freeChecker, tracker, otterlyPremium, keywordCredits, per, usd } from '../lib/costCompare.js';
 
 const faq = [
   ['What is AI search visibility?', 'AI search visibility is how often AI assistants such as ChatGPT, Gemini and Perplexity mention or recommend your brand when people ask questions in your category. It is the AI-era version of ranking on Google.'],
@@ -18,6 +19,26 @@ const faqLinks = [
   ['free AI visibility checker page', '/free-ai-visibility-checker'],
   ['AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush', '/ai-visibility-tracker-vs-otterly-profound-peec-semrush'],
 ];
+function CostCompare() {
+  const promptMonth = per(otterlyPremium.price, otterlyPremium.prompts);
+  const perCredit = per(otterlyPremium.price, otterlyPremium.credits);
+  const creditsPerPrompt = Math.round(otterlyPremium.credits / otterlyPremium.prompts);
+  const dailyFour = otterlyPremium.dailyCreditsPerEngine * otterlyPremium.enginesOnCard;
+  const chatgptChecks = per(keywordCredits.credits, keywordCredits.chatgptCreditsPerRun);
+  const perChatgpt = per(keywordCredits.price, chatgptChecks);
+  return (<section id="cost">
+    <h2>What a check costs</h2>
+    <p>As of {COST_AS_OF}. Each row says what one unit is. These are not the same unit.</p>
+    <ul className="costs">
+      <li><strong>This checker: free.</strong> {freeChecker.checksPerIpPerDay} checks per IP per day. One check asks ChatGPT {freeChecker.questionsPerCheck} questions.</li>
+      <li><strong>AI Visibility Tracker: {usd(tracker.pricePerAnswer)} per answer</strong> on the Apify Free plan, no subscription. One answer is one prompt on one engine, one sample. Failed answers are not charged. <a href={tracker.source}>Source</a>.</li>
+      <li><strong>Otterly.AI Premium: ${otterlyPremium.price} / {otterlyPremium.prompts} prompts = {usd(promptMonth)} per prompt per month.</strong> The plan includes {otterlyPremium.credits.toLocaleString('en-US')} credits. One credit is one prompt checked once on one engine (Claude counts as {otterlyPremium.claudeCredits}), so ${otterlyPremium.price} / {otterlyPremium.credits.toLocaleString('en-US')} = {usd(perCredit)} per credit. {otterlyPremium.credits.toLocaleString('en-US')} / {otterlyPremium.prompts} is about {creditsPerPrompt} credits per prompt, in line with {otterlyPremium.enginesOnCard} engines checked daily at {otterlyPremium.dailyCreditsPerEngine} credits each ({dailyFour}). <a href={otterlyPremium.source}>Source</a>.</li>
+      <li><strong>Keyword.com: ${keywordCredits.price} / {keywordCredits.credits.toLocaleString('en-US')} credits per month.</strong> A ChatGPT chat-app run costs {keywordCredits.chatgptCreditsPerRun} credits, so this tier covers {keywordCredits.credits.toLocaleString('en-US')} / {keywordCredits.chatgptCreditsPerRun} = {chatgptChecks.toLocaleString('en-US')} ChatGPT checks: ${keywordCredits.price} / {chatgptChecks.toLocaleString('en-US')} = {usd(perChatgpt)} per check. API-model runs cost more credits and are not in this figure. <a href={keywordCredits.source}>Source</a>.</li>
+    </ul>
+    <p className="muted">Otterly states USD and EUR prices use the same number. The Apify store header also shows from ${tracker.storeFromPrice.toFixed(2)} per {tracker.storeFromAnswers.toLocaleString('en-US')} answers on higher Apify plans; {usd(tracker.pricePerAnswer)} is the Free-plan price on the actor page.</p>
+  </section>);
+}
+
 function LinkedText({ text }) {
   const out = [];
   let rest = text;
@@ -54,6 +75,7 @@ export default function Page() {
         <h2>Compare and learn</h2>
         <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/free-ai-visibility-checker">Free AI visibility checker</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a> · <a href="/how-to-see-which-sources-chatgpt-cites">How to see which sources ChatGPT cites</a> · <a href="/why-chatgpt-recommends-competitors">Why ChatGPT recommends your competitors</a> · <a href="/which-sites-ai-cites-in-your-niche">Which sites AI Overviews and ChatGPT cite</a> · <a href="/what-chatgpt-business-dashboard-wont-tell-you">What ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
       </section>
+      <CostCompare />
       <section>
         <h2>FAQ</h2>
         {faq.map(([q, a]) => <details key={q}><summary>{q}</summary><p><LinkedText text={a} /></p></details>)}

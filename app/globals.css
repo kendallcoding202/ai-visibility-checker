@@ -27,3 +27,8 @@ table.cmp{width:100%;border-collapse:collapse;background:#fff;font-size:14px}tab
 @media(max-width:640px){.engines{grid-template-columns:1fr}}
 .fazier{margin:8px 0 0}.fazier{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.fazier img{display:block;height:auto}
 .result p.weekly{background:#eef2ff;border-radius:10px;padding:10px 14px;color:#141a2e}
+.costs{padding-left:18px}.costs li{margin:8px 0}
+.fix{border-top:1px solid #eef1f8;margin-top:8px}
+.fix ul,.fix ol{margin:6px 0;padding-left:18px}
+.fix a,.costs a{overflow-wrap:anywhere}
+.fix .actions{color:#4a5370;font-size:14px}

@@ -1,5 +1,6 @@
 import { askWithSearch, json, costOf } from '../../../lib/openai.js';
 import { findBrandMention, brandsMatch, host, EXTRACTION_SCHEMA, extractionPrompt, buildPrompts } from '../../../lib/analyze.js';
+import { packCitations } from '../../../lib/fixList.js';
 import { getJSON, setJSON } from '../../../lib/store.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
 import { track } from '@vercel/analytics/server';
@@ -101,6 +102,7 @@ export async function POST(req) {
         prompt: prompts[i], mentioned, rank: idx >= 0 ? idx + 1 : (mentioned ? brands.length + 1 : null),
         brands: brands.slice(0, 10), sentiment: ex.data.answers[i]?.sentiment ?? 'not_mentioned',
         excerpt: a.text.slice(0, 600),
+        citations: packCitations(a.citations),
         cited: a.citations.some((c) => (host(c.url) ?? '').includes(brandLc.replace(/\s+/g, ''))),
       };
     });
