@@ -2,6 +2,9 @@ import { TRACKER } from './links.js';
 import { TrackerCTA, CitationCTA, ShareLink, ResultViewTracker } from './ResultClient.js';
 import TrackLink from './TrackLink.js';
 import { EVENTS } from '../lib/analyticsEvents.js';
+import { buildFixList, shortUrl } from '../lib/fixList.js';
+
+const KIND_LABEL = { review: 'Review site', directory: 'Directory', listicle: 'Listicle' };
 
 // Shared result view, used on the homepage (after a check) and on /r/[id] share pages.
 export default function Result({ d, shared = false }) {
@@ -33,7 +36,31 @@ export default function Result({ d, shared = false }) {
       <span className={`pill ${r.mentioned ? 'yes' : 'no'}`}>{r.mentioned ? `Mentioned${r.rank ? `, #${r.rank}` : ''}` : 'Not mentioned'}</span>
       {r.mentioned && <span className="pill n">sentiment: {r.sentiment}</span>}
       <p>Top picks: {r.brands.slice(0, 6).join(', ') || '–'}</p></div>)}
+    <FixList d={d} />
     <p className="muted">Checked {new Date(d.checkedAt).toUTCString()}{shared ? ' (shared snapshot)' : d.cached ? ' (cached result, refreshed every 24h)' : ''}. One snapshot of ChatGPT; answers vary by run, wording and location.</p>
     <TrackerCTA d={d} />
+  </div>);
+}
+
+function FixList({ d }) {
+  const fix = buildFixList(d);
+  if (!fix) return null;
+  return (<div className="fix">
+    <h3>How to get into answers that skipped {d.brand}</h3>
+    <p className="muted">Pages ChatGPT cited on the questions that did not name {d.brand}.</p>
+    {fix.questions.map((q) => <div className="q" key={q.prompt}>
+      <strong>{q.prompt}</strong>
+      {q.stored ? (q.pages.length ? <ul>{q.pages.map((p) => <li key={p.url}><a href={p.url} target="_blank" rel="noopener noreferrer">{p.title || shortUrl(p.url)}</a></li>)}</ul>
+        : <p>ChatGPT didn&apos;t cite any pages for this question.</p>)
+        : <p className="muted">This snapshot doesn&apos;t include the cited pages.</p>}
+    </div>)}
+    {fix.questions.some((q) => q.stored) && <>
+      <h3>Sites worth getting listed on</h3>
+      {fix.sites.length ? <ol>{fix.sites.map((s) => <li key={s.domain}>
+        <strong>{s.domain}</strong> <span className="muted">cited {s.n} {s.n === 1 ? 'time' : 'times'}</span>
+        {s.kind ? <span className="pill n">{KIND_LABEL[s.kind]}</span> : null}
+        <ul className="actions">{s.actions.map((a) => <li key={a}>{a}</li>)}</ul>
+      </li>)}</ol> : <p className="muted">No cited sites on those questions.</p>}
+    </>}
   </div>);
 }
