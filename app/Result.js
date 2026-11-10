@@ -1,9 +1,12 @@
 import { TRACKER } from './links.js';
-import { TrackerCTA, CitationCTA, ShareLink } from './ResultClient.js';
+import { TrackerCTA, CitationCTA, ShareLink, ResultViewTracker } from './ResultClient.js';
+import TrackLink from './TrackLink.js';
+import { EVENTS } from '../lib/analyticsEvents.js';
 
 // Shared result view, used on the homepage (after a check) and on /r/[id] share pages.
 export default function Result({ d, shared = false }) {
   return (<div className="result" id="result">
+    <ResultViewTracker d={d} shared={shared} />
     <div className="score">
       <div><div className="big">{d.mentionedIn}/{d.total}</div><div className="muted">answers mention {d.brand}</div></div>
       <div><div className="big">{d.avgRank ? `#${d.avgRank}` : '–'}</div><div className="muted">average position when mentioned</div></div>
@@ -11,12 +14,12 @@ export default function Result({ d, shared = false }) {
     </div>
     <p>{d.mentionedIn === 0 ? `ChatGPT didn't mention ${d.brand} for "${d.category}" questions. Buyers asking AI are seeing your competitors instead.`
       : d.mentionedIn < d.total ? `${d.brand} shows up in some answers, but not consistently.` : `${d.brand} shows up in every answer. Nice! Keep tracking it, since AI answers change weekly.`}</p>
-    <p className="weekly">This is one snapshot, and AI answers shift from week to week. To see whether {d.brand} is gaining or losing ground, <a href={TRACKER('result-top')} target="_blank" rel="noopener">track it weekly on Apify</a>. The ready-made input is <a href="#track">below</a>.</p>
-    {d.id && <ShareLink id={d.id} brand={d.brand} score={d.score} />}
+    <p className="weekly">This is one snapshot, and AI answers shift from week to week. To see whether {d.brand} is gaining or losing ground, <TrackLink href={TRACKER('result-top')} event={EVENTS.TRACKER_CTA_CLICK} location="result-top" target="_blank" rel="noopener">track it weekly on Apify</TrackLink>. The ready-made input is <a href="#track">below</a>.</p>
+    {d.id && <ShareLink id={d.id} brand={d.brand} score={d.score} source={shared ? 'share' : 'home'} />}
     <h3>Engines</h3>
     <div className="engines">
       <div className="engine"><strong>ChatGPT (web search)</strong><span className={`pill ${d.mentionedIn ? 'yes' : 'no'}`}>{d.mentionedIn}/{d.total} answers</span></div>
-      <a className="engine locked" href={TRACKER('gemini-locked')} target="_blank" rel="noopener"><strong>🔒 Gemini</strong><span className="muted">ChatGPT and Gemini often disagree (Gemini ranks Notion #1 for docs tools, ChatGPT picks Confluence). See Gemini's answer in the tracker →</span></a>
+      <TrackLink className="engine locked" href={TRACKER('gemini-locked')} event={EVENTS.TRACKER_CTA_CLICK} location="gemini-locked" target="_blank" rel="noopener"><strong>🔒 Gemini</strong><span className="muted">ChatGPT and Gemini often disagree (Gemini ranks Notion #1 for docs tools, ChatGPT picks Confluence). See Gemini's answer in the tracker →</span></TrackLink>
     </div>
     <div className="grid">
       <div><h3>Brands ChatGPT recommended</h3>{d.topBrands.length ? d.topBrands.map((b) => <span key={b.name} className="pill n">{b.name} · {b.n}/{d.total}</span>) : <span className="muted">None found</span>}

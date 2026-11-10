@@ -2,6 +2,8 @@ import { askWithSearch, json, costOf } from '../../../lib/openai.js';
 import { findBrandMention, brandsMatch, host, EXTRACTION_SCHEMA, extractionPrompt, buildPrompts } from '../../../lib/analyze.js';
 import { getJSON, setJSON } from '../../../lib/store.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
+import { track } from '@vercel/analytics/server';
+import { EVENTS, errorTypeFromStatus, limitReason, trackEvent } from '../../../lib/analyticsEvents.js';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -23,6 +25,12 @@ const EST_COST = +(process.env.EST_COST_PER_CHECK ?? 0.12); // reserve per check
 const CACHE_MS = 24 * 3600 * 1000;
 
 const bad = (msg, status = 400) => Response.json({ error: msg }, { status });
+const fail = (msg, status = 400) => {
+  const reason = limitReason(status, msg);
+  if (reason) void trackEvent(track, EVENTS.CHECK_LIMITED, { reason, engine: 'chatgpt' });
+  else void trackEvent(track, EVENTS.CHECK_ERROR, { type: errorTypeFromStatus(status), engine: 'chatgpt' });
+  return bad(msg, status);
+};
 const clean = (s, max) => String(s ?? '').replace(/[\u0000-\u001f<>{}\[\]`]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 const VALID = /^[\p{L}\p{N} .,&'+\-/()!]+$/u;
 
@@ -32,7 +40,7 @@ export async function POST(req) {
   } catch (e) {
     if (e instanceof HashSaltError) {
       console.error('HASH_SALT is required');
-      return bad('The checker is temporarily unavailable. Please try again later.', 503);
+      return fail('The checker is temporarily unavailable. Please try again later.', 503);
     }
     throw e;
   }
@@ -41,19 +49,19 @@ export async function POST(req) {
   const origin = req.headers.get('origin');
   const hostHdr = req.headers.get('host');
   let oh = null; try { oh = new URL(origin).host; } catch {}
-  if (!oh || oh !== hostHdr) return bad('Forbidden', 403);
+  if (!oh || oh !== hostHdr) return fail('Forbidden', 403);
   let body;
-  try { body = await req.json(); } catch { return bad('Bad request'); }
-  if (body.website) return bad('Forbidden', 403);
-  if (!(Number(body.elapsed) >= 1500)) return bad('Please try again.', 400);
+  try { body = await req.json(); } catch { return fail('Bad request'); }
+  if (body.website) return fail('Forbidden', 403);
+  if (!(Number(body.elapsed) >= 1500)) return fail('Please try again.', 400);
 
   const brand = clean(body.brand, 60);
   const category = clean(body.category, 80);
   const competitors = String(body.competitors ?? '').split(',').map((c) => clean(c, 60)).filter(Boolean).slice(0, 5);
-  if (brand.length < 2 || category.length < 3) return bad('Enter a brand name and a category.');
-  if (![brand, category, ...competitors].every((s) => VALID.test(s))) return bad('Please use plain letters and numbers only.');
+  if (brand.length < 2 || category.length < 3) return fail('Enter a brand name and a category.');
+  if (![brand, category, ...competitors].every((s) => VALID.test(s))) return fail('Please use plain letters and numbers only.');
 
-  if ((process.env.OPENAI_API_KEY ?? '').length < 20) return bad('The checker is warming up. Please try again later.', 503);
+  if ((process.env.OPENAI_API_KEY ?? '').length < 20) return fail('The checker is warming up. Please try again later.', 503);
   const day = new Date().toISOString().slice(0, 10);
   const month = day.slice(0, 7);
   const shareId = hashKey(`${brand}|${category}|${competitors.join(',')}`.toLowerCase());
@@ -65,9 +73,9 @@ export async function POST(req) {
   const ipKey = `ip/${day}/${hashKey(ip)}`;
   const [ipCount, dayStats, monthStats] = await Promise.all([getJSON(ipKey), getJSON(`day/${day}`), getJSON(`month/${month}`)]);
   const tomorrow = 'Free checks are used up for today. Please come back tomorrow!';
-  if ((ipCount?.n ?? 0) >= PER_IP_DAILY) return bad(`You've used your ${PER_IP_DAILY} free checks for today. Come back tomorrow!`, 429);
-  if ((dayStats?.n ?? 0) >= dailyCap(day)) return bad(tomorrow, 429);
-  if ((monthStats?.cost ?? 0) + EST_COST > monthBudget(month)) return bad('The free checker has hit its monthly limit. Please come back next month, or use the full tracker below.', 429);
+  if ((ipCount?.n ?? 0) >= PER_IP_DAILY) return fail(`You've used your ${PER_IP_DAILY} free checks for today. Come back tomorrow!`, 429);
+  if ((dayStats?.n ?? 0) >= dailyCap(day)) return fail(tomorrow, 429);
+  if ((monthStats?.cost ?? 0) + EST_COST > monthBudget(month)) return fail('The free checker has hit its monthly limit. Please come back next month, or use the full tracker below.', 429);
 
   // Reserve the slot before spending money.
   await Promise.all([
@@ -134,6 +142,6 @@ export async function POST(req) {
       setJSON(`day/${day}`, { n: Math.max(0, (d2?.n ?? 1) - 1) }),
       setJSON(`month/${month}`, { ...m2, cost: Math.max(0, (m2?.cost ?? 0) - EST_COST + cost), n: Math.max(0, (m2?.n ?? 1) - 1) }),
     ]).catch(() => {});
-    return bad('The AI check failed. Please try again in a minute.', 502);
+    return fail('The AI check failed. Please try again in a minute.', 502);
   }
 }
