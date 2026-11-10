@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { track } from '@vercel/analytics';
 import Result from './Result.js';
 import { EVENTS, categoryBucket, trackEvent } from '../lib/analyticsEvents.js';
+import { messageFromFailedCheck } from '../lib/checkError.js';
 
 export default function Checker() {
   const start = useRef(Date.now());
@@ -20,9 +21,19 @@ export default function Checker() {
     try {
       const r = await fetch('/api/check', { method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ ...entries, elapsed: Date.now() - start.current }) });
-      const j = await r.json();
-      setState({ loading: false, error: r.ok ? null : j.error, data: r.ok ? j : null });
-      if (r.ok) setTimeout(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth' }), 50);
+      const text = await r.text();
+      if (!r.ok) {
+        setState({ loading: false, error: messageFromFailedCheck(text), data: null });
+        return;
+      }
+      let data = null;
+      try { data = JSON.parse(text); } catch { data = null; }
+      if (!data || typeof data !== 'object') {
+        setState({ loading: false, error: messageFromFailedCheck(''), data: null });
+        return;
+      }
+      setState({ loading: false, error: null, data });
+      setTimeout(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth' }), 50);
     } catch {
       trackEvent(track, EVENTS.CHECK_ERROR, { type: 'network', engine: 'chatgpt' });
       setState({ loading: false, error: 'Network error. Please try again.', data: null });
@@ -37,7 +48,8 @@ export default function Checker() {
       </div>
       <label>Competitors (optional, comma-separated)<input name="competitors" maxLength={200} placeholder="e.g. Asana, Monday.com, ClickUp" /></label>
       <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-      <button disabled={state.loading}>{state.loading ? 'Asking ChatGPT… (about 30 seconds)' : 'Check my AI visibility, free'}</button>
+      <button disabled={state.loading}>{state.loading ? 'Asking ChatGPT…' : 'Check my AI visibility, free'}</button>
+      {state.loading && <p className="muted" role="status">Still working, this can take up to a minute.</p>}
       <span className="muted">3 free checks per day. We ask ChatGPT (with web search) 3 buyer-style questions about your category.</span>
     </form>
     {state.error && <p className="err" role="alert">{state.error}</p>}

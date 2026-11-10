@@ -3,11 +3,23 @@ import { findBrandMention, brandsMatch, host, EXTRACTION_SCHEMA, extractionPromp
 import { packCitations } from '../../../lib/fixList.js';
 import { getJSON, setJSON } from '../../../lib/store.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
+import { CHECK_TIMEOUT_ERROR, CheckTimeoutError, isCheckTimeout } from '../../../lib/checkError.js';
 import { track } from '@vercel/analytics/server';
 import { EVENTS, errorTypeFromStatus, limitReason, trackEvent } from '../../../lib/analyticsEvents.js';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+// Pro plan. The work itself stops around 100s so the catch can refund before this kill.
+export const maxDuration = 120;
+
+function envMs(name, fallback, max) {
+  const n = Number(process.env[name]);
+  const ms = Number.isFinite(n) && n > 0 ? n : fallback;
+  return Math.min(ms, max);
+}
+const checkBudgetMs = () => envMs('CHECK_BUDGET_MS', 100_000, 100_000);
+const searchTimeoutMs = () => envMs('SEARCH_TIMEOUT_MS', 40_000, 40_000);
+const refundReserveMs = () => envMs('REFUND_RESERVE_MS', 12_000, 15_000);
+const MIN_CALL_MS = 50;
 
 const PER_IP_DAILY = +(process.env.PER_IP_DAILY ?? 3);
 const GLOBAL_DAILY = +(process.env.GLOBAL_DAILY ?? 25);
@@ -78,19 +90,28 @@ export async function POST(req) {
   if ((dayStats?.n ?? 0) >= dailyCap(day)) return fail(tomorrow, 429);
   if ((monthStats?.cost ?? 0) + EST_COST > monthBudget(month)) return fail('The free checker has hit its monthly limit. Please come back next month, or use the full tracker below.', 429);
 
-  // Reserve the slot before spending money.
-  await Promise.all([
-    setJSON(ipKey, { n: (ipCount?.n ?? 0) + 1 }),
-    setJSON(`day/${day}`, { n: (dayStats?.n ?? 0) + 1 }),
-    setJSON(`month/${month}`, { cost: (monthStats?.cost ?? 0) + EST_COST, n: (monthStats?.n ?? 0) + 1 }),
-  ]);
-
+  // Reserve the slot before spending money. A timeout here still refunds: the write may have landed.
   let cost = 0;
+  let reserved = false;
   try {
+    reserved = true;
+    await Promise.all([
+      setJSON(ipKey, { n: (ipCount?.n ?? 0) + 1 }),
+      setJSON(`day/${day}`, { n: (dayStats?.n ?? 0) + 1 }),
+      setJSON(`month/${month}`, { cost: (monthStats?.cost ?? 0) + EST_COST, n: (monthStats?.n ?? 0) + 1 }),
+    ]);
+
+    const deadline = Date.now() + checkBudgetMs();
+    const callBudget = (cap) => {
+      const left = deadline - Date.now() - refundReserveMs();
+      if (left < MIN_CALL_MS) throw new CheckTimeoutError();
+      return cap == null ? left : Math.min(cap, left);
+    };
     const prompts = buildPrompts(category);
-    const answers = await Promise.all(prompts.map((p) => askWithSearch(p)));
+    const searchMs = callBudget(searchTimeoutMs());
+    const answers = await allSettledThrow(prompts.map((p) => askWithSearch(p, searchMs)));
     answers.forEach((a) => { cost += costOf(a.usage, 'search', a.searches || 1); });
-    const ex = await json(extractionPrompt(brand, answers.map((a, i) => ({ prompt: prompts[i], text: a.text }))), EXTRACTION_SCHEMA);
+    const ex = await json(extractionPrompt(brand, answers.map((a, i) => ({ prompt: prompts[i], text: a.text }))), EXTRACTION_SCHEMA, callBudget());
     cost += costOf(ex.usage, 'util');
 
     const brandLc = brand.toLowerCase();
@@ -136,14 +157,33 @@ export async function POST(req) {
     console.log(`check ok cost=$${cost.toFixed(4)}`);
     return Response.json({ ...result, id: shareId, cached: false, ...(process.env.SHOW_COST === '1' ? { cost } : {}) });
   } catch (e) {
-    console.error('check failed', e.message);
-    // Refund the reserved slot so failures don't burn quota.
+    console.error('check failed', e instanceof Error ? e.message : 'error');
+    if (reserved) await refundReservation(ipKey, day, month, cost);
+    if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
+    return fail('The AI check failed. Please try again in a minute.', 502);
+  }
+}
+
+async function allSettledThrow(promises) {
+  const results = await Promise.all(promises.map((p) => p.then(
+    (value) => ({ ok: true, value }),
+    (error) => ({ ok: false, error }),
+  )));
+  const failed = results.find((r) => !r.ok);
+  if (failed) throw failed.error;
+  return results.map((r) => r.value);
+}
+
+async function refundReservation(ipKey, day, month, cost) {
+  // Refund the reserved slot so failures don't burn quota. Blob calls time out on their own.
+  try {
     const [i2, d2, m2] = await Promise.all([getJSON(ipKey), getJSON(`day/${day}`), getJSON(`month/${month}`)]);
     await Promise.all([
       setJSON(ipKey, { n: Math.max(0, (i2?.n ?? 1) - 1) }),
       setJSON(`day/${day}`, { n: Math.max(0, (d2?.n ?? 1) - 1) }),
       setJSON(`month/${month}`, { ...m2, cost: Math.max(0, (m2?.cost ?? 0) - EST_COST + cost), n: Math.max(0, (m2?.n ?? 1) - 1) }),
-    ]).catch(() => {});
-    return fail('The AI check failed. Please try again in a minute.', 502);
+    ]);
+  } catch {
+    // Best effort. The response still has to leave before the platform kill.
   }
 }
