@@ -72,10 +72,21 @@ export async function POST(req) {
   const cached = await readJSON(cacheKey);
   if (!cached.ok) return fail(LIMIT_UNAVAILABLE, 503, cached.reason || 'cache');
   if (cached.value && Date.now() - cached.value.at < CACHE_MS) {
-    return Response.json(
+    const res = Response.json(
       { ...cached.value.result, id: shareId, cached: true },
       { headers: { 'cache-control': 'no-store' } },
     );
+    if (process.env.VERCEL_ENV === 'preview' && req.headers.get('x-debug-count') === '1') {
+      const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
+      const [ipRead, dayRead, monthRead] = await Promise.all([
+        readJSON(`ip/${day}/${hashKey(ip)}`), readJSON(`day/${day}`), readJSON(`month/${month}`),
+      ]);
+      res.headers.set('x-ip-fp', hashKey(ip).slice(0, 8));
+      res.headers.set('x-ip-n', String(ipRead.value?.n ?? 0));
+      res.headers.set('x-day-n', String(dayRead.value?.n ?? 0));
+      res.headers.set('x-month-cost', String(monthRead.value?.cost ?? 0));
+    }
+    return res;
   }
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
