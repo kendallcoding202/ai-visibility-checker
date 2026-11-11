@@ -1,9 +1,10 @@
 import { askWithSearch, json, costOf } from '../../../lib/openai.js';
 import { findBrandMention, brandsMatch, host, EXTRACTION_SCHEMA, extractionPrompt, buildPrompts } from '../../../lib/analyze.js';
 import { packCitations } from '../../../lib/fixList.js';
-import { getJSON, setJSON } from '../../../lib/store.js';
+import { getJSON, readJSON, setJSON } from '../../../lib/store.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
 import { CHECK_TIMEOUT_ERROR, CheckTimeoutError, isCheckTimeout } from '../../../lib/checkError.js';
+import { dailyCap, estCostPerCheck, ipLimitMessage, LIMIT_GLOBAL, LIMIT_MONTH, LIMIT_UNAVAILABLE, money, monthBudget, perIpDaily } from '../../../lib/limits.js';
 import { track } from '@vercel/analytics/server';
 import { EVENTS, errorTypeFromStatus, limitReason, trackEvent } from '../../../lib/analyticsEvents.js';
 
@@ -21,20 +22,7 @@ const searchTimeoutMs = () => envMs('SEARCH_TIMEOUT_MS', 40_000, 40_000);
 const refundReserveMs = () => envMs('REFUND_RESERVE_MS', 12_000, 15_000);
 const MIN_CALL_MS = 50;
 
-const PER_IP_DAILY = +(process.env.PER_IP_DAILY ?? 3);
-const GLOBAL_DAILY = +(process.env.GLOBAL_DAILY ?? 25);
-// Launch-day boost: on these UTC dates (the day/ counter key) the global cap is LAUNCH_DAILY instead.
-// Product Hunt launch 12:01 AM PT Tue Nov 10, 2026 = 08:01 UTC Nov 10. Covers UTC Nov 10-12
-// (= 5 PM MT Nov 9 through 5 PM MT Nov 12), then falls back to GLOBAL_DAILY automatically.
-const LAUNCH_DAYS = (process.env.LAUNCH_DAYS ?? '2026-11-10,2026-11-11,2026-11-12').split(',').map((s) => s.trim()).filter(Boolean);
-const LAUNCH_DAILY = +(process.env.LAUNCH_DAILY ?? 150);
-const dailyCap = (day) => (LAUNCH_DAYS.includes(day) ? LAUNCH_DAILY : GLOBAL_DAILY);
-const MONTHLY_BUDGET = +(process.env.MONTHLY_BUDGET_USD ?? 10);
-// Launch month gets +$10 (~105 more checks at ~$0.093 each) so the 150/day launch cap isn't blocked by the budget.
-const LAUNCH_MONTH = process.env.LAUNCH_MONTH ?? '2026-11';
-const LAUNCH_BUDGET = +(process.env.LAUNCH_MONTHLY_BUDGET_USD ?? 20);
-const monthBudget = (month) => (month === LAUNCH_MONTH ? Math.max(LAUNCH_BUDGET, MONTHLY_BUDGET) : MONTHLY_BUDGET);
-const EST_COST = +(process.env.EST_COST_PER_CHECK ?? 0.12); // reserve per check before calling OpenAI
+// Launch-day boost and the November 2026 $50 ceiling live in lib/limits.js.
 const CACHE_MS = 24 * 3600 * 1000;
 
 const bad = (msg, status = 400) => Response.json({ error: msg }, { status });
@@ -84,11 +72,21 @@ export async function POST(req) {
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
   const ipKey = `ip/${day}/${hashKey(ip)}`;
-  const [ipCount, dayStats, monthStats] = await Promise.all([getJSON(ipKey), getJSON(`day/${day}`), getJSON(`month/${month}`)]);
-  const tomorrow = 'Free checks are used up for today. Please come back tomorrow!';
-  if ((ipCount?.n ?? 0) >= PER_IP_DAILY) return fail(`You've used your ${PER_IP_DAILY} free checks for today. Come back tomorrow!`, 429);
-  if ((dayStats?.n ?? 0) >= dailyCap(day)) return fail(tomorrow, 429);
-  if ((monthStats?.cost ?? 0) + EST_COST > monthBudget(month)) return fail('The free checker has hit its monthly limit. Please come back next month, or use the full tracker below.', 429);
+  const perIp = perIpDaily();
+  const reserve = estCostPerCheck();
+  const cap = dailyCap(day);
+  const budget = monthBudget(month);
+  const [ipRead, dayRead, monthRead] = await Promise.all([readJSON(ipKey), readJSON(`day/${day}`), readJSON(`month/${month}`)]);
+  // A failed counter read must not look like a zero balance.
+  if (!ipRead.ok || !dayRead.ok || !monthRead.ok) return fail(LIMIT_UNAVAILABLE, 503);
+  const ipCount = ipRead.value;
+  const dayStats = dayRead.value;
+  const monthStats = monthRead.value;
+  const spent = Number(monthStats?.cost ?? 0);
+  if (!Number.isFinite(spent) || !Number.isFinite(budget) || !Number.isFinite(reserve)) return fail(LIMIT_UNAVAILABLE, 503);
+  if ((ipCount?.n ?? 0) >= perIp) return fail(ipLimitMessage(perIp), 429);
+  if ((dayStats?.n ?? 0) >= cap) return fail(LIMIT_GLOBAL, 429);
+  if (money(money(spent) + money(reserve)) > money(budget)) return fail(LIMIT_MONTH, 429);
 
   // Reserve the slot before spending money. A timeout here still refunds: the write may have landed.
   let cost = 0;
@@ -98,7 +96,7 @@ export async function POST(req) {
     await Promise.all([
       setJSON(ipKey, { n: (ipCount?.n ?? 0) + 1 }),
       setJSON(`day/${day}`, { n: (dayStats?.n ?? 0) + 1 }),
-      setJSON(`month/${month}`, { cost: (monthStats?.cost ?? 0) + EST_COST, n: (monthStats?.n ?? 0) + 1 }),
+      setJSON(`month/${month}`, { cost: money(spent + reserve), n: (monthStats?.n ?? 0) + 1 }),
     ]);
 
     const deadline = Date.now() + checkBudgetMs();
@@ -151,14 +149,17 @@ export async function POST(req) {
       checkedAt: new Date().toISOString(),
     };
     await setJSON(cacheKey, { at: Date.now(), result });
-    // Replace the reservation with the measured cost.
-    const m = await getJSON(`month/${month}`);
-    await setJSON(`month/${month}`, { ...m, cost: Math.max(0, (m?.cost ?? 0) - EST_COST + cost) });
+    // Replace the reservation with the measured cost. If the counter cannot be re-read, keep the reserve.
+    const m = await readJSON(`month/${month}`);
+    if (m.ok) {
+      const prev = m.value ?? {};
+      await setJSON(`month/${month}`, { ...prev, cost: money(Math.max(0, (prev.cost ?? 0) - reserve + cost)) });
+    }
     console.log(`check ok cost=$${cost.toFixed(4)}`);
     return Response.json({ ...result, id: shareId, cached: false, ...(process.env.SHOW_COST === '1' ? { cost } : {}) });
   } catch (e) {
     console.error('check failed', e instanceof Error ? e.message : 'error');
-    if (reserved) await refundReservation(ipKey, day, month, cost);
+    if (reserved) await refundReservation(ipKey, day, month, cost, reserve);
     if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
     return fail('The AI check failed. Please try again in a minute.', 502);
   }
@@ -174,14 +175,16 @@ async function allSettledThrow(promises) {
   return results.map((r) => r.value);
 }
 
-async function refundReservation(ipKey, day, month, cost) {
-  // Refund the reserved slot so failures don't burn quota. Blob calls time out on their own.
+async function refundReservation(ipKey, day, month, cost, reserve) {
+  // Refund the reserved slot so failures don't burn quota. A failed re-read leaves the reserve in place.
   try {
-    const [i2, d2, m2] = await Promise.all([getJSON(ipKey), getJSON(`day/${day}`), getJSON(`month/${month}`)]);
+    const [i2, d2, m2] = await Promise.all([readJSON(ipKey), readJSON(`day/${day}`), readJSON(`month/${month}`)]);
+    if (!i2.ok || !d2.ok || !m2.ok) return;
+    const prev = m2.value ?? {};
     await Promise.all([
-      setJSON(ipKey, { n: Math.max(0, (i2?.n ?? 1) - 1) }),
-      setJSON(`day/${day}`, { n: Math.max(0, (d2?.n ?? 1) - 1) }),
-      setJSON(`month/${month}`, { ...m2, cost: Math.max(0, (m2?.cost ?? 0) - EST_COST + cost), n: Math.max(0, (m2?.n ?? 1) - 1) }),
+      setJSON(ipKey, { n: Math.max(0, (i2.value?.n ?? 1) - 1) }),
+      setJSON(`day/${day}`, { n: Math.max(0, (d2.value?.n ?? 1) - 1) }),
+      setJSON(`month/${month}`, { ...prev, cost: money(Math.max(0, (prev.cost ?? 0) - reserve + cost)), n: Math.max(0, (prev.n ?? 1) - 1) }),
     ]);
   } catch {
     // Best effort. The response still has to leave before the platform kill.

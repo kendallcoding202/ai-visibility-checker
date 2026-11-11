@@ -16,7 +16,7 @@ const steps = [
 ];
 const faq = [
   ['Is there a quick way to see where I stand right now?', 'The free checker on this site asks ChatGPT (with web search) three buyer-style questions in your category and shows who it recommends, where you rank and which sources it used. No account needed.'],
-  ['How do I keep track over months without doing this by hand?', 'The AI Visibility Tracker on Apify runs your own prompts through ChatGPT, Gemini and Perplexity, saves each run and charts the trend. It costs $0.04 per answer, so 10 prompts on 2 engines once a week is about $0.80 a week.'],
+  ['How do I keep track over months without doing this by hand?', 'The AI Visibility Tracker on Apify runs your own prompts through ChatGPT, Gemini and Perplexity, saves each run and charts the trend. It costs $0.0375 per answer, so 10 prompts on 2 engines once a week is about $0.75 a week.'],
   ['Can I make ChatGPT recommend me?', 'Not directly. What you can influence is the content it reads: the pages it cites for your category and how clearly your own site says who you are for.'],
 ];
 

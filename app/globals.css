@@ -2,6 +2,7 @@
 a{color:#2f5bff}.wrap{max-width:860px;margin:0 auto;padding:0 20px}
 header.hero{background:linear-gradient(135deg,#0b1020,#1e2a5a);color:#fff;padding:56px 0 40px}
 .hero h1{font-size:clamp(28px,5vw,44px);line-height:1.15;margin:0 0 12px}.hero p{color:#c9d4f0;font-size:18px;margin:0 0 24px}
+.hero h2{color:#fff;font-size:22px;margin:28px 0 12px}
 form.card{background:#fff;color:#141a2e;border-radius:14px;padding:20px;display:grid;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
 label{font-weight:600;font-size:14px;display:grid;gap:6px}input{font:inherit;padding:12px;border:1px solid #cfd5e6;border-radius:10px;width:100%}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:620px){.row{grid-template-columns:1fr}}
@@ -28,6 +29,7 @@ table.cmp{width:100%;border-collapse:collapse;background:#fff;font-size:14px}tab
 .fazier{margin:8px 0 0}.fazier{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.fazier img{display:block;height:auto}
 .result p.weekly{background:#eef2ff;border-radius:10px;padding:10px 14px;color:#141a2e}
 .costs{padding-left:18px}.costs li{margin:8px 0}
+.lookup-brands{margin:8px 0 0;padding-left:20px}.lookup-brands li{margin:4px 0}
 .fix{border-top:1px solid #eef1f8;margin-top:8px}
 .fix ul,.fix ol{margin:6px 0;padding-left:18px}
 .fix a,.costs a{overflow-wrap:anywhere}

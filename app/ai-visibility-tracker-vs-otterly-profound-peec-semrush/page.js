@@ -17,7 +17,7 @@ const FETCHED = '2026-11-09';
 const tools = [
   {
     name: 'AI Visibility Tracker (Apify) + free checker',
-    price: 'Free checker (3/day); Tracker $0.04 per answer, no subscription',
+    price: 'Free checker (3/day); Tracker $0.0375 per answer, no subscription',
     engines: 'Tracker: ChatGPT (search + knowledge), Gemini knowledge, Perplexity search. Free checker: ChatGPT with web search.',
     best: 'Pay-as-you-go LLM brand monitoring and raw exports without a monthly seat',
     stronger: 'Lowest cash outlay for irregular checks; JSON/CSV/API output; you bring your own prompts',
@@ -71,7 +71,7 @@ const tools = [
 const faq = [
   [
     'Which tool is best for ChatGPT brand mentions on a budget?',
-    'For a one-off check, use the free AI visibility checker on this site (3 checks/day). For ongoing LLM brand monitoring without a subscription, AI Visibility Tracker on Apify is $0.04 per answer. If you want a hosted daily dashboard, Otterly Lite at $29/mo is the lowest published multi-engine subscription among these five (prices checked ' + FETCHED + ').',
+    'For a one-off check, use the free AI visibility checker on this site (3 checks/day). For ongoing LLM brand monitoring without a subscription, AI Visibility Tracker on Apify is $0.0375 per answer. If you want a hosted daily dashboard, Otterly Lite at $29/mo is the lowest published multi-engine subscription among these five (prices checked ' + FETCHED + ').',
   ],
   [
     'How is AI Visibility Tracker different from Otterly, Peec, Profound and Semrush?',
@@ -98,7 +98,7 @@ export default function Page() {
     <main className="wrap">
       <section>
         <h2>Quick answer</h2>
-        <p>Need a free snapshot of ChatGPT brand mentions? Use the <a href="/free-ai-visibility-checker">free AI visibility checker</a>. Need cheap recurring checks and exports? Use <a href={tracker}>AI Visibility Tracker</a> on Apify ($0.04/answer). Need a daily SaaS dashboard: Otterly is the lowest published entry price here; Peec and Semrush fit marketing teams that want a polished UI (Semrush if you are already in that stack); Profound fits buyers who want Enterprise agents and a sales-led package.</p>
+        <p>Need a free snapshot of ChatGPT brand mentions? Use the <a href="/free-ai-visibility-checker">free AI visibility checker</a>. Need cheap recurring checks and exports? Use <a href={tracker}>AI Visibility Tracker</a> on Apify ($0.0375/answer). Need a daily SaaS dashboard: Otterly is the lowest published entry price here; Peec and Semrush fit marketing teams that want a polished UI (Semrush if you are already in that stack); Profound fits buyers who want Enterprise agents and a sales-led package.</p>
         <p className="muted">Disclosure: I built the free checker, AI Visibility Tracker and <a href={citations}>AI Citation Tracker</a>. I state where the SaaS tools are stronger, and I do not claim we beat them on dashboard features we do not have.</p>
       </section>
 
@@ -121,14 +121,14 @@ export default function Page() {
 
       <section>
         <h2>Cost per prompt, said plainly</h2>
-        <p><strong>AI Visibility Tracker</strong> charges <strong>$0.04 per AI answer</strong> (FREE tier on Apify, checked 2026-11-09). One answer = one prompt on one engine, one sample. Failed answers are free. You do not need your own OpenAI / Gemini / Perplexity key.</p>
+        <p><strong>AI Visibility Tracker</strong> charges <strong>$0.0375 per AI answer</strong> (FREE tier on Apify, checked 2026-11-11). One answer = one prompt on one engine, one sample. Failed answers are free. You do not need your own OpenAI / Gemini / Perplexity key.</p>
         <div style={{ overflowX: 'auto' }}><table className="cmp">
           <thead><tr><th>You want…</th><th>Rough Visibility cost</th></tr></thead>
           <tbody>
-            <tr><td>15 prompts × 1 engine, once</td><td><strong>$0.60</strong></td></tr>
-            <tr><td>15 prompts × 2 engines, once</td><td><strong>$1.20</strong></td></tr>
-            <tr><td>Same 15×2 check, weekly for a month</td><td><strong>~$4.80</strong></td></tr>
-            <tr><td>Same 15×2 check, daily for a month</td><td><strong>~$36</strong></td></tr>
+            <tr><td>15 prompts × 1 engine, once</td><td><strong>$0.5625</strong></td></tr>
+            <tr><td>15 prompts × 2 engines, once</td><td><strong>$1.125</strong></td></tr>
+            <tr><td>Same 15×2 check, weekly for a month</td><td><strong>~$4.50</strong></td></tr>
+            <tr><td>Same 15×2 check, daily for a month</td><td><strong>~$33.75</strong></td></tr>
           </tbody>
         </table></div>
         <p><strong>AI Citation Tracker</strong> is <strong>$0.05 per answer</strong> the same way (and $0 when Google shows no AI Overview / AI Mode).</p>
@@ -140,7 +140,7 @@ export default function Page() {
             <tr><td>Peec AI Starter</td><td>$95 / 50 prompts, daily, 3 models</td><td><strong>$1.90</strong></td></tr>
           </tbody>
         </table></div>
-        <p>Those subscriptions include a dashboard and daily refreshes. Matching Otterly’s daily volume on our actor (15 prompts × 4 engines × 30 days = 1,800 answers × $0.04) would be about <strong>$72/mo</strong> in PPE — so for <em>daily</em> multi-engine tracking a Lite SaaS seat can be cheaper. For <em>weekly</em> audits, spot checks, agencies exporting JSON/CSV, or one-off research, pay-per-answer is usually cheaper and has no seat.</p>
+        <p>Those subscriptions include a dashboard and daily refreshes. Matching Otterly’s daily volume on our actor (15 prompts × 4 engines × 30 days = 1,800 answers × $0.0375) would be about <strong>$67.50/mo</strong> in PPE — so for <em>daily</em> multi-engine tracking a Lite SaaS seat can be cheaper. For <em>weekly</em> audits, spot checks, agencies exporting JSON/CSV, or one-off research, pay-per-answer is usually cheaper and has no seat.</p>
         <p>Free snapshot: <a href="/">aivisibilitychecker.app</a> — 3 ChatGPT checks/day, $0.</p>
       </section>
 

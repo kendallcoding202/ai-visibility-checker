@@ -42,7 +42,7 @@ const faq = [
   ],
   [
     'When should I use AI Visibility Tracker or AI Citation Tracker instead?',
-    'Use AI Visibility Tracker when you need repeatable brand-mention / share-of-voice checks across ChatGPT (web search and model knowledge), Gemini model knowledge, and Perplexity with web search ($0.04 per answer on Apify). Use AI Citation Tracker when you need the ordered source URLs ChatGPT, Perplexity and optional Google AI Overviews / AI Mode cite ($0.05 per answer). Neither replaces OpenAI’s own mention and click totals.',
+    'Use AI Visibility Tracker when you need repeatable brand-mention / share-of-voice checks across ChatGPT (web search and model knowledge), Gemini model knowledge, and Perplexity with web search ($0.0375 per answer on Apify). Use AI Citation Tracker when you need the ordered source URLs ChatGPT, Perplexity and optional Google AI Overviews / AI Mode cite ($0.05 per answer). Neither replaces OpenAI’s own mention and click totals.',
   ],
 ];
 
@@ -83,7 +83,7 @@ export default function Page() {
         <h2>What fills those gaps today</h2>
         <ul>
           <li><a href="/">Free AI visibility checker</a> — three ChatGPT (web search) buyer questions, brand mention, rough rank, competitors, cited domains. No account. Snapshot only. Business Hub shows your own ChatGPT totals. This checker shows which questions, which competitors, and whether ChatGPT named you.</li>
-          <li><a href={tracker}>AI Visibility Tracker</a> (Apify, crunchy_galaxy_qcr) — prompt-level brand mentions, rank, share of voice, sentiment and cited sources across ChatGPT (web search and model knowledge), Gemini model knowledge, and Perplexity with web search. $0.04 per answer. Schedule weekly yourself.</li>
+          <li><a href={tracker}>AI Visibility Tracker</a> (Apify, crunchy_galaxy_qcr) — prompt-level brand mentions, rank, share of voice, sentiment and cited sources across ChatGPT (web search and model knowledge), Gemini model knowledge, and Perplexity with web search. $0.0375 per answer. Schedule weekly yourself.</li>
           <li><a href={citations}>AI Citation Tracker</a> — which URLs ChatGPT, Perplexity and optional Google AI Overviews / AI Mode cite, plus citation share vs competitor domains. $0.05 per answer.</li>
         </ul>
         <p>Honest split: Business Hub answers “how many aggregate mentions and clicks did we get in ChatGPT over the past 28 days?” Prompt trackers answer “for these buyer questions, who got named, in what order, and which pages were cited?” You eventually want both.</p>
@@ -93,6 +93,8 @@ export default function Page() {
         <h2>Related</h2>
         <p>
           <a href="/free-ai-visibility-checker">Free AI visibility checker</a>
+          {' · '}
+          <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a>
           {' · '}
           <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">Tracker vs Otterly / Profound / Peec / Semrush</a>
           {' · '}

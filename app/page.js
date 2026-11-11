@@ -1,4 +1,5 @@
 import Checker from './Checker.js';
+import Lookup from './Lookup.js';
 import { TRACKER, ADS, CITATIONS } from './links.js';
 import { Ld, orgLd, appLd } from './site.js';
 import TrackLink from './TrackLink.js';
@@ -22,7 +23,7 @@ const faqLinks = [
 function CostCompare() {
   return (<section id="cost">
     <h2>What a check costs</h2>
-    <p><strong>No monthly fee. No minimum. Pay only per check.</strong> This checker is free, {freeChecker.checksPerIpPerDay} checks per IP per day. The <a href={tracker.source}>AI Visibility Tracker</a> is ${tracker.pricePerAnswer.toFixed(2)} per answer on Apify.</p>
+    <p><strong>No monthly fee. No minimum. Pay only per check.</strong> This checker is free, {freeChecker.checksPerIpPerDay} checks per IP per day. The <a href={tracker.source}>AI Visibility Tracker</a> is ${tracker.pricePerAnswer} per answer on Apify.</p>
     <ul className="costs">
       <li><strong>Otterly.AI from ${otterly.monthlyPrice}/mo</strong> ({otterly.plan}). As of {COST_AS_OF_LABEL}. <a href={otterly.source}>Source</a>.</li>
       <li><strong>Keyword.com from ${keyword.monthlyPrice.toFixed(2)}/mo</strong> ({keyword.plan}). As of {COST_AS_OF_LABEL}. <a href={keyword.source}>Source</a>.</li>
@@ -53,7 +54,9 @@ export default function Page() {
   return (<>
     <header className="hero"><div className="wrap">
       <h1>Free AI Visibility Checker: does ChatGPT recommend your brand?</h1>
-      <p>Enter your brand and category. In about 30 seconds see if ChatGPT mentions you, your rank, which competitors it picks and which sources it cites.</p>
+      <p>See who ChatGPT recommends in your market. Then check whether it names your brand, your rank, which competitors it picks and which sources it cites.</p>
+      <Lookup />
+      <h2 id="checker">Check your brand</h2>
       <Checker />
     </div></header>
     <main className="wrap">
@@ -64,7 +67,7 @@ export default function Page() {
       </section>
       <section>
         <h2>Compare and learn</h2>
-        <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/free-ai-visibility-checker">Free AI visibility checker</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a> · <a href="/how-to-see-which-sources-chatgpt-cites">How to see which sources ChatGPT cites</a> · <a href="/why-chatgpt-recommends-competitors">Why ChatGPT recommends your competitors</a> · <a href="/which-sites-ai-cites-in-your-niche">Which sites AI Overviews and ChatGPT cite</a> · <a href="/what-chatgpt-business-dashboard-wont-tell-you">What ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
+        <p><a href="/best-ai-visibility-tools">Best tools to check whether ChatGPT recommends your brand</a> · <a href="/free-ai-visibility-checker">Free AI visibility checker</a> · <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a> · <a href="/how-to-check-chatgpt-brand-mentions">How to check if ChatGPT recommends your brand</a> · <a href="/how-to-see-which-sources-chatgpt-cites">How to see which sources ChatGPT cites</a> · <a href="/why-chatgpt-recommends-competitors">Why ChatGPT recommends your competitors</a> · <a href="/which-sites-ai-cites-in-your-niche">Which sites AI Overviews and ChatGPT cite</a> · <a href="/what-chatgpt-business-dashboard-wont-tell-you">What ChatGPT&apos;s new business dashboard won&apos;t tell you</a> · <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a></p>
       </section>
       <CostCompare />
       <section>
