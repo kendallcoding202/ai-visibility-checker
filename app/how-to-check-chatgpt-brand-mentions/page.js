@@ -12,7 +12,7 @@ const steps = [
   ['Look at the cited sources', 'ChatGPT search shows the pages it used. These are the sites where getting mentioned matters most.'],
   ['Repeat and average', 'Answers vary. Ask each question a few times or on different days and count how often you appear (your mention rate).'],
   ['Or let a tool do it', 'The free checker on this site runs 3 buyer questions through ChatGPT with web search and gives you mention rate, rank, competitors and sources in about 30 seconds.'],
-  ['Track it weekly', 'To see if your work is paying off, rerun the same prompts on a schedule. The AI Visibility Tracker on Apify does this for ChatGPT, Gemini and Perplexity at $0.04 per answer.'],
+  ['Track it weekly', 'To see if your work is paying off, rerun the same prompts on a schedule. The AI Visibility Tracker on Apify does this for ChatGPT, Gemini and Perplexity at $0.0375 per answer.'],
 ];
 const faq = [
   ['Can I check ChatGPT brand mentions for free?', 'Yes. You can ask ChatGPT manually, or use the Free AI Visibility Checker (3 checks per day, no account). HubSpot AEO Grader is another free option.'],

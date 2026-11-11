@@ -15,7 +15,7 @@ export const metadata = {
 const faq = [
   ['Is this really a free AI visibility checker?', 'Yes. You get three checks per day with no account. Each check asks ChatGPT with web search three buyer-style questions about your category and reports whether your brand is mentioned, your rank among named brands, competitors, and cited sources.'],
   ['What is AI search visibility / LLM brand monitoring?', 'It means measuring how often AI engines like ChatGPT, Gemini or Perplexity name or recommend your brand for the questions buyers ask. That is sometimes called GEO (generative engine optimization) or AEO (answer engine optimization).'],
-  ['How is this different from Otterly, Peec, Profound or Semrush?', 'Those are paid SaaS trackers with dashboards and daily prompt quotas. This free checker is a one-off ChatGPT snapshot. For ongoing multi-engine tracking without a subscription, use the AI Visibility Tracker on Apify ($0.04 per answer). See the full comparison page for sourced prices.'],
+  ['How is this different from Otterly, Peec, Profound or Semrush?', 'Those are paid SaaS trackers with dashboards and daily prompt quotas. This free checker is a one-off ChatGPT snapshot. For ongoing multi-engine tracking without a subscription, use the AI Visibility Tracker on Apify ($0.0375 per answer). See the full comparison page for sourced prices.'],
   ['Can I track citations, not just brand mentions?', 'Brand mentions are “does the answer name you?” Citations are “which URLs did the engine use?” Use AI Citation Tracker for ChatGPT, Perplexity and Google AI Overviews / AI Mode citation lists.'],
   ['Who built this?', 'Kendall Sorenson. The same publisher as Apify account crunchy_galaxy_qcr (AI Visibility Tracker, AI Citation Tracker, Google Ads Transparency scraper, Microsoft Ads Library scraper).'],
 ];
@@ -42,7 +42,7 @@ export default function Page() {
       </section>
       <section>
         <h2>When to upgrade to tracking</h2>
-        <p>If the free check shows competitors winning the same prompts, schedule those prompts weekly with <a href={tracker}>AI Visibility Tracker</a> (ChatGPT, Gemini, Perplexity, $0.04 per answer, Apify actor by crunchy_galaxy_qcr). To see which pages ChatGPT cites for a keyword, use <a href={citations}>AI Citation Tracker</a> or the guide <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a>.</p>
+        <p>If the free check shows competitors winning the same prompts, schedule those prompts weekly with <a href={tracker}>AI Visibility Tracker</a> (ChatGPT, Gemini, Perplexity, $0.0375 per answer, Apify actor by crunchy_galaxy_qcr). To see which pages ChatGPT cites for a keyword, use <a href={citations}>AI Citation Tracker</a> or the guide <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a>.</p>
         <p>Comparing paid GEO tools? Read <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly vs Profound vs Peec AI vs Semrush</a>.</p>
         <p>OpenAI is reportedly testing a ChatGPT business dashboard with mention and click counts only. See <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a>.</p>
       </section>

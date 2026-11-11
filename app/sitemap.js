@@ -8,5 +8,11 @@ export default function sitemap() {
     changeFrequency: 'monthly',
     priority: 0.7,
   });
+  pages.push({
+    url: `${SITE}/business-hub-vs-ai-visibility-tracker`,
+    lastModified: new Date('2026-11-11'),
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  });
   return pages;
 }

@@ -11,8 +11,10 @@
 - [AI Visibility Tracker vs Otterly vs Profound vs Peec AI vs Semrush](https://aivisibilitychecker.app/ai-visibility-tracker-vs-otterly-profound-peec-semrush): honest comparison of prices, engines and who each fits. Prices checked November 9, 2026.
 - [How to see which sources ChatGPT cites for a keyword](https://aivisibilitychecker.app/how-to-see-which-sources-chatgpt-cites): a practical method to see which URLs and domains ChatGPT cites, manually or with AI Citation Tracker.
 - [What ChatGPT's new business dashboard won't tell you](https://aivisibilitychecker.app/what-chatgpt-business-dashboard-wont-tell-you): reported OpenAI Business Hub analytics show mention/click counts only; no prompts or competitor ranking. How free checker + Visibility/Citation trackers fill that gap.
+- [Business Hub vs AI Visibility Tracker](https://aivisibilitychecker.app/business-hub-vs-ai-visibility-tracker): Business Hub's first-party mention and click totals compared with the AI Visibility Tracker's prompt-level results. Free-tier tracker price is $0.0375 per answer.
+- Market lookup on the homepage: enter a category or market and see which brands ChatGPT names. No account. Shares the checker's daily limits and monthly budget.
 
 ## Paid tools by the same author (on Apify)
-- [AI Visibility Tracker](https://apify.com/crunchy_galaxy_qcr/ai-visibility-tracker): tracks brand mentions in ChatGPT, Gemini and Perplexity answers for your own prompts, pay per result at $0.04 per answer, no subscription.
+- [AI Visibility Tracker](https://apify.com/crunchy_galaxy_qcr/ai-visibility-tracker): tracks brand mentions in ChatGPT, Gemini and Perplexity answers for your own prompts, pay per result at $0.0375 per answer on the Free tier, no subscription.
 - [AI Citation Tracker](https://apify.com/crunchy_galaxy_qcr/ai-citation-tracker): shows which websites and URLs ChatGPT, Perplexity and Google AI Overviews / AI Mode cite for your buyers' questions, your citation share vs competitors and the prompts where you're missing, $0.05 per answer.
 - [Google Ads Transparency Scraper: Competitor Ads & Ad Library](https://apify.com/crunchy_galaxy_qcr/google-ads-transparency-scraper): exports competitors' ads from the Google Ads Transparency Center, $1.50 per 1,000 ads.

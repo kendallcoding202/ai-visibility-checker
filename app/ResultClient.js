@@ -73,7 +73,7 @@ export function TrackerCTA({ d }) {
   const answers = input.prompts.length * input.engines.length;
   return (<div className="ctabox" id="track">
     <h3 style={{ marginTop: 0 }}>Track this weekly on Apify</h3>
-    <p>Run these same {input.prompts.length} questions for {d.brand} vs {input.competitors.slice(0, 3).join(', ') || 'your competitors'} on ChatGPT, Gemini &amp; Perplexity every week, with share of voice, sentiment, gap prompts and a shareable report. {answers} answers = ${runCost(input, VIS_PRICE).toFixed(2)} per run, no API keys, no subscription. Apify&apos;s free plan includes $5 of usage a month.</p>
+    <p>Run these same {input.prompts.length} questions for {d.brand} vs {input.competitors.slice(0, 3).join(', ') || 'your competitors'} on ChatGPT, Gemini &amp; Perplexity every week, with share of voice, sentiment, gap prompts and a shareable report. {answers} answers = about ${runCost(input, VIS_PRICE).toFixed(2)} per run, no API keys, no subscription. Apify&apos;s free plan includes $5 of usage a month.</p>
     <div className="share">
       <CopyAndOpen json={json} href={trackerCtaUrl(d)} event={EVENTS.TRACKER_CTA_CLICK} location="result-cta">Copy my input &amp; open the tracker →</CopyAndOpen>
       <button type="button" className="ghost" onClick={() => copy(json)}>{done ? 'Input copied ✓' : 'Copy input only'}</button>

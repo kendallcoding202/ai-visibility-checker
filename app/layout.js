@@ -12,6 +12,7 @@ export const metadata = {
   openGraph: { title, description, type: 'website', siteName: 'AI Visibility Checker' },
   twitter: { card: 'summary_large_image', title, description },
   alternates: { canonical: '/' },
+  icons: { icon: [{ url: '/favicon.ico', type: 'image/x-icon' }] },
 };
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#0b1020' };
 export default function RootLayout({ children }) {
