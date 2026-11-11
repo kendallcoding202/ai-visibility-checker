@@ -25,13 +25,11 @@ function envMs(name, fallback, max) {
 }
 
 const bad = (msg, status = 400) => Response.json({ error: msg }, { status, headers: { 'cache-control': 'no-store' } });
-const fail = (msg, status = 400, detail) => {
+const fail = (msg, status = 400) => {
   const reason = limitReason(status, msg);
   if (reason) void trackEvent(track, EVENTS.CHECK_LIMITED, { reason, engine: 'chatgpt' });
   else void trackEvent(track, EVENTS.CHECK_ERROR, { type: errorTypeFromStatus(status), engine: 'chatgpt' });
-  const res = bad(msg, status);
-  if (detail && process.env.VERCEL_ENV === 'preview') res.headers.set('x-read-error', String(detail).slice(0, 40));
-  return res;
+  return bad(msg, status);
 };
 
 function sameOrigin(req) {
@@ -63,30 +61,19 @@ export async function POST(req) {
   if (rejection) return fail(rejection);
   const market = normalizeLookup(body.market);
 
-  if ((process.env.OPENAI_API_KEY ?? '').length < 20) return fail(LIMIT_UNAVAILABLE, 503, 'openai');
+  if ((process.env.OPENAI_API_KEY ?? '').length < 20) return fail(LIMIT_UNAVAILABLE, 503);
 
   const day = new Date().toISOString().slice(0, 10);
   const month = day.slice(0, 7);
   const shareId = hashKey(`lookup|${market}`);
   const cacheKey = `lookup/${shareId}`;
   const cached = await readJSON(cacheKey);
-  if (!cached.ok) return fail(LIMIT_UNAVAILABLE, 503, cached.reason || 'cache');
+  if (!cached.ok) return fail(LIMIT_UNAVAILABLE, 503);
   if (cached.value && Date.now() - cached.value.at < CACHE_MS) {
-    const res = Response.json(
+    return Response.json(
       { ...cached.value.result, id: shareId, cached: true },
       { headers: { 'cache-control': 'no-store' } },
     );
-    if (process.env.VERCEL_ENV === 'preview' && req.headers.get('x-debug-count') === '1') {
-      const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
-      const [ipRead, dayRead, monthRead] = await Promise.all([
-        readJSON(`ip/${day}/${hashKey(ip)}`), readJSON(`day/${day}`), readJSON(`month/${month}`),
-      ]);
-      res.headers.set('x-ip-fp', hashKey(ip).slice(0, 8));
-      res.headers.set('x-ip-n', String(ipRead.value?.n ?? 0));
-      res.headers.set('x-day-n', String(dayRead.value?.n ?? 0));
-      res.headers.set('x-month-cost', String(monthRead.value?.cost ?? 0));
-    }
-    return res;
   }
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
@@ -98,9 +85,7 @@ export async function POST(req) {
   const [ipRead, dayRead, monthRead] = await Promise.all([
     readJSON(ipKey), readJSON(`day/${day}`), readJSON(`month/${month}`),
   ]);
-  if (!ipRead.ok || !dayRead.ok || !monthRead.ok) {
-    return fail(LIMIT_UNAVAILABLE, 503, ipRead.reason || dayRead.reason || monthRead.reason || 'counter');
-  }
+  if (!ipRead.ok || !dayRead.ok || !monthRead.ok) return fail(LIMIT_UNAVAILABLE, 503);
   const decision = spendDecision({
     ipCount: ipRead.value?.n ?? 0,
     dayCount: dayRead.value?.n ?? 0,
