@@ -116,6 +116,7 @@ export default function Page() {
       <section>
         <h2>Where to start</h2>
         <p>A free snapshot, with a brand name and no account, is the <a href="/">checker on this site</a>. Ongoing checks at the per-answer price above are the <a href={tracker}>AI Visibility Tracker</a>. For the older four-way writeup, see <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a>. That page’s Otterly and Peec figures were read earlier than this one.</p>
+        <p>The Nov 12 Otterly read is also on <a href="/otterly-alternatives">Otterly alternatives</a>. A step-by-step check is on <a href="/how-to-check-if-chatgpt-mentions-your-brand">how to check if ChatGPT mentions your brand</a>. For a software category, see <a href="/ai-visibility-for-saas">AI visibility for SaaS</a>.</p>
         <p>Business Hub is a different product. It shows a business its own ChatGPT totals. See <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a>.</p>
       </section>
       <section>

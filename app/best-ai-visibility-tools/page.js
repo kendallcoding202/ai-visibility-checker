@@ -50,7 +50,7 @@ export default function Page() {
         <h2>FAQ</h2>
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
-      <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a> · <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a></p>
+      <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a> · <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a> · <a href="/otterly-alternatives">Otterly alternatives</a> · <a href="/how-to-check-if-chatgpt-mentions-your-brand">How to check if ChatGPT mentions your brand</a> · <a href="/ai-visibility-for-saas">AI visibility for SaaS</a></p>
       <p><a className="cta" href="/">Run a free check now</a></p>
     </main>
     <Footer />

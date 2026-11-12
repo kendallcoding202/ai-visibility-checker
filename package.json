@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --test lib/*.test.js"
+    "test": "node --import ./lib/register-jsx.js --test lib/*.test.js"
   },
   "dependencies": {
     "@vercel/analytics": "2.0.1",
