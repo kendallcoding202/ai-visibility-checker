@@ -204,6 +204,36 @@ export async function POST(req) {
       publicStatus = pub.status;
       publicLen = pub.len;
     }
+    const index = openSeal(await getPrivateJSON(key, { retry: true }));
+    const versionDiag = { hasVersion: typeof index?.version === 'string' };
+    if (typeof index?.version === 'string') {
+      versionDiag.versionShape = /^[A-Za-z0-9_-]{43}$/.test(index.version);
+      versionDiag.versionLen = index.version.length;
+      const versionPath = `sealed/mail/v/${index.version}.json`;
+      try {
+        const versionMeta = await head(versionPath, { abortSignal: AbortSignal.timeout(8_000) });
+        versionDiag.headFound = true;
+        versionDiag.size = versionMeta?.size ?? null;
+      } catch (error) {
+        versionDiag.headFound = false;
+        versionDiag.headError = safeMsg(error);
+      }
+      const versionOrigin = sealedOriginUrl(versionPath);
+      const versionPrivate = await sampleFetch(versionOrigin, auth);
+      versionDiag.privateCache0 = versionPrivate.status;
+      if (versionOrigin) {
+        const plain = new URL(versionOrigin);
+        plain.searchParams.delete('cache');
+        const plainRead = await sampleFetch(plain, auth);
+        versionDiag.privateNoCache = plainRead.status;
+        versionDiag.privateLen = plainRead.len;
+      }
+      const raw = await getPrivateJSON(`mail/v/${index.version}`, { retry: false });
+      versionDiag.raw = raw == null ? 'null' : (raw?.v === 1 ? 'seal' : typeof raw);
+      const opened = openSeal(raw);
+      versionDiag.opened = Boolean(opened?.email);
+      versionDiag.deleted = Boolean(opened?.deleted);
+    }
     const found = Boolean(await subscriberByToken(kind, token));
     const shape = await lookupShape(kind, token);
     const report = {
@@ -219,6 +249,7 @@ export async function POST(req) {
       publicLen,
       found,
       shape,
+      versionDiag,
     };
     console.error(`blob-probe ${JSON.stringify(report)}`);
     return Response.json(report, { headers: noStore });
