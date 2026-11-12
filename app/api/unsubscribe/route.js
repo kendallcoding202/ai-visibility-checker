@@ -4,6 +4,8 @@ import { readJSON, setJSON } from '../../../lib/store.js';
 import { sameOrigin } from '../../../lib/sameOrigin.js';
 import { clientIp } from '../../../lib/sameOrigin.js';
 import { deleteSubscriber, subscriberByToken } from '../../../lib/subscribers.js';
+import { cancelStripeSubscription } from '../../../lib/stripeApi.js';
+import { forgetTrackingBindings } from '../../../lib/trackingRecords.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -43,6 +45,20 @@ export async function POST(req) {
 
   const record = await subscriberByToken('unsub', await tokenFrom(req));
   if (!record) return bad('This unsubscribe link is not valid.');
+  if (record.stripeSubscriptionId) {
+    const canceled = await cancelStripeSubscription(record.stripeSubscriptionId);
+    if (!canceled.ok) {
+      const status = canceled.reason === 'unconfigured' ? 503 : 502;
+      const message = status === 503
+        ? 'Billing cancellation is temporarily unavailable. Open the billing portal from the tracking email and cancel there.'
+        : 'The subscription could not be canceled. Open the billing portal from the tracking email and cancel there.';
+      return bad(message, status);
+    }
+  }
+  await forgetTrackingBindings(record);
   await deleteSubscriber(record.email);
-  return Response.json({ ok: true, message: 'This address is unsubscribed and deleted.' }, { headers: noStore });
+  const message = record.stripeSubscriptionId || record.trackingActive
+    ? 'The subscription is canceled and this address is deleted.'
+    : 'This address is unsubscribed and deleted.';
+  return Response.json({ ok: true, message }, { headers: noStore });
 }

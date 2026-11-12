@@ -25,7 +25,7 @@ export default function Result({ d, shared = false, showPaidReport = false, show
     <p>{d.mentionedIn === 0 ? `ChatGPT didn't mention ${d.brand}${market}. Buyers asking AI are seeing your competitors instead.`
       : d.mentionedIn < d.total ? `${d.brand} shows up in some answers, but not consistently.` : `${d.brand} shows up in every answer. Nice! Keep tracking it, since AI answers change weekly.`}</p>
     <Plans d={d} showPaidReport={showPaidReport} showTrackingTier={showTrackingTier} />
-    {!shared && emailCapture && <ReportEmail id={d.id} />}
+    {!shared && emailCapture && <ReportEmail id={d.id} showTracking={showTrackingTier} />}
     <p className="weekly">This is one snapshot, and AI answers shift from week to week. To see whether {d.brand} is gaining or losing ground, <TrackLink href={TRACKER('result-top')} event={EVENTS.TRACKER_CTA_CLICK} location="result-top" target="_blank" rel="noopener">track it weekly on Apify</TrackLink>. The ready-made input is <a href="#track">below</a>.</p>
     {d.id && <ShareLink id={d.id} brand={d.brand} score={d.score} source={shared ? 'share' : 'home'} />}
     <h3>Engines</h3>

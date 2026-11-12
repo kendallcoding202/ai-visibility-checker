@@ -95,6 +95,7 @@ export async function POST(req) {
   const existing = await getSubscriber(email);
   const confirmToken = makeToken();
   const unsubToken = existing?.unsubToken || makeToken();
+  const manageToken = existing?.manageToken || makeToken();
   const cookie = readAnswerCookie(req.headers.get('cookie'));
   let answers = null;
   if (cookie && cookie.shareId === id) {
@@ -109,6 +110,7 @@ export async function POST(req) {
     confirmExpires: Date.now() + CONFIRM_MS,
     confirmToken,
     unsubToken,
+    manageToken,
     resultId: id,
     snapshot: reportSnapshot(cached.result),
     answers,

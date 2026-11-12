@@ -26,8 +26,8 @@ export default function Privacy() {
         <h2>Report email</h2>
         <p>If you ask for the report by email, you have to check a consent box and then confirm from your inbox. We store the address, the time you asked, and a copy of that report until you unsubscribe. The address is encrypted. It is not shown on the site and it is not sent to the browser again.</p>
         <p>If you do not confirm within 48 hours, the address is deleted when that confirmation link is opened, or when the same address is submitted again.</p>
-        <p>A weekly re-check can be saved with the address. Those weekly emails are not being sent yet.</p>
-        <p>Every email has an unsubscribe link. Unsubscribing deletes the address and the stored report. Resend sends the email. The message comes from an address on a domain already verified for that account.</p>
+        <p>Monthly tracking, when it is offered, is $24/month. It re-checks one saved brand weekly on ChatGPT with web search and emails the result with the run count and the raw answers. Stripe processes the payment. We store the Stripe customer id with the encrypted address. We do not store the card number.</p>
+        <p>Every email has an unsubscribe link. Unsubscribing deletes the address and the stored report. For a paid tracking subscription, that link also cancels the subscription. You can cancel anytime in the billing portal from the tracking email. Resend sends the email. The message comes from an address on a domain already verified for that account.</p>
       </section>
       <section>
         <h2>What we do not do</h2>

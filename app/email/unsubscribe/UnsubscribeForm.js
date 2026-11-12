@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-export default function UnsubscribeForm({ token }) {
+export default function UnsubscribeForm({ token, paid = false }) {
   const [state, setState] = useState({ loading: false, error: '', done: '' });
   async function go() {
     setState({ loading: true, error: '', done: '' });
@@ -23,8 +23,10 @@ export default function UnsubscribeForm({ token }) {
     }
   }
   return (<div>
-    <p>This deletes the email address and the stored report.</p>
-    <button type="button" onClick={go} disabled={state.loading}>{state.loading ? 'Removing…' : 'Unsubscribe and delete this address'}</button>
+    <p>{paid
+      ? 'This cancels the $24/month tracking subscription and deletes the email address and the stored report.'
+      : 'This deletes the email address and the stored report.'}</p>
+    <button type="button" onClick={go} disabled={state.loading}>{state.loading ? 'Removing…' : (paid ? 'Cancel subscription and delete this address' : 'Unsubscribe and delete this address')}</button>
     {state.error && <p className="err" role="alert">{state.error}</p>}
     {state.done && <p role="status">{state.done}</p>}
   </div>);
