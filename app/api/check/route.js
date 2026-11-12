@@ -1,9 +1,6 @@
-import { askWithSearch, json, costOf } from '../../../lib/openai.js';
-import { findBrandMention, brandsMatch, host, EXTRACTION_SCHEMA, extractionPrompt, buildPrompts } from '../../../lib/analyze.js';
-import { packCitations } from '../../../lib/fixList.js';
 import { getJSON, readJSON, setJSON } from '../../../lib/store.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
-import { CHECK_TIMEOUT_ERROR, CheckTimeoutError, isCheckTimeout } from '../../../lib/checkError.js';
+import { CHECK_TIMEOUT_ERROR, isCheckTimeout } from '../../../lib/checkError.js';
 import { dailyCap, estCostPerCheck, ipLimitMessage, LIMIT_GLOBAL, LIMIT_MONTH, LIMIT_UNAVAILABLE, money, monthBudget, perIpDaily } from '../../../lib/limits.js';
 import { track } from '@vercel/analytics/server';
 import { EVENTS, errorTypeFromStatus, limitReason, trackEvent } from '../../../lib/analyticsEvents.js';
@@ -11,6 +8,7 @@ import { parseCheckInput } from '../../../lib/checkInput.js';
 import { publicResult } from '../../../lib/publicResult.js';
 import { sameOrigin } from '../../../lib/sameOrigin.js';
 import { answerCookie, newAnswerToken, saveRawAnswers } from '../../../lib/rawAnswers.js';
+import { runVisibilityCheck } from '../../../lib/runCheck.js';
 
 export const runtime = 'nodejs';
 // Pro plan. The work itself stops around 100s so the catch can refund before this kill.
@@ -24,7 +22,6 @@ function envMs(name, fallback, max) {
 const checkBudgetMs = () => envMs('CHECK_BUDGET_MS', 100_000, 100_000);
 const searchTimeoutMs = () => envMs('SEARCH_TIMEOUT_MS', 40_000, 40_000);
 const refundReserveMs = () => envMs('REFUND_RESERVE_MS', 12_000, 15_000);
-const MIN_CALL_MS = 50;
 
 // Launch-day boost and the November 2026 $50 ceiling live in lib/limits.js.
 const CACHE_MS = 24 * 3600 * 1000;
@@ -96,54 +93,16 @@ export async function POST(req) {
       setJSON(`month/${month}`, { cost: money(spent + reserve), n: (monthStats?.n ?? 0) + 1 }),
     ]);
 
-    const deadline = Date.now() + checkBudgetMs();
-    const callBudget = (cap) => {
-      const left = deadline - Date.now() - refundReserveMs();
-      if (left < MIN_CALL_MS) throw new CheckTimeoutError();
-      return cap == null ? left : Math.min(cap, left);
-    };
-    const prompts = buildPrompts(category, brand);
-    const searchMs = callBudget(searchTimeoutMs());
-    const answers = await allSettledThrow(prompts.map((p) => askWithSearch(p, searchMs)));
-    answers.forEach((a) => { cost += costOf(a.usage, 'search', a.searches || 1); });
-    const ex = await json(extractionPrompt(brand, answers.map((a, i) => ({ prompt: prompts[i], text: a.text }))), EXTRACTION_SCHEMA, callBudget());
-    cost += costOf(ex.usage, 'util');
-
-    const brandLc = brand.toLowerCase();
-    const rows = answers.map((a, i) => {
-      const brands = (ex.data.answers[i]?.brands ?? []).map((b) => String(b).trim()).filter(Boolean).filter((b, j, arr) => arr.findIndex((x) => x.toLowerCase() === b.toLowerCase()) === j);
-      const idx = brands.findIndex((b) => brandsMatch(brand, b));
-      const mentioned = idx >= 0 || findBrandMention(a.text, brand) >= 0;
-      return {
-        prompt: prompts[i], mentioned, rank: idx >= 0 ? idx + 1 : (mentioned ? brands.length + 1 : null),
-        brands: brands.slice(0, 10), sentiment: ex.data.answers[i]?.sentiment ?? 'not_mentioned',
-        citations: packCitations(a.citations),
-        cited: a.citations.some((c) => (host(c.url) ?? '').includes(brandLc.replace(/\s+/g, ''))),
-      };
+    const checked = await runVisibilityCheck({
+      brand,
+      category,
+      competitors,
+      deadline: Date.now() + checkBudgetMs(),
+      searchTimeoutMs: searchTimeoutMs(),
+      refundReserveMs: refundReserveMs(),
     });
-    const mentionedIn = rows.filter((r) => r.mentioned).length;
-    const ranks = rows.map((r) => r.rank).filter(Boolean);
-    const others = {};
-    rows.forEach((r) => r.brands.forEach((b) => {
-      if (brandsMatch(brand, b)) return;
-      if (competitors.some((c) => brandsMatch(c, b))) return;
-      others[b] = (others[b] ?? 0) + 1;
-    }));
-    const competitorHits = competitors.map((c) => ({
-      name: c,
-      mentionedIn: rows.filter((r, i) => findBrandMention(answers[i].text, c) >= 0 || r.brands.some((b) => brandsMatch(c, b))).length,
-    }));
-    const srcCount = {};
-    answers.forEach((a) => new Set(a.citations.map((c) => host(c.url)).filter(Boolean)).forEach((h) => { srcCount[h] = (srcCount[h] ?? 0) + 1; }));
-    const result = {
-      brand, category, runs: 1, mentionedIn, total: rows.length,
-      score: Math.round((mentionedIn / rows.length) * 100 * (ranks.length ? Math.max(0.4, 1 - (ranks.reduce((s, x) => s + x, 0) / ranks.length - 1) * 0.08) : 1)),
-      avgRank: ranks.length ? +(ranks.reduce((s, x) => s + x, 0) / ranks.length).toFixed(1) : null,
-      rows, competitorHits,
-      topBrands: Object.entries(others).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, n]) => ({ name, n })),
-      topSources: Object.entries(srcCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([domain, n]) => ({ domain, n })),
-      checkedAt: new Date().toISOString(),
-    };
+    cost = checked.cost;
+    const { result, rawAnswers } = checked;
     await setJSON(cacheKey, { at: Date.now(), result });
     let cookie = '';
     try {
@@ -151,7 +110,7 @@ export async function POST(req) {
       await saveRawAnswers(answerToken, {
         shareId,
         runs: 1,
-        answers: answers.map((a, i) => ({ prompt: prompts[i], text: a.text })),
+        answers: rawAnswers,
       });
       cookie = answerCookie(shareId, answerToken);
     } catch (error) {
@@ -169,20 +128,11 @@ export async function POST(req) {
     return Response.json(payload, { headers: cookie ? { 'set-cookie': cookie } : {} });
   } catch (e) {
     console.error('check failed', e instanceof Error ? e.message : 'error');
+    if (Number.isFinite(e?.trackingCost)) cost = e.trackingCost;
     if (reserved) await refundReservation(ipKey, day, month, cost, reserve);
     if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
     return fail('The AI check failed. Please try again in a minute.', 502);
   }
-}
-
-async function allSettledThrow(promises) {
-  const results = await Promise.all(promises.map((p) => p.then(
-    (value) => ({ ok: true, value }),
-    (error) => ({ ok: false, error }),
-  )));
-  const failed = results.find((r) => !r.ok);
-  if (failed) throw failed.error;
-  return results.map((r) => r.value);
 }
 
 async function refundReservation(ipKey, day, month, cost, reserve) {

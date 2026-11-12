@@ -91,7 +91,7 @@ export function CitationCTA({ d }) {
     {answers} answers = ${runCost(input, CIT_PRICE).toFixed(2)}. Add your domain to <code>yourDomains</code> after pasting.</p>);
 }
 
-export function ReportEmail({ id }) {
+export function ReportEmail({ id, showTracking = false }) {
   const start = useRef(Date.now());
   const [state, setState] = useState({ loading: false, error: '', done: '' });
   async function submit(e) {
@@ -125,7 +125,9 @@ export function ReportEmail({ id }) {
   return (<form className="emailbox" onSubmit={submit}>
     <h3>Get your full report by email</h3>
     <p>We'll email the score, the questions, who was named, and the sources. If this browser ran the check, the raw answers are included. Open the confirmation email to finish. Every email has an unsubscribe link.</p>
-    <p className="muted">A weekly re-check of this brand is saved with your address. Those emails are not being sent yet.</p>
+    <p className="muted">{showTracking
+      ? 'Weekly re-checks of this saved brand on ChatGPT with web search are $24/month after you confirm this email. Cancel anytime.'
+      : 'This email is the report for this check.'}</p>
     <label>Email<input name="email" type="email" required autoComplete="email" maxLength={254} placeholder="you@company.com" /></label>
     <label className="consent"><input name="consent" type="checkbox" required /> <span>I agree to receive this report by email. I can unsubscribe in any email. <a href="/privacy">Privacy policy</a>.</span></label>
     <input className="hp" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" />

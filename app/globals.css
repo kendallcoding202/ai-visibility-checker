@@ -39,6 +39,7 @@ table.cmp{width:100%;border-collapse:collapse;background:#fff;font-size:14px}tab
 .plans.one{grid-template-columns:1fr}
 .plans.three{grid-template-columns:1fr 1fr 1fr}
 .plan{border:1px solid #e3e7f2;border-radius:12px;padding:14px}
+.plan form{display:grid;gap:8px;margin-top:8px}
 .plan .price{font-size:28px;font-weight:800;color:#141a2e;margin:0 0 8px}
 .emailbox{border:1px solid #e3e7f2;border-radius:12px;padding:14px;margin:12px 0;display:grid;gap:10px}
 .consent{display:flex;gap:8px;align-items:flex-start;font-weight:500}
