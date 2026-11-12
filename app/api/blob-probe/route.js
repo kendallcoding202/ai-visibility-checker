@@ -168,6 +168,61 @@ export async function POST(req) {
     console.error(`blob-probe ${JSON.stringify(report)}`);
     return Response.json(report, { headers: noStore });
   }
+  if (phase === 'lookup') {
+    let body = {};
+    try { body = await req.json(); } catch { body = {}; }
+    const kind = body.kind === 'unsub' ? 'unsub' : 'confirm';
+    const token = String(body.token || '');
+    if (!/^[A-Za-z0-9_-]{43}$/.test(token)) {
+      return Response.json({ phase, tokenShape: false }, { headers: noStore });
+    }
+    const key = `mail/${kind}/${hashKey(token)}`;
+    const pathname = `sealed/${key}.json`;
+    let headFound = false;
+    let headError = '';
+    let meta = null;
+    try {
+      meta = await head(pathname, { abortSignal: AbortSignal.timeout(8_000) });
+      headFound = Boolean(meta);
+    } catch (error) {
+      headError = safeMsg(error);
+    }
+    const authToken = process.env.BLOB_READ_WRITE_TOKEN ?? '';
+    const auth = authToken ? { authorization: `Bearer ${authToken}` } : {};
+    const origin = sealedOriginUrl(pathname);
+    const privateCache0 = await sampleFetch(origin, auth);
+    let privatePlain = { status: 0 };
+    if (origin) {
+      const plain = new URL(origin);
+      plain.searchParams.delete('cache');
+      privatePlain = await sampleFetch(plain, auth);
+    }
+    let publicStatus = 0;
+    let publicLen = 0;
+    if (meta?.url) {
+      const pub = await sampleFetch(new URL(meta.url), auth);
+      publicStatus = pub.status;
+      publicLen = pub.len;
+    }
+    const found = Boolean(await subscriberByToken(kind, token));
+    const shape = await lookupShape(kind, token);
+    const report = {
+      phase,
+      kind,
+      tokenShape: true,
+      headFound,
+      headError,
+      privateCache0: privateCache0.status,
+      privateNoCache: privatePlain.status,
+      privateLen: privatePlain.len,
+      publicStatus,
+      publicLen,
+      found,
+      shape,
+    };
+    console.error(`blob-probe ${JSON.stringify(report)}`);
+    return Response.json(report, { headers: noStore });
+  }
 
   const id = storeId();
   const nonce = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
