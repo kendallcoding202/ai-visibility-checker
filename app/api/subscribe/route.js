@@ -94,7 +94,9 @@ export async function POST(req) {
 
   const existing = await getSubscriber(email);
   const confirmToken = makeToken();
-  const unsubToken = existing?.unsubToken || makeToken();
+  // New pathname every signup. Reusing the previous unsub token overwrites the
+  // deleted object, and the CDN can keep serving that deletion.
+  const unsubToken = makeToken();
   const manageToken = existing?.manageToken || makeToken();
   const cookie = readAnswerCookie(req.headers.get('cookie'));
   let answers = null;
@@ -183,6 +185,6 @@ export async function confirmPost(req) {
     idempotencyKey: reportIdempotencyKey(record.confirmToken, record.email),
   });
   if (!sent.ok) return bad('Confirmed, but the report email could not be sent. Open the confirmation link again.', 502);
-  await markReportSent(record.email, new Date().toISOString());
+  await markReportSent(record, new Date().toISOString());
   return Response.json({ ok: true, message: 'Confirmed. The report is on its way.' }, { headers: noStore });
 }
