@@ -1,7 +1,10 @@
 // Temporary diagnosis against the connected Blob store. Returns status codes
 // and booleans only. No tokens, URLs, pathnames, or bodies. Removed before the fix lands.
 import { del, get, head, put } from '@vercel/blob';
-import { getPrivateJSON, putPrivateJSON, sealedOriginUrl } from '../../../lib/privateStore.js';
+import { hashKey } from '../../../lib/hash.js';
+import { delPrivateKey, getPrivateJSON, putPrivateJSON, sealedOriginUrl } from '../../../lib/privateStore.js';
+import { openSeal, seal } from '../../../lib/seal.js';
+import { deleteSubscriber, makeToken, saveSubscriber, subscriberByToken } from '../../../lib/subscribers.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -35,17 +38,18 @@ async function sampleFetch(url, headers) {
       signal: AbortSignal.timeout(8_000),
       headers: { 'cache-control': 'no-cache', ...headers },
     });
-    const text = response.status === 200 ? await readText(response) : '';
+    const text = response.status === 200 || response.status === 400 ? await readText(response) : '';
     let json = false;
-    if (text) {
+    if (response.status === 200 && text) {
       try { json = JSON.parse(text)?.probe === 'blob-read'; } catch { json = false; }
     }
     return {
       status: response.status,
       json,
-      len: text ? Buffer.byteLength(text) : 0,
-      etag: response.headers.get('etag') ? 'present' : 'absent',
+      len: response.status === 200 && text ? Buffer.byteLength(text) : 0,
+      etag: response.headers.get('etag') || '',
       type: (response.headers.get('content-type') || '').split(';')[0].slice(0, 40),
+      note: response.status === 400 ? safeMsg({ message: text }) : '',
     };
   } catch (error) {
     return { status: 0, json: false, len: 0, etag: 'absent', error: safeMsg(error) };
@@ -78,7 +82,93 @@ async function sampleSdk(pathname, access, useCache) {
   }
 }
 
-export async function POST() {
+function scrub(report) {
+  const clone = JSON.parse(JSON.stringify(report));
+  for (const read of Object.values(clone.reads || {})) {
+    if (read && typeof read === 'object') delete read.etag;
+  }
+  return clone;
+}
+
+function recordFor(email, confirmToken, unsubToken) {
+  return {
+    email,
+    status: 'pending',
+    weekly: false,
+    createdAt: new Date().toISOString(),
+    confirmExpires: Date.now() + 3600_000,
+    confirmToken,
+    unsubToken,
+    manageToken: makeToken(),
+    resultId: 'ab'.repeat(12),
+    snapshot: { brand: 'Probe', mentionedIn: 0, total: 1, score: 0, runs: 1, rows: [], topBrands: [], topSources: [] },
+    answers: null,
+    reportSentAt: null,
+    confirmedAt: null,
+  };
+}
+
+async function lookupShape(kind, token) {
+  const index = openSeal(await getPrivateJSON(`mail/${kind}/${hashKey(token)}`, { retry: true }));
+  if (!index) return { index: 'missing' };
+  if (!index.version) return { index: 'no-version' };
+  const record = openSeal(await getPrivateJSON(`mail/v/${index.version}`, { retry: true }));
+  if (!record?.email) return { index: 'opened', version: 'missing' };
+  return { index: 'opened', version: 'opened', tokenMatch: record[kind === 'confirm' ? 'confirmToken' : 'unsubToken'] === token };
+}
+
+export async function POST(req) {
+  const phase = new URL(req.url).searchParams.get('phase') || '';
+  if (phase === 'write' || phase === 'read') {
+    if (phase === 'write') {
+      const nonce = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+      const email = `probe-${nonce}@example.com`;
+      const confirmToken = makeToken();
+      const unsubToken = makeToken();
+      await saveSubscriber(recordFor(email, confirmToken, unsubToken));
+      await putPrivateJSON(`probe/session/${nonce}`, seal({ confirmToken, unsubToken, email }));
+      const same = await subscriberByToken('confirm', confirmToken);
+      const report = { phase, nonce, sameRequest: same?.email === email };
+      console.error(`blob-probe ${JSON.stringify(report)}`);
+      return Response.json(report, { headers: noStore });
+    }
+    let body = {};
+    try { body = await req.json(); } catch { body = {}; }
+    const nonce = String(body.nonce || '');
+    if (!/^[a-z0-9]+$/.test(nonce)) return Response.json({ error: 'bad nonce' }, { status: 400, headers: noStore });
+    const session = openSeal(await getPrivateJSON(`probe/session/${nonce}`, { retry: true }));
+    if (!session?.confirmToken || !session.email) {
+      return Response.json({ phase, session: false }, { headers: noStore });
+    }
+    const confirm = await subscriberByToken('confirm', session.confirmToken);
+    const unsub = await subscriberByToken('unsub', session.unsubToken);
+    const shape = {
+      confirm: await lookupShape('confirm', session.confirmToken),
+      unsub: await lookupShape('unsub', session.unsubToken),
+    };
+    await deleteSubscriber(confirm || session.email);
+    const afterDelete = await subscriberByToken('unsub', session.unsubToken);
+    const confirmToken2 = makeToken();
+    const unsubToken2 = makeToken();
+    await saveSubscriber(recordFor(session.email, confirmToken2, unsubToken2));
+    const resubConfirm = await subscriberByToken('confirm', confirmToken2);
+    const resubUnsub = await subscriberByToken('unsub', unsubToken2);
+    await deleteSubscriber(session.email);
+    await delPrivateKey(`probe/session/${nonce}`);
+    const report = {
+      phase,
+      session: true,
+      confirm: confirm?.email === session.email,
+      unsub: unsub?.email === session.email,
+      afterDelete: !afterDelete,
+      resubConfirm: resubConfirm?.email === session.email,
+      resubUnsub: resubUnsub?.email === session.email,
+      shape,
+    };
+    console.error(`blob-probe ${JSON.stringify(report)}`);
+    return Response.json(report, { headers: noStore });
+  }
+
   const id = storeId();
   const nonce = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
   const key = `probe/${nonce}`;
@@ -141,8 +231,12 @@ export async function POST() {
       cache0.searchParams.set('cache', '0');
       report.reads.publicCache0 = await sampleFetch(cache0, auth);
       report.reads.publicNoAuth = await sampleFetch(pub, {});
-      report.etag = {
-        head: meta.etag ? 'present' : 'absent',
+      const headEtag = meta.etag || '';
+      report.etagEq = {
+        headPresent: Boolean(headEtag),
+        publicAuth: Boolean(headEtag) && report.reads.publicAuth.etag === headEtag,
+        publicBust: Boolean(headEtag) && report.reads.publicBust.etag === headEtag,
+        privateNoCache: Boolean(headEtag) && report.reads.privateNoCache.etag === headEtag,
       };
     }
     report.reads.sdkPublic = await sampleSdk(pathname, 'public', true);
@@ -202,6 +296,7 @@ export async function POST() {
     report.deleteError = safeMsg(error);
   }
 
-  console.error(`blob-probe ${JSON.stringify(report)}`);
-  return Response.json(report, { headers: noStore });
+  const safe = scrub(report);
+  console.error(`blob-probe ${JSON.stringify(safe)}`);
+  return Response.json(safe, { headers: noStore });
 }
