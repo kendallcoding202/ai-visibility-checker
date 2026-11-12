@@ -56,7 +56,7 @@ export async function POST(req) {
     }
   }
   await forgetTrackingBindings(record);
-  await deleteSubscriber(record.email);
+  await deleteSubscriber(record);
   const message = record.stripeSubscriptionId || record.trackingActive
     ? 'The subscription is canceled and this address is deleted.'
     : 'This address is unsubscribed and deleted.';
