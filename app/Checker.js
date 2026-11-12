@@ -1,13 +1,26 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { track } from '@vercel/analytics';
 import Result from './Result.js';
 import { EVENTS, categoryBucket, trackEvent } from '../lib/analyticsEvents.js';
 import { messageFromFailedCheck } from '../lib/checkError.js';
 
-export default function Checker() {
+export default function Checker({ showPaidReport = false, showTrackingTier = false, emailCapture = false }) {
   const start = useRef(Date.now());
   const [state, setState] = useState({ loading: false, error: null, data: null });
+  const [flags, setFlags] = useState({ showPaidReport, showTrackingTier, emailCapture });
+  useEffect(() => {
+    let cancel = false;
+    fetch('/api/flags', { cache: 'no-store' }).then((r) => r.json()).then((data) => {
+      if (cancel || !data) return;
+      setFlags({
+        showPaidReport: Boolean(data.paidReport),
+        showTrackingTier: Boolean(data.trackingTier),
+        emailCapture: Boolean(data.emailCapture),
+      });
+    }).catch(() => {});
+    return () => { cancel = true; };
+  }, []);
   async function submit(e) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
@@ -44,15 +57,15 @@ export default function Checker() {
     <form className="card" onSubmit={submit}>
       <div className="row">
         <label>Your brand<input name="brand" required minLength={2} maxLength={60} placeholder="e.g. Notion" /></label>
-        <label>Category / industry<input name="category" required minLength={3} maxLength={80} placeholder="e.g. project management" /></label>
+        <label>Category / industry (optional)<input name="category" minLength={3} maxLength={80} placeholder="e.g. project management" /></label>
       </div>
       <label>Competitors (optional, comma-separated)<input name="competitors" maxLength={200} placeholder="e.g. Asana, Monday.com, ClickUp" /></label>
       <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
       <button disabled={state.loading}>{state.loading ? 'Asking ChatGPT…' : 'Check my AI visibility, free'}</button>
       {state.loading && <p className="muted" role="status">Still working, this can take up to a minute.</p>}
-      <span className="muted">3 free checks per day. We ask ChatGPT (with web search) 3 buyer-style questions about your category.</span>
+      <span className="muted">A brand name is enough. No account and no website. 3 free checks per day. We ask ChatGPT (with web search) 3 buyer-style questions.</span>
     </form>
     {state.error && <p className="err" role="alert">{state.error}</p>}
-    {d && <Result d={d} />}
+    {d && <Result d={d} showPaidReport={flags.showPaidReport} showTrackingTier={flags.showTrackingTier} emailCapture={flags.emailCapture} />}
   </>);
 }

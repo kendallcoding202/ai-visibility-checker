@@ -34,3 +34,14 @@ table.cmp{width:100%;border-collapse:collapse;background:#fff;font-size:14px}tab
 .fix ul,.fix ol{margin:6px 0;padding-left:18px}
 .fix a,.costs a{overflow-wrap:anywhere}
 .fix .actions{color:#4a5370;font-size:14px}
+.plan .price span{font-size:14px;font-weight:600;color:#5a6380}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.plans.one{grid-template-columns:1fr}
+.plans.three{grid-template-columns:1fr 1fr 1fr}
+.plan{border:1px solid #e3e7f2;border-radius:12px;padding:14px}
+.plan .price{font-size:28px;font-weight:800;color:#141a2e;margin:0 0 8px}
+.emailbox{border:1px solid #e3e7f2;border-radius:12px;padding:14px;margin:12px 0;display:grid;gap:10px}
+.consent{display:flex;gap:8px;align-items:flex-start;font-weight:500}
+.consent input{width:auto;margin-top:4px}
+.raw{white-space:pre-wrap;font:inherit;font-size:14px;background:#f6f7fb;border-radius:10px;padding:10px;overflow-wrap:anywhere}
+@media(max-width:620px){.plans,.plans.three{grid-template-columns:1fr}}

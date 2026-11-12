@@ -14,5 +14,11 @@ export default function sitemap() {
     changeFrequency: 'monthly',
     priority: 0.7,
   });
+  pages.push({
+    url: `${SITE}/privacy`,
+    lastModified: new Date('2026-11-12'),
+    changeFrequency: 'yearly',
+    priority: 0.3,
+  });
   return pages;
 }
