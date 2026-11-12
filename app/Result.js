@@ -6,6 +6,7 @@ import { buildFixList, shortUrl } from '../lib/fixList.js';
 import { runLine } from '../lib/publicResult.js';
 import { tracker } from '../lib/costCompare.js';
 import { PAID_REPORT_BODY, PAID_REPORT_HEADING, PAID_REPORT_NOTE, PAID_REPORT_PRICE } from '../lib/paidReport.js';
+import { TrackingOffer } from './TrackingOffer.js';
 import { planColumnClass } from '../lib/trackingTier.js';
 import { trackingTierElement } from '../lib/trackingTierView.js';
 
@@ -20,6 +21,7 @@ export default function Result({ d, shared = false, showPaidReport = false, show
       <div><div className="big">{d.mentionedIn}/{d.total}</div><div className="muted">answers mention {d.brand}</div></div>
       <div><div className="big">{d.avgRank ? `#${d.avgRank}` : '–'}</div><div className="muted">average position when mentioned</div></div>
       <div><div className="big">{d.score}</div><div className="muted">visibility score (0–100)</div></div>
+      {showTrackingTier ? <TrackingOffer brand={d.brand} resultId={d.id || ''} /> : null}
     </div>
     <p className="runs">{runLine(d.runs, d.total)}</p>
     <p>{d.mentionedIn === 0 ? `ChatGPT didn't mention ${d.brand}${market}. Buyers asking AI are seeing your competitors instead.`
