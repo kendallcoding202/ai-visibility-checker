@@ -3,7 +3,7 @@ import { EVENTS, trackEvent } from '../../../lib/analyticsEvents.js';
 import { normalizeEmail, originForMail } from '../../../lib/emailAddress.js';
 import { confirmEmail, reportEmail } from '../../../lib/emailCopy.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
-import { sendMail } from '../../../lib/mailer.js';
+import { confirmIdempotencyKey, reportIdempotencyKey, sendMail } from '../../../lib/mailer.js';
 import { reportSnapshot } from '../../../lib/publicResult.js';
 import { getJSON, readJSON, setJSON } from '../../../lib/store.js';
 import { readAnswerCookie, loadRawAnswers } from '../../../lib/rawAnswers.js';
@@ -127,7 +127,7 @@ export async function POST(req) {
     text: message.text,
     html: message.html,
     unsubUrl: unsubApi,
-    idempotencyKey: `confirm/${hashKey(confirmToken)}`,
+    idempotencyKey: confirmIdempotencyKey(confirmToken, email),
   });
   if (!sent.ok) {
     await refund(ipSlot);
@@ -178,7 +178,7 @@ export async function confirmPost(req) {
     text: message.text,
     html: message.html,
     unsubUrl: unsubApi,
-    idempotencyKey: `report/${hashKey(record.email)}`,
+    idempotencyKey: reportIdempotencyKey(record.confirmToken, record.email),
   });
   if (!sent.ok) return bad('Confirmed, but the report email could not be sent. Open the confirmation link again.', 502);
   await markReportSent(record.email, new Date().toISOString());
