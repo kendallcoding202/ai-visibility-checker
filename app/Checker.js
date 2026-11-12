@@ -5,15 +5,19 @@ import Result from './Result.js';
 import { EVENTS, categoryBucket, trackEvent } from '../lib/analyticsEvents.js';
 import { messageFromFailedCheck } from '../lib/checkError.js';
 
-export default function Checker({ showPaidReport = false, emailCapture = false }) {
+export default function Checker({ showPaidReport = false, showTrackingTier = false, emailCapture = false }) {
   const start = useRef(Date.now());
   const [state, setState] = useState({ loading: false, error: null, data: null });
-  const [flags, setFlags] = useState({ showPaidReport, emailCapture });
+  const [flags, setFlags] = useState({ showPaidReport, showTrackingTier, emailCapture });
   useEffect(() => {
     let cancel = false;
     fetch('/api/flags', { cache: 'no-store' }).then((r) => r.json()).then((data) => {
       if (cancel || !data) return;
-      setFlags({ showPaidReport: Boolean(data.paidReport), emailCapture: Boolean(data.emailCapture) });
+      setFlags({
+        showPaidReport: Boolean(data.paidReport),
+        showTrackingTier: Boolean(data.trackingTier),
+        emailCapture: Boolean(data.emailCapture),
+      });
     }).catch(() => {});
     return () => { cancel = true; };
   }, []);
@@ -62,6 +66,6 @@ export default function Checker({ showPaidReport = false, emailCapture = false }
       <span className="muted">A brand name is enough. No account and no website. 3 free checks per day. We ask ChatGPT (with web search) 3 buyer-style questions.</span>
     </form>
     {state.error && <p className="err" role="alert">{state.error}</p>}
-    {d && <Result d={d} showPaidReport={flags.showPaidReport} emailCapture={flags.emailCapture} />}
+    {d && <Result d={d} showPaidReport={flags.showPaidReport} showTrackingTier={flags.showTrackingTier} emailCapture={flags.emailCapture} />}
   </>);
 }

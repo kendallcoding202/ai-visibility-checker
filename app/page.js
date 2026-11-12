@@ -7,6 +7,7 @@ import { EVENTS } from '../lib/analyticsEvents.js';
 import { COST_AS_OF_LABEL, freeChecker, tracker, otterly, keyword } from '../lib/costCompare.js';
 import { emailCaptureEnabled } from '../lib/emailAddress.js';
 import { paidReportEnabled } from '../lib/paidReport.js';
+import { trackingTierEnabled } from '../lib/trackingTier.js';
 
 const faq = [
   ['What is AI search visibility?', 'AI search visibility is how often AI assistants such as ChatGPT, Gemini and Perplexity mention or recommend your brand when people ask questions in your category. It is the AI-era version of ranking on Google.'],
@@ -60,7 +61,7 @@ export default function Page() {
       <p>See who ChatGPT recommends in your market. Then check whether it names your brand, your rank, which competitors it picks and which sources it cites.</p>
       <Lookup />
       <h2 id="checker">Check your brand</h2>
-      <Checker showPaidReport={paidReportEnabled()} emailCapture={emailCaptureEnabled()} />
+      <Checker showPaidReport={paidReportEnabled()} showTrackingTier={trackingTierEnabled()} emailCapture={emailCaptureEnabled()} />
     </div></header>
     <main className="wrap">
       <section>

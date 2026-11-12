@@ -6,11 +6,13 @@ import { buildFixList, shortUrl } from '../lib/fixList.js';
 import { runLine } from '../lib/publicResult.js';
 import { tracker } from '../lib/costCompare.js';
 import { PAID_REPORT_BODY, PAID_REPORT_HEADING, PAID_REPORT_NOTE, PAID_REPORT_PRICE } from '../lib/paidReport.js';
+import { planColumnClass } from '../lib/trackingTier.js';
+import { trackingTierElement } from '../lib/trackingTierView.js';
 
 const KIND_LABEL = { review: 'Review site', directory: 'Directory', listicle: 'Listicle' };
 
 // Shared result view, used on the homepage (after a check) and on /r/[id] share pages.
-export default function Result({ d, shared = false, showPaidReport = false, emailCapture = false }) {
+export default function Result({ d, shared = false, showPaidReport = false, showTrackingTier = false, emailCapture = false }) {
   const market = d.category ? ` for "${d.category}" questions` : ' in this brand-only check';
   return (<div className="result" id="result">
     <ResultViewTracker d={d} shared={shared} />
@@ -22,7 +24,7 @@ export default function Result({ d, shared = false, showPaidReport = false, emai
     <p className="runs">{runLine(d.runs, d.total)}</p>
     <p>{d.mentionedIn === 0 ? `ChatGPT didn't mention ${d.brand}${market}. Buyers asking AI are seeing your competitors instead.`
       : d.mentionedIn < d.total ? `${d.brand} shows up in some answers, but not consistently.` : `${d.brand} shows up in every answer. Nice! Keep tracking it, since AI answers change weekly.`}</p>
-    <Plans d={d} showPaidReport={showPaidReport} />
+    <Plans d={d} showPaidReport={showPaidReport} showTrackingTier={showTrackingTier} />
     {!shared && emailCapture && <ReportEmail id={d.id} />}
     <p className="weekly">This is one snapshot, and AI answers shift from week to week. To see whether {d.brand} is gaining or losing ground, <TrackLink href={TRACKER('result-top')} event={EVENTS.TRACKER_CTA_CLICK} location="result-top" target="_blank" rel="noopener">track it weekly on Apify</TrackLink>. The ready-made input is <a href="#track">below</a>.</p>
     {d.id && <ShareLink id={d.id} brand={d.brand} score={d.score} source={shared ? 'share' : 'home'} />}
@@ -46,8 +48,8 @@ export default function Result({ d, shared = false, showPaidReport = false, emai
   </div>);
 }
 
-function Plans({ d, showPaidReport }) {
-  return (<div className={showPaidReport ? 'plans' : 'plans one'}>
+function Plans({ d, showPaidReport, showTrackingTier }) {
+  return (<div className={planColumnClass(showPaidReport, showTrackingTier)}>
     <div className="plan">
       <h3>Ongoing plan</h3>
       <p className="price">${tracker.pricePerAnswer} <span>per answer</span></p>
@@ -60,6 +62,7 @@ function Plans({ d, showPaidReport }) {
       <p>{PAID_REPORT_BODY} This offer is for the {d.brand} check on this page.</p>
       <p className="muted">{PAID_REPORT_NOTE}</p>
     </div>}
+    {trackingTierElement(showTrackingTier, d.brand)}
   </div>);
 }
 
