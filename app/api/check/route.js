@@ -7,6 +7,10 @@ import { CHECK_TIMEOUT_ERROR, CheckTimeoutError, isCheckTimeout } from '../../..
 import { dailyCap, estCostPerCheck, ipLimitMessage, LIMIT_GLOBAL, LIMIT_MONTH, LIMIT_UNAVAILABLE, money, monthBudget, perIpDaily } from '../../../lib/limits.js';
 import { track } from '@vercel/analytics/server';
 import { EVENTS, errorTypeFromStatus, limitReason, trackEvent } from '../../../lib/analyticsEvents.js';
+import { parseCheckInput } from '../../../lib/checkInput.js';
+import { publicResult } from '../../../lib/publicResult.js';
+import { sameOrigin } from '../../../lib/sameOrigin.js';
+import { answerCookie, newAnswerToken, saveRawAnswers } from '../../../lib/rawAnswers.js';
 
 export const runtime = 'nodejs';
 // Pro plan. The work itself stops around 100s so the catch can refund before this kill.
@@ -32,8 +36,6 @@ const fail = (msg, status = 400) => {
   else void trackEvent(track, EVENTS.CHECK_ERROR, { type: errorTypeFromStatus(status), engine: 'chatgpt' });
   return bad(msg, status);
 };
-const clean = (s, max) => String(s ?? '').replace(/[\u0000-\u001f<>{}\[\]`]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
-const VALID = /^[\p{L}\p{N} .,&'+\-/()!]+$/u;
 
 export async function POST(req) {
   try {
@@ -47,20 +49,15 @@ export async function POST(req) {
   }
 
   // Basic bot protection: same-origin, JSON only, honeypot, minimum fill time.
-  const origin = req.headers.get('origin');
-  const hostHdr = req.headers.get('host');
-  let oh = null; try { oh = new URL(origin).host; } catch {}
-  if (!oh || oh !== hostHdr) return fail('Forbidden', 403);
+  if (!sameOrigin(req)) return fail('Forbidden', 403);
   let body;
   try { body = await req.json(); } catch { return fail('Bad request'); }
   if (body.website) return fail('Forbidden', 403);
   if (!(Number(body.elapsed) >= 1500)) return fail('Please try again.', 400);
 
-  const brand = clean(body.brand, 60);
-  const category = clean(body.category, 80);
-  const competitors = String(body.competitors ?? '').split(',').map((c) => clean(c, 60)).filter(Boolean).slice(0, 5);
-  if (brand.length < 2 || category.length < 3) return fail('Enter a brand name and a category.');
-  if (![brand, category, ...competitors].every((s) => VALID.test(s))) return fail('Please use plain letters and numbers only.');
+  const parsed = parseCheckInput(body);
+  if (parsed.error) return fail(parsed.error);
+  const { brand, category, competitors } = parsed;
 
   if ((process.env.OPENAI_API_KEY ?? '').length < 20) return fail('The checker is warming up. Please try again later.', 503);
   const day = new Date().toISOString().slice(0, 10);
@@ -68,7 +65,7 @@ export async function POST(req) {
   const shareId = hashKey(`${brand}|${category}|${competitors.join(',')}`.toLowerCase());
   const cacheKey = `cache/${shareId}`;
   const cached = await getJSON(cacheKey);
-  if (cached && Date.now() - cached.at < CACHE_MS) return Response.json({ ...cached.result, id: shareId, cached: true });
+  if (cached && Date.now() - cached.at < CACHE_MS) return Response.json(publicResult(cached.result, { id: shareId, cached: true }));
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
   const ipKey = `ip/${day}/${hashKey(ip)}`;
@@ -105,7 +102,7 @@ export async function POST(req) {
       if (left < MIN_CALL_MS) throw new CheckTimeoutError();
       return cap == null ? left : Math.min(cap, left);
     };
-    const prompts = buildPrompts(category);
+    const prompts = buildPrompts(category, brand);
     const searchMs = callBudget(searchTimeoutMs());
     const answers = await allSettledThrow(prompts.map((p) => askWithSearch(p, searchMs)));
     answers.forEach((a) => { cost += costOf(a.usage, 'search', a.searches || 1); });
@@ -120,7 +117,6 @@ export async function POST(req) {
       return {
         prompt: prompts[i], mentioned, rank: idx >= 0 ? idx + 1 : (mentioned ? brands.length + 1 : null),
         brands: brands.slice(0, 10), sentiment: ex.data.answers[i]?.sentiment ?? 'not_mentioned',
-        excerpt: a.text.slice(0, 600),
         citations: packCitations(a.citations),
         cited: a.citations.some((c) => (host(c.url) ?? '').includes(brandLc.replace(/\s+/g, ''))),
       };
@@ -140,7 +136,7 @@ export async function POST(req) {
     const srcCount = {};
     answers.forEach((a) => new Set(a.citations.map((c) => host(c.url)).filter(Boolean)).forEach((h) => { srcCount[h] = (srcCount[h] ?? 0) + 1; }));
     const result = {
-      brand, category, mentionedIn, total: rows.length,
+      brand, category, runs: 1, mentionedIn, total: rows.length,
       score: Math.round((mentionedIn / rows.length) * 100 * (ranks.length ? Math.max(0.4, 1 - (ranks.reduce((s, x) => s + x, 0) / ranks.length - 1) * 0.08) : 1)),
       avgRank: ranks.length ? +(ranks.reduce((s, x) => s + x, 0) / ranks.length).toFixed(1) : null,
       rows, competitorHits,
@@ -149,6 +145,18 @@ export async function POST(req) {
       checkedAt: new Date().toISOString(),
     };
     await setJSON(cacheKey, { at: Date.now(), result });
+    let cookie = '';
+    try {
+      const answerToken = newAnswerToken();
+      await saveRawAnswers(answerToken, {
+        shareId,
+        runs: 1,
+        answers: answers.map((a, i) => ({ prompt: prompts[i], text: a.text })),
+      });
+      cookie = answerCookie(shareId, answerToken);
+    } catch (error) {
+      console.error(`answer store failed name=${error?.name || 'Error'}`);
+    }
     // Replace the reservation with the measured cost. If the counter cannot be re-read, keep the reserve.
     const m = await readJSON(`month/${month}`);
     if (m.ok) {
@@ -156,7 +164,9 @@ export async function POST(req) {
       await setJSON(`month/${month}`, { ...prev, cost: money(Math.max(0, (prev.cost ?? 0) - reserve + cost)) });
     }
     console.log(`check ok cost=$${cost.toFixed(4)}`);
-    return Response.json({ ...result, id: shareId, cached: false, ...(process.env.SHOW_COST === '1' ? { cost } : {}) });
+    const payload = publicResult(result, { id: shareId, cached: false });
+    if (process.env.SHOW_COST === '1') payload.cost = cost;
+    return Response.json(payload, { headers: cookie ? { 'set-cookie': cookie } : {} });
   } catch (e) {
     console.error('check failed', e instanceof Error ? e.message : 'error');
     if (reserved) await refundReservation(ipKey, day, month, cost, reserve);

@@ -34,7 +34,7 @@ export function ShareLink({ id, brand, score, source = 'home' }) {
     <button type="button" className="ghost" onClick={() => { trackEvent(track, EVENTS.SHARE_CLICK, { channel: 'copy', source }); copy(url); }}>{done ? 'Link copied ✓' : '🔗 Copy share link'}</button>
     <a className="ghost" target="_blank" rel="noopener" onClick={() => trackEvent(track, EVENTS.SHARE_CLICK, { channel: 'x', source })} href={`https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`}>Post on X</a>
     <a className="ghost" target="_blank" rel="noopener" onClick={() => trackEvent(track, EVENTS.SHARE_CLICK, { channel: 'linkedin', source })} href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`}>Share on LinkedIn</a>
-    <span className="muted">No email or sign-up. The link shows this anonymous result only.</span>
+    <span className="muted">No account. The link shows this snapshot only. It does not include the raw answers or an email address.</span>
   </div>);
 }
 
@@ -89,4 +89,82 @@ export function CitationCTA({ d }) {
   return (<p className="muted">See every URL ChatGPT and Perplexity cite for these {input.prompts.length} questions, and whether your domain is one of them:{' '}
     <CopyAndOpen json={JSON.stringify(input, null, 2)} href={CITATION('result-sources')} event={EVENTS.CITATION_CTA_CLICK} location="result-sources">Copy input &amp; open the AI Citation Tracker →</CopyAndOpen>{' '}
     {answers} answers = ${runCost(input, CIT_PRICE).toFixed(2)}. Add your domain to <code>yourDomains</code> after pasting.</p>);
+}
+
+export function ReportEmail({ id }) {
+  const start = useRef(Date.now());
+  const [state, setState] = useState({ loading: false, error: '', done: '' });
+  async function submit(e) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    if (f.get('company')) return;
+    setState({ loading: true, error: '', done: '' });
+    try {
+      const r = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          email: f.get('email'),
+          consent: f.get('consent') === 'on',
+          id,
+          company: f.get('company') || '',
+          elapsed: Date.now() - start.current,
+        }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setState({ loading: false, error: data.error || 'The email could not be sent.', done: '' });
+        return;
+      }
+      setState({ loading: false, error: '', done: data.message || 'Check your inbox for a confirmation email.' });
+    } catch {
+      setState({ loading: false, error: 'Network error. Please try again.', done: '' });
+    }
+  }
+  return (<form className="emailbox" onSubmit={submit}>
+    <h3>Get your full report by email</h3>
+    <p>We'll email the score, the questions, who was named, and the sources. If this browser ran the check, the raw answers are included. Open the confirmation email to finish. Every email has an unsubscribe link.</p>
+    <p className="muted">A weekly re-check of this brand is saved with your address. Those emails are not being sent yet.</p>
+    <label>Email<input name="email" type="email" required autoComplete="email" maxLength={254} placeholder="you@company.com" /></label>
+    <label className="consent"><input name="consent" type="checkbox" required /> <span>I agree to receive this report by email. I can unsubscribe in any email. <a href="/privacy">Privacy policy</a>.</span></label>
+    <input className="hp" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+    <button disabled={state.loading}>{state.loading ? 'Sending…' : 'Email me the report'}</button>
+    {state.error && <p className="err" role="alert">{state.error}</p>}
+    {state.done && <p role="status">{state.done}</p>}
+  </form>);
+}
+
+export function RawAnswers({ id, rows, shared }) {
+  const [answers, setAnswers] = useState(null);
+  const [hidden, setHidden] = useState(Boolean(shared) || !id);
+  useEffect(() => {
+    if (shared || !id) return;
+    let cancel = false;
+    (async () => {
+      try {
+        const r = await fetch(`/api/answers?id=${encodeURIComponent(id)}`, { credentials: 'same-origin', cache: 'no-store' });
+        if (!r.ok) { if (!cancel) setHidden(true); return; }
+        const data = await r.json();
+        if (!cancel) setAnswers(Array.isArray(data.answers) ? data.answers : []);
+      } catch {
+        if (!cancel) setHidden(true);
+      }
+    })();
+    return () => { cancel = true; };
+  }, [id, shared]);
+  return (<>
+    {hidden && <p className="muted">{shared
+      ? 'Raw answers are not included in a shared link. They stay with the browser that ran the check.'
+      : 'The raw answer is only available in the browser that ran this check.'}</p>}
+    {(rows ?? []).map((r, i) => <div className="q" key={r.prompt}><strong>{r.prompt}</strong><br />
+      <span className={`pill ${r.mentioned ? 'yes' : 'no'}`}>{r.mentioned ? `Mentioned${r.rank ? `, #${r.rank}` : ''}` : 'Not mentioned'}</span>
+      {r.mentioned && <span className="pill n">sentiment: {r.sentiment}</span>}
+      <p>Top picks: {(r.brands ?? []).slice(0, 6).join(', ') || '–'}</p>
+      {answers?.[i]?.text && <details>
+        <summary>View the raw answer</summary>
+        <pre className="raw">{answers[i].text}</pre>
+      </details>}
+    </div>)}
+  </>);
 }
