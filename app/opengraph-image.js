@@ -4,9 +4,9 @@ export const contentType = 'image/png';
 export const alt = 'Free AI Visibility Checker';
 export default function OG() {
   return new ImageResponse(
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 80, background: 'linear-gradient(135deg,#0b1020,#1e2a5a)', color: 'white' }}>
-      <div style={{ fontSize: 34, color: '#8ab4ff' }}>Free AI Visibility Checker</div>
-      <div style={{ fontSize: 72, fontWeight: 800, marginTop: 20, lineHeight: 1.1 }}>Does ChatGPT recommend your brand?</div>
-      <div style={{ fontSize: 32, marginTop: 30, color: '#c9d4f0' }}>Mentions · rank · competitors · cited sources, in 30 seconds</div>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '72px 80px', background: '#12211c', color: '#f7f6f2' }}>
+      <div style={{ display: 'flex', fontSize: 28, letterSpacing: 0.2, color: '#d7f5ea' }}>Free AI Visibility Checker</div>
+      <div style={{ display: 'flex', fontSize: 68, fontWeight: 700, lineHeight: 1.08, maxWidth: 980 }}>Does ChatGPT recommend your brand?</div>
+      <div style={{ display: 'flex', fontSize: 30, color: '#c9d6cf' }}>Mentions · rank · competitors · cited sources, in 30 seconds</div>
     </div>, size);
 }

@@ -59,9 +59,14 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>Free AI Visibility Checker: does ChatGPT recommend your brand?</h1>
       <p>See who ChatGPT recommends in your market. Then check whether it names your brand, your rank, which competitors it picks and which sources it cites.</p>
-      <Lookup />
+      <ul className="trust" aria-label="What the free check includes">
+        <li>Uses ChatGPT with web search</li>
+        <li>Shows the raw answers</li>
+        <li>No sign-up for the free check</li>
+      </ul>
       <h2 id="checker">Check your brand</h2>
       <Checker showPaidReport={paidReportEnabled()} showTrackingTier={trackingTierEnabled()} emailCapture={emailCaptureEnabled()} />
+      <Lookup />
     </div></header>
     <main className="wrap">
       <section>
@@ -85,7 +90,7 @@ export default function Page() {
       <p>Tools: <TrackLink href={TRACKER('footer')} event={EVENTS.TRACKER_CTA_CLICK} location="footer">AI Visibility Tracker (ChatGPT, Gemini &amp; Perplexity)</TrackLink> · <TrackLink href={CITATIONS} event={EVENTS.CITATION_CTA_CLICK} location="footer">AI Citation Tracker (which sites ChatGPT, Perplexity &amp; Google AI Overviews cite)</TrackLink> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
       <p className="muted">We use Vercel Web Analytics for aggregate page views and actions. Event properties do not include your brand name, email, IP, or the text you type. <a href="/privacy">Privacy policy</a>.</p>
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>
-      <p className="fazier"><a href="https://fazier.com" target="_blank" rel="noopener"><img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light" width={160} alt="Fazier badge" /></a><span className="muted"> <a href="https://twelve.tools">Listed on Twelve.tools</a> · <a href="https://dang.ai">Featured on Dang.ai</a></span></p>
+      <p className="fazier"><a href="https://fazier.com" target="_blank" rel="noopener"><img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light" width={160} height={38} alt="Fazier badge" /></a><span className="muted"> <a href="https://twelve.tools">Listed on Twelve.tools</a> · <a href="https://dang.ai">Featured on Dang.ai</a></span></p>
     </div></footer>
     <Ld data={orgLd} /><Ld data={appLd} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
