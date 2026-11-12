@@ -54,7 +54,7 @@ export default function Checker({ showPaidReport = false, showTrackingTier = fal
   }
   const d = state.data;
   return (<>
-    <form className="card" onSubmit={submit}>
+    <form className="card card-focal" onSubmit={submit}>
       <div className="row">
         <label>Your brand<input name="brand" required minLength={2} maxLength={60} placeholder="e.g. Notion" /></label>
         <label>Category / industry (optional)<input name="category" minLength={3} maxLength={80} placeholder="e.g. project management" /></label>
