@@ -5,6 +5,7 @@ import { readJSON, setJSON } from '../../../lib/store.js';
 import { sameOrigin, clientIp } from '../../../lib/sameOrigin.js';
 import { getSubscriber } from '../../../lib/subscribers.js';
 import { createTrackingCheckout } from '../../../lib/stripeApi.js';
+import { recordTrackingMetric } from '../../../lib/trackingMetrics.js';
 import { trackingTierEnabled } from '../../../lib/trackingTier.js';
 
 export const runtime = 'nodejs';
@@ -69,5 +70,6 @@ export async function POST(req) {
     const status = session.reason === 'unconfigured' ? 503 : 502;
     return bad(status === 503 ? 'Checkout is temporarily unavailable.' : 'Checkout could not be started.', status);
   }
+  try { await recordTrackingMetric('checkout'); } catch { /* the count must not fail checkout */ }
   return Response.json({ url: session.url }, { headers: noStore });
 }
