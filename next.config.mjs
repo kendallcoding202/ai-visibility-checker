@@ -4,14 +4,14 @@ const isDev = process.env.NODE_ENV === 'development';
 // Honest CSP for this App Router site: Next and JSON-LD use inline scripts/styles,
 // so script-src/style-src allow 'unsafe-inline'. No unsafe-eval in production.
 // Analytics is first-party under /36aba5b8f51546bc/* and /_vercel/insights/* (covered by 'self').
-// The Fazier launch badge is the only third-party image.
+// Directory badges load images from Fazier, Smol Launch, and AIToolFinder.
 const csp = [
   "default-src 'self'",
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",
-  "img-src 'self' data: blob: https://fazier.com",
+  "img-src 'self' data: blob: https://fazier.com https://smollaunch.com https://www.aitoolfinder.com",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,

@@ -558,8 +558,67 @@ footer {
 footer p { margin: 0 0 10px; }
 footer a { color: var(--ink); }
 footer .muted, footer .muted a { color: var(--muted); }
-.fazier { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 0; }
-.fazier img { display: block; width: 160px; height: 38px; }
+.featured { margin: 16px 0 0; }
+.featured-label { margin: 0 0 8px; font-size: .75rem; font-weight: 650; letter-spacing: .04em; color: var(--muted); }
+.featured-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+.featured-row .muted { font-size: .8125rem; }
+footer .badge-link[hidden],
+footer a.fazier[hidden] { display: none; }
+footer .badge-link,
+footer a.fazier {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  height: 40px;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  line-height: 0;
+  text-decoration: none;
+}
+footer .featured-row > .badge-link:first-child { width: 169px; }
+footer .featured-row > a.badge-link:nth-child(3) { width: 151px; }
+footer a.fazier { width: 162px; }
+footer .badge-link img,
+footer a.fazier img {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+  color: transparent;
+  font-size: 0;
+}
+footer a.fazier img { width: 160px; height: 38px; }
+footer a.launched {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 40px;
+  max-width: 100%;
+  padding: 0 12px 0 6px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #C6F94E 45%, #15170F);
+  background: #15170F;
+  color: #f6f3ec;
+  text-decoration: none;
+}
+footer a.launched:hover { background: #1e2118; color: #f6f3ec; }
+.launched-mark {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #C6F94E;
+}
+.launched-copy { display: flex; flex-direction: column; justify-content: center; min-width: 0; line-height: 1.15; }
+.launched-title { font-size: .75rem; font-weight: 650; color: #f6f3ec; }
+.launched-sub { font-size: .625rem; font-weight: 650; letter-spacing: .04em; color: #C6F94E; }
 
 @media (max-width: 900px) {
   .plans.three { grid-template-columns: 1fr; }

@@ -8,6 +8,7 @@ import { COST_AS_OF_LABEL, freeChecker, tracker, otterly, keyword } from '../lib
 import { emailCaptureEnabled } from '../lib/emailAddress.js';
 import { paidReportEnabled } from '../lib/paidReport.js';
 import { trackingTierEnabled } from '../lib/trackingTier.js';
+import DirectoryBadges from './DirectoryBadges.js';
 
 const faq = [
   ['What is AI search visibility?', 'AI search visibility is how often AI assistants such as ChatGPT, Gemini and Perplexity mention or recommend your brand when people ask questions in your category. It is the AI-era version of ranking on Google.'],
@@ -90,7 +91,7 @@ export default function Page() {
       <p>Tools: <TrackLink href={TRACKER('footer')} event={EVENTS.TRACKER_CTA_CLICK} location="footer">AI Visibility Tracker (ChatGPT, Gemini &amp; Perplexity)</TrackLink> · <TrackLink href={CITATIONS} event={EVENTS.CITATION_CTA_CLICK} location="footer">AI Citation Tracker (which sites ChatGPT, Perplexity &amp; Google AI Overviews cite)</TrackLink> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
       <p className="muted">We use Vercel Web Analytics for aggregate page views and actions. Event properties do not include your brand name, email, IP, or the text you type. <a href="/privacy">Privacy policy</a>.</p>
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>
-      <p className="fazier"><a href="https://fazier.com" target="_blank" rel="noopener"><img src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light" width={160} height={38} alt="Fazier badge" /></a><span className="muted"> <a href="https://twelve.tools">Listed on Twelve.tools</a> · <a href="https://dang.ai">Featured on Dang.ai</a></span></p>
+      <DirectoryBadges />
     </div></footer>
     <Ld data={orgLd} /><Ld data={appLd} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
