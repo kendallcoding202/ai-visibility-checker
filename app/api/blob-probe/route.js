@@ -1,10 +1,12 @@
 // Temporary diagnosis against the connected Blob store. Returns status codes
 // and booleans only. No tokens, URLs, pathnames, or bodies. Removed before the fix lands.
+import { randomBytes } from 'node:crypto';
 import { del, get, head, put } from '@vercel/blob';
 import { hashKey } from '../../../lib/hash.js';
 import { delPrivateKey, getPrivateJSON, putPrivateJSON, sealedOriginUrl } from '../../../lib/privateStore.js';
 import { openSeal, seal } from '../../../lib/seal.js';
 import { deleteSubscriber, makeToken, saveSubscriber, subscriberByToken } from '../../../lib/subscribers.js';
+import { setJSON } from '../../../lib/store.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -168,6 +170,25 @@ export async function POST(req) {
     console.error(`blob-probe ${JSON.stringify(report)}`);
     return Response.json(report, { headers: noStore });
   }
+  if (phase === 'seed') {
+    const id = randomBytes(12).toString('hex');
+    await setJSON(`cache/${id}`, {
+      at: Date.now(),
+      result: {
+        brand: 'Preview Probe',
+        category: '',
+        mentionedIn: 0,
+        total: 1,
+        score: 0,
+        runs: 1,
+        rows: [{ prompt: 'Who is recommended?', mentioned: false, rank: null, brands: [] }],
+        topBrands: [],
+        topSources: [],
+        checkedAt: new Date().toISOString(),
+      },
+    });
+    return Response.json({ phase, id }, { headers: noStore });
+  }
   if (phase === 'lookup') {
     let body = {};
     try { body = await req.json(); } catch { body = {}; }
@@ -210,8 +231,9 @@ export async function POST(req) {
       versionDiag.versionShape = /^[A-Za-z0-9_-]{43}$/.test(index.version);
       versionDiag.versionLen = index.version.length;
       const versionPath = `sealed/mail/v/${index.version}.json`;
+      let versionMeta = null;
       try {
-        const versionMeta = await head(versionPath, { abortSignal: AbortSignal.timeout(8_000) });
+        versionMeta = await head(versionPath, { abortSignal: AbortSignal.timeout(8_000) });
         versionDiag.headFound = true;
         versionDiag.size = versionMeta?.size ?? null;
       } catch (error) {
@@ -227,6 +249,11 @@ export async function POST(req) {
         const plainRead = await sampleFetch(plain, auth);
         versionDiag.privateNoCache = plainRead.status;
         versionDiag.privateLen = plainRead.len;
+      }
+      if (versionMeta?.url) {
+        const pub = await sampleFetch(new URL(versionMeta.url), auth);
+        versionDiag.publicStatus = pub.status;
+        versionDiag.publicLen = pub.len;
       }
       const raw = await getPrivateJSON(`mail/v/${index.version}`, { retry: false });
       versionDiag.raw = raw == null ? 'null' : (raw?.v === 1 ? 'seal' : typeof raw);
