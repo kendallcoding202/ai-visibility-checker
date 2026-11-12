@@ -104,6 +104,12 @@ export default function Page() {
         <p>
           <a href="/what-chatgpt-business-dashboard-wont-tell-you">What the business dashboard won’t tell you</a>
           {' · '}
+          <a href="/business-hub-vs-free-ai-visibility-checker">Business Hub vs the free checker</a>
+          {' · '}
+          <a href="/ai-visibility-tracker-vs-keyword">Tracker vs Keyword.com</a>
+          {' · '}
+          <a href="/profound-alternatives">Profound alternatives</a>
+          {' · '}
           <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">Tracker vs Otterly / Profound / Peec / Semrush</a>
           {' · '}
           <a href="/">Free checker and market lookup</a>
