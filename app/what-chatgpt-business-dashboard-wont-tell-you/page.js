@@ -94,6 +94,8 @@ export default function Page() {
         <p>
           <a href="/free-ai-visibility-checker">Free AI visibility checker</a>
           {' · '}
+          <a href="/business-hub-vs-free-ai-visibility-checker">Business Hub vs the free checker</a>
+          {' · '}
           <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a>
           {' · '}
           <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">Tracker vs Otterly / Profound / Peec / Semrush</a>

@@ -33,7 +33,7 @@ export default function Page() {
         <h2>Quick answer</h2>
         <p>For a free one-off check, use a free checker (this site for a live ChatGPT search snapshot, or HubSpot AEO Grader for a scored report). For ongoing tracking, pick pay-as-you-go (the Apify tracker) if you want low cost and raw data, or a subscription like Otterly.AI, Peec AI or Semrush if you want a dashboard and more engines.</p>
         <p className="muted">Disclosure: I built the Free AI Visibility Checker and the AI Visibility Tracker. I have tried to describe their limits as plainly as everyone else's.</p>
-        <p>The <a href="/free-ai-visibility-checker">free AI visibility checker</a> page describes the no-signup snapshot. A later check (November 9, 2026) that also includes Profound is <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a>. To record the URLs behind an answer, see <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a>.</p>
+        <p>The <a href="/free-ai-visibility-checker">free AI visibility checker</a> page describes the no-signup snapshot. A later check (November 9, 2026) that also includes Profound is <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a>. Prices re-read from vendor pricing pages on Nov 12, 2026 are on <a href="/profound-alternatives">Profound alternatives</a>. To record the URLs behind an answer, see <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a>.</p>
       </section>
       <section>
         <h2>Comparison</h2>
@@ -50,7 +50,7 @@ export default function Page() {
         <h2>FAQ</h2>
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
-      <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
+      <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a> · <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a></p>
       <p><a className="cta" href="/">Run a free check now</a></p>
     </main>
     <Footer />

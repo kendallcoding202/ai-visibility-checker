@@ -171,7 +171,7 @@ export default function Page() {
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
 
-      <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a></p>
+      <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a> · <a href="/profound-alternatives">Profound alternatives, prices re-read Nov 12, 2026</a> · <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a></p>
       <p><a className="cta" href="/">Run a free ChatGPT visibility check</a> &nbsp; <a href={tracker}>Open AI Visibility Tracker on Apify →</a></p>
     </main>
     <Footer />

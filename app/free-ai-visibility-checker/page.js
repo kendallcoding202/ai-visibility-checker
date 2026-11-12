@@ -43,8 +43,8 @@ export default function Page() {
       <section>
         <h2>When to upgrade to tracking</h2>
         <p>If the free check shows competitors winning the same prompts, schedule those prompts weekly with <a href={tracker}>AI Visibility Tracker</a> (ChatGPT, Gemini, Perplexity, $0.0375 per answer, Apify actor by crunchy_galaxy_qcr). To see which pages ChatGPT cites for a keyword, use <a href={citations}>AI Citation Tracker</a> or the guide <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a>.</p>
-        <p>Comparing paid GEO tools? Read <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly vs Profound vs Peec AI vs Semrush</a>.</p>
-        <p>OpenAI is reportedly testing a ChatGPT business dashboard with mention and click counts only. See <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a>.</p>
+        <p>Comparing paid GEO tools? Read <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly vs Profound vs Peec AI vs Semrush</a> and the <a href="/profound-alternatives">Nov 12, 2026 price check of Profound alternatives</a>.</p>
+        <p>Business Hub shows your own ChatGPT totals. This checker shows the questions and the competitors. See <a href="/business-hub-vs-free-ai-visibility-checker">Business Hub vs the free checker</a> and <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a>.</p>
       </section>
       <section>
         <h2>FAQ</h2>
