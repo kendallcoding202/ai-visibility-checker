@@ -1,4 +1,4 @@
-import { getJSON, readJSON, setJSON } from '../../../lib/store.js';
+import { blobReadWorstMs, blobWriteWorstMs, readJSON, safeErrorName, setJSON } from '../../../lib/store.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
 import { CHECK_TIMEOUT_ERROR, isCheckTimeout } from '../../../lib/checkError.js';
 import { dailyCap, estCostPerCheck, ipLimitMessage, LIMIT_GLOBAL, LIMIT_MONTH, LIMIT_UNAVAILABLE, money, monthBudget, perIpDaily } from '../../../lib/limits.js';
@@ -7,11 +7,12 @@ import { EVENTS, errorTypeFromStatus, limitReason, trackEvent } from '../../../l
 import { parseCheckInput } from '../../../lib/checkInput.js';
 import { publicResult } from '../../../lib/publicResult.js';
 import { sameOrigin } from '../../../lib/sameOrigin.js';
-import { answerCookie, newAnswerToken, saveRawAnswers } from '../../../lib/rawAnswers.js';
+import { answerCookie, newAnswerToken, rawAnswerPutWorstMs, saveRawAnswers } from '../../../lib/rawAnswers.js';
 import { runVisibilityCheck } from '../../../lib/runCheck.js';
+import { checkSchedule } from '../../../lib/requestWindow.js';
 
 export const runtime = 'nodejs';
-// Pro plan. The work itself stops around 100s so the catch can refund before this kill.
+// Pro plan. The schedule stops the model before this so the response is JSON, not a platform kill.
 export const maxDuration = 120;
 
 function envMs(name, fallback, max) {
@@ -19,9 +20,7 @@ function envMs(name, fallback, max) {
   const ms = Number.isFinite(n) && n > 0 ? n : fallback;
   return Math.min(ms, max);
 }
-const checkBudgetMs = () => envMs('CHECK_BUDGET_MS', 100_000, 100_000);
 const searchTimeoutMs = () => envMs('SEARCH_TIMEOUT_MS', 40_000, 40_000);
-const refundReserveMs = () => envMs('REFUND_RESERVE_MS', 12_000, 15_000);
 
 // Launch-day boost and the November 2026 $50 ceiling live in lib/limits.js.
 const CACHE_MS = 24 * 3600 * 1000;
@@ -35,6 +34,11 @@ const fail = (msg, status = 400) => {
 };
 
 export async function POST(req) {
+  const started = Date.now();
+  const schedule = checkSchedule(started);
+  const { hardStop, modelDeadline, reserveMs } = schedule;
+  const timeLeft = () => hardStop - Date.now();
+
   try {
     assertHashSalt();
   } catch (e) {
@@ -61,8 +65,11 @@ export async function POST(req) {
   const month = day.slice(0, 7);
   const shareId = hashKey(`${brand}|${category}|${competitors.join(',')}`.toLowerCase());
   const cacheKey = `cache/${shareId}`;
-  const cached = await getJSON(cacheKey);
-  if (cached && Date.now() - cached.at < CACHE_MS) return Response.json(publicResult(cached.result, { id: shareId, cached: true }));
+  // A missing cache blob is a miss. A failed cache read is also a miss: the counters below still fail closed.
+  const cached = await readJSON(cacheKey);
+  if (cached.ok && cached.value && Date.now() - cached.value.at < CACHE_MS && cached.value.result) {
+    return Response.json(publicResult(cached.value.result, { id: shareId, cached: true }));
+  }
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
   const ipKey = `ip/${day}/${hashKey(ip)}`;
@@ -97,39 +104,55 @@ export async function POST(req) {
       brand,
       category,
       competitors,
-      deadline: Date.now() + checkBudgetMs(),
+      deadline: modelDeadline,
       searchTimeoutMs: searchTimeoutMs(),
-      refundReserveMs: refundReserveMs(),
+      refundReserveMs: reserveMs,
     });
     cost = checked.cost;
     const { result, rawAnswers } = checked;
-    await setJSON(cacheKey, { at: Date.now(), result });
+    if (timeLeft() > blobWriteWorstMs()) {
+      try {
+        await setJSON(cacheKey, { at: Date.now(), result });
+      } catch (error) {
+        console.error(`cache store failed name=${safeErrorName(error)}`);
+      }
+    }
     let cookie = '';
-    try {
-      const answerToken = newAnswerToken();
-      await saveRawAnswers(answerToken, {
-        shareId,
-        runs: 1,
-        answers: rawAnswers,
-      });
-      cookie = answerCookie(shareId, answerToken);
-    } catch (error) {
-      console.error(`answer store failed name=${error?.name || 'Error'}`);
+    if (timeLeft() > rawAnswerPutWorstMs()) {
+      try {
+        const answerToken = newAnswerToken();
+        await saveRawAnswers(answerToken, {
+          shareId,
+          runs: 1,
+          answers: rawAnswers,
+        });
+        cookie = answerCookie(shareId, answerToken);
+      } catch (error) {
+        console.error(`answer store failed name=${safeErrorName(error)}`);
+      }
     }
     // Replace the reservation with the measured cost. If the counter cannot be re-read, keep the reserve.
-    const m = await readJSON(`month/${month}`);
-    if (m.ok) {
-      const prev = m.value ?? {};
-      await setJSON(`month/${month}`, { ...prev, cost: money(Math.max(0, (prev.cost ?? 0) - reserve + cost)) });
+    if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
+      try {
+        const m = await readJSON(`month/${month}`);
+        if (m.ok) {
+          const prev = m.value ?? {};
+          await setJSON(`month/${month}`, { ...prev, cost: money(Math.max(0, (prev.cost ?? 0) - reserve + cost)) });
+        }
+      } catch (error) {
+        console.error(`cost settle failed name=${safeErrorName(error)}`);
+      }
     }
     console.log(`check ok cost=$${cost.toFixed(4)}`);
     const payload = publicResult(result, { id: shareId, cached: false });
     if (process.env.SHOW_COST === '1') payload.cost = cost;
     return Response.json(payload, { headers: cookie ? { 'set-cookie': cookie } : {} });
   } catch (e) {
-    console.error('check failed', e instanceof Error ? e.message : 'error');
+    console.error('check failed', safeErrorName(e));
     if (Number.isFinite(e?.trackingCost)) cost = e.trackingCost;
-    if (reserved) await refundReservation(ipKey, day, month, cost, reserve);
+    if (reserved && timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
+      await refundReservation(ipKey, day, month, cost, reserve);
+    }
     if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
     return fail('The AI check failed. Please try again in a minute.', 502);
   }
