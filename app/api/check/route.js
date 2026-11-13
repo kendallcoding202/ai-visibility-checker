@@ -1,7 +1,8 @@
 import { blobReadWorstMs, blobWriteWorstMs, readJSON, safeErrorName, setJSON } from '../../../lib/store.js';
+import { heldWithinBudget, refundSpend, reserveSpend, settleMonthCost } from '../../../lib/counters.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
 import { CHECK_TIMEOUT_ERROR, isCheckTimeout } from '../../../lib/checkError.js';
-import { dailyCap, estCostPerCheck, ipLimitMessage, LIMIT_GLOBAL, LIMIT_MONTH, LIMIT_UNAVAILABLE, money, monthBudget, perIpDaily } from '../../../lib/limits.js';
+import { dailyCap, estCostPerCheck, monthBudget, perIpDaily } from '../../../lib/limits.js';
 import { track } from '@vercel/analytics/server';
 import { EVENTS, errorTypeFromStatus, limitReason, trackEvent } from '../../../lib/analyticsEvents.js';
 import { parseCheckInput } from '../../../lib/checkInput.js';
@@ -73,32 +74,26 @@ export async function POST(req) {
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
   const ipKey = `ip/${day}/${hashKey(ip)}`;
+  const dayKey = `day/${day}`;
+  const monthKey = `month/${month}`;
   const perIp = perIpDaily();
   const reserve = estCostPerCheck();
   const cap = dailyCap(day);
   const budget = monthBudget(month);
-  const [ipRead, dayRead, monthRead] = await Promise.all([readJSON(ipKey), readJSON(`day/${day}`), readJSON(`month/${month}`)]);
-  // A failed counter read must not look like a zero balance.
-  if (!ipRead.ok || !dayRead.ok || !monthRead.ok) return fail(LIMIT_UNAVAILABLE, 503);
-  const ipCount = ipRead.value;
-  const dayStats = dayRead.value;
-  const monthStats = monthRead.value;
-  const spent = Number(monthStats?.cost ?? 0);
-  if (!Number.isFinite(spent) || !Number.isFinite(budget) || !Number.isFinite(reserve)) return fail(LIMIT_UNAVAILABLE, 503);
-  if ((ipCount?.n ?? 0) >= perIp) return fail(ipLimitMessage(perIp), 429);
-  if ((dayStats?.n ?? 0) >= cap) return fail(LIMIT_GLOBAL, 429);
-  if (money(money(spent) + money(reserve)) > money(budget)) return fail(LIMIT_MONTH, 429);
+  // The reservation commits only if this request still fits. Parallel requests retry on conflict.
+  const reservation = await reserveSpend({ ipKey, dayKey, monthKey, perIp, cap, budget, reserve });
+  if (!reservation.ok) return fail(reservation.error, reservation.status);
 
   // Reserve the slot before spending money. A timeout here still refunds: the write may have landed.
   let cost = 0;
-  let reserved = false;
+  let reserved = true;
   try {
-    reserved = true;
-    await Promise.all([
-      setJSON(ipKey, { n: (ipCount?.n ?? 0) + 1 }),
-      setJSON(`day/${day}`, { n: (dayStats?.n ?? 0) + 1 }),
-      setJSON(`month/${month}`, { cost: money(spent + reserve), n: (monthStats?.n ?? 0) + 1 }),
-    ]);
+    const held = await heldWithinBudget(monthKey, budget);
+    if (!held.ok) {
+      await refundSpend(ipKey, dayKey, monthKey, 0, reserve);
+      reserved = false;
+      return fail(held.error, held.status);
+    }
 
     const checked = await runVisibilityCheck({
       brand,
@@ -134,11 +129,7 @@ export async function POST(req) {
     // Replace the reservation with the measured cost. If the counter cannot be re-read, keep the reserve.
     if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
       try {
-        const m = await readJSON(`month/${month}`);
-        if (m.ok) {
-          const prev = m.value ?? {};
-          await setJSON(`month/${month}`, { ...prev, cost: money(Math.max(0, (prev.cost ?? 0) - reserve + cost)) });
-        }
+        await settleMonthCost(monthKey, reserve, cost);
       } catch (error) {
         console.error(`cost settle failed name=${safeErrorName(error)}`);
       }
@@ -151,25 +142,9 @@ export async function POST(req) {
     console.error('check failed', safeErrorName(e));
     if (Number.isFinite(e?.trackingCost)) cost = e.trackingCost;
     if (reserved && timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
-      await refundReservation(ipKey, day, month, cost, reserve);
+      await refundSpend(ipKey, dayKey, monthKey, cost, reserve);
     }
     if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
     return fail('The AI check failed. Please try again in a minute.', 502);
-  }
-}
-
-async function refundReservation(ipKey, day, month, cost, reserve) {
-  // Refund the reserved slot so failures don't burn quota. A failed re-read leaves the reserve in place.
-  try {
-    const [i2, d2, m2] = await Promise.all([readJSON(ipKey), readJSON(`day/${day}`), readJSON(`month/${month}`)]);
-    if (!i2.ok || !d2.ok || !m2.ok) return;
-    const prev = m2.value ?? {};
-    await Promise.all([
-      setJSON(ipKey, { n: Math.max(0, (i2.value?.n ?? 1) - 1) }),
-      setJSON(`day/${day}`, { n: Math.max(0, (d2.value?.n ?? 1) - 1) }),
-      setJSON(`month/${month}`, { ...prev, cost: money(Math.max(0, (prev.cost ?? 0) - reserve + cost)), n: Math.max(0, (prev.n ?? 1) - 1) }),
-    ]);
-  } catch {
-    // Best effort. The response still has to leave before the platform kill.
   }
 }

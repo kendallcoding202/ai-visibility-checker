@@ -2,12 +2,13 @@ import { askWithSearch, json, costOf } from '../../../lib/openai.js';
 import { LOOKUP_SCHEMA, lookupExtractionPrompt, cleanBrandList } from '../../../lib/analyze.js';
 import { lookupRejection, lookupUserPrompt, normalizeLookup } from '../../../lib/lookupInput.js';
 import { blobReadWorstMs, blobWriteWorstMs, readJSON, safeErrorName, setJSON } from '../../../lib/store.js';
+import { heldWithinBudget, refundSpend, reserveSpend, settleMonthCost } from '../../../lib/counters.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
 import { CHECK_TIMEOUT_ERROR, CheckTimeoutError, isCheckTimeout } from '../../../lib/checkError.js';
 import { lookupSchedule } from '../../../lib/requestWindow.js';
 import {
-  dailyCap, estCostPerLookup, money, monthBudget, perIpDaily, spendDecision,
-  LIMIT_MONTH, LIMIT_UNAVAILABLE,
+  dailyCap, estCostPerLookup, money, monthBudget, perIpDaily,
+  LIMIT_UNAVAILABLE,
 } from '../../../lib/limits.js';
 import { track } from '@vercel/analytics/server';
 import { EVENTS, errorTypeFromStatus, limitReason, trackEvent } from '../../../lib/analyticsEvents.js';
@@ -82,41 +83,23 @@ export async function POST(req) {
 
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
   const ipKey = `ip/${day}/${hashKey(ip)}`;
+  const dayKey = `day/${day}`;
+  const monthKey = `month/${month}`;
   const perIp = perIpDaily();
   const reserve = estCostPerLookup();
   const cap = dailyCap(day);
   const budget = monthBudget(month);
-  const [ipRead, dayRead, monthRead] = await Promise.all([
-    readJSON(ipKey), readJSON(`day/${day}`), readJSON(`month/${month}`),
-  ]);
-  if (!ipRead.ok || !dayRead.ok || !monthRead.ok) return fail(LIMIT_UNAVAILABLE, 503);
-  const decision = spendDecision({
-    ipCount: ipRead.value?.n ?? 0,
-    dayCount: dayRead.value?.n ?? 0,
-    monthCost: monthRead.value?.cost ?? 0,
-    perIp,
-    cap,
-    budget,
-    reserve,
-  });
-  if (!decision.ok) return fail(decision.error, decision.status);
+  const reservation = await reserveSpend({ ipKey, dayKey, monthKey, perIp, cap, budget, reserve });
+  if (!reservation.ok) return fail(reservation.error, reservation.status);
 
   let cost = 0;
-  let reserved = false;
+  let reserved = true;
   try {
-    reserved = true;
-    const spent = money(monthRead.value?.cost ?? 0);
-    await Promise.all([
-      setJSON(ipKey, { n: (ipRead.value?.n ?? 0) + 1 }),
-      setJSON(`day/${day}`, { n: (dayRead.value?.n ?? 0) + 1 }),
-      setJSON(`month/${month}`, { cost: money(spent + reserve), n: (monthRead.value?.n ?? 0) + 1 }),
-    ]);
-    const held = await readJSON(`month/${month}`);
-    if (!held.ok || !Number.isFinite(money(held.value?.cost)) || money(held.value.cost) > money(budget)) {
-      await refundLookup(ipKey, day, month, 0, reserve);
+    const held = await heldWithinBudget(monthKey, budget);
+    if (!held.ok) {
+      await refundSpend(ipKey, dayKey, monthKey, 0, reserve);
       reserved = false;
-      if (!held.ok || !Number.isFinite(money(held.value?.cost))) return fail(LIMIT_UNAVAILABLE, 503);
-      return fail(LIMIT_MONTH, 429);
+      return fail(held.error, held.status);
     }
 
     const callBudget = (max) => {
@@ -144,7 +127,7 @@ export async function POST(req) {
     }
     if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
       try {
-        await settleLookup(month, reserve, cost);
+        await settleMonthCost(monthKey, reserve, cost);
       } catch (error) {
         console.error(`cost settle failed name=${safeErrorName(error)}`);
       }
@@ -157,37 +140,9 @@ export async function POST(req) {
   } catch (e) {
     console.error('lookup failed', safeErrorName(e));
     if (reserved && timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
-      await refundLookup(ipKey, day, month, cost, reserve);
+      await refundSpend(ipKey, dayKey, monthKey, cost, reserve);
     }
     if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
     return fail('The AI check failed. Please try again in a minute.', 502);
-  }
-}
-
-async function settleLookup(month, reserve, cost) {
-  const m = await readJSON(`month/${month}`);
-  if (!m.ok) return;
-  const prev = m.value ?? {};
-  await setJSON(`month/${month}`, { ...prev, cost: money(Math.max(0, (prev.cost ?? 0) - reserve + cost)) });
-}
-
-async function refundLookup(ipKey, day, month, cost, reserve) {
-  try {
-    const [ip, dayStats, monthStats] = await Promise.all([
-      readJSON(ipKey), readJSON(`day/${day}`), readJSON(`month/${month}`),
-    ]);
-    if (!ip.ok || !dayStats.ok || !monthStats.ok) return;
-    const prev = monthStats.value ?? {};
-    await Promise.all([
-      setJSON(ipKey, { n: Math.max(0, (ip.value?.n ?? 1) - 1) }),
-      setJSON(`day/${day}`, { n: Math.max(0, (dayStats.value?.n ?? 1) - 1) }),
-      setJSON(`month/${month}`, {
-        ...prev,
-        cost: money(Math.max(0, (prev.cost ?? 0) - reserve + cost)),
-        n: Math.max(0, (prev.n ?? 1) - 1),
-      }),
-    ]);
-  } catch {
-    // Leave the reservation in place. That blocks further spend instead of forgetting it.
   }
 }
