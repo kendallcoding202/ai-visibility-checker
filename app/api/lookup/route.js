@@ -1,9 +1,10 @@
 import { askWithSearch, json, costOf } from '../../../lib/openai.js';
 import { LOOKUP_SCHEMA, lookupExtractionPrompt, cleanBrandList } from '../../../lib/analyze.js';
 import { lookupRejection, lookupUserPrompt, normalizeLookup } from '../../../lib/lookupInput.js';
-import { readJSON, setJSON } from '../../../lib/store.js';
+import { blobReadWorstMs, blobWriteWorstMs, readJSON, safeErrorName, setJSON } from '../../../lib/store.js';
 import { assertHashSalt, hashKey, HashSaltError } from '../../../lib/hash.js';
 import { CHECK_TIMEOUT_ERROR, CheckTimeoutError, isCheckTimeout } from '../../../lib/checkError.js';
+import { lookupSchedule } from '../../../lib/requestWindow.js';
 import {
   dailyCap, estCostPerLookup, money, monthBudget, perIpDaily, spendDecision,
   LIMIT_MONTH, LIMIT_UNAVAILABLE,
@@ -15,8 +16,6 @@ export const runtime = 'nodejs';
 export const maxDuration = 90;
 
 const CACHE_MS = 24 * 3600 * 1000;
-const LOOKUP_DEADLINE_MS = 70_000;
-const REFUND_RESERVE_MS = 8_000;
 
 function envMs(name, fallback, max) {
   const n = Number(process.env[name]);
@@ -41,6 +40,11 @@ function sameOrigin(req) {
 }
 
 export async function POST(req) {
+  const started = Date.now();
+  const schedule = lookupSchedule(started);
+  const { hardStop, modelDeadline, reserveMs } = schedule;
+  const timeLeft = () => hardStop - Date.now();
+
   try {
     assertHashSalt();
   } catch (e) {
@@ -67,9 +71,9 @@ export async function POST(req) {
   const month = day.slice(0, 7);
   const shareId = hashKey(`lookup|${market}`);
   const cacheKey = `lookup/${shareId}`;
+  // A missing or unreadable cache blob is a miss. Counter reads below still fail closed.
   const cached = await readJSON(cacheKey);
-  if (!cached.ok) return fail(LIMIT_UNAVAILABLE, 503);
-  if (cached.value && Date.now() - cached.value.at < CACHE_MS) {
+  if (cached.ok && cached.value && Date.now() - cached.value.at < CACHE_MS && cached.value.result) {
     return Response.json(
       { ...cached.value.result, id: shareId, cached: true },
       { headers: { 'cache-control': 'no-store' } },
@@ -115,9 +119,8 @@ export async function POST(req) {
       return fail(LIMIT_MONTH, 429);
     }
 
-    const deadline = Date.now() + envMs('LOOKUP_DEADLINE_MS', LOOKUP_DEADLINE_MS, LOOKUP_DEADLINE_MS);
     const callBudget = (max) => {
-      const left = deadline - Date.now() - REFUND_RESERVE_MS;
+      const left = modelDeadline - Date.now() - reserveMs;
       if (left < 50) throw new CheckTimeoutError();
       return Math.min(max, left);
     };
@@ -132,16 +135,30 @@ export async function POST(req) {
       checkedAt: new Date().toISOString(),
       engine: 'chatgpt',
     };
-    await setJSON(cacheKey, { at: Date.now(), result });
-    await settleLookup(month, reserve, cost);
+    if (timeLeft() > blobWriteWorstMs()) {
+      try {
+        await setJSON(cacheKey, { at: Date.now(), result });
+      } catch (error) {
+        console.error(`cache store failed name=${safeErrorName(error)}`);
+      }
+    }
+    if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
+      try {
+        await settleLookup(month, reserve, cost);
+      } catch (error) {
+        console.error(`cost settle failed name=${safeErrorName(error)}`);
+      }
+    }
     console.log(`lookup ok cost=$${cost.toFixed(4)}`);
     return Response.json(
       { ...result, id: shareId, cached: false, ...(process.env.SHOW_COST === '1' ? { cost: money(cost) } : {}) },
       { headers: { 'cache-control': 'no-store' } },
     );
   } catch (e) {
-    console.error('lookup failed', e instanceof Error ? e.name : 'error');
-    if (reserved) await refundLookup(ipKey, day, month, cost, reserve);
+    console.error('lookup failed', safeErrorName(e));
+    if (reserved && timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
+      await refundLookup(ipKey, day, month, cost, reserve);
+    }
     if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
     return fail('The AI check failed. Please try again in a minute.', 502);
   }
