@@ -1,3 +1,5 @@
+import CheckBrandLink from './CheckBrandLink.js';
+
 export default function SiteHeader() {
   return (
     <header className="site-header">
@@ -10,7 +12,7 @@ export default function SiteHeader() {
           AI Visibility Checker
         </a>
         <nav className="site-nav" aria-label="Primary">
-          <a href="/#checker">Check your brand</a>
+          <CheckBrandLink />
           <a href="/free-ai-visibility-checker">Free checker</a>
           <a href="/privacy">Privacy</a>
         </nav>

@@ -1,10 +1,11 @@
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER } from '../links.js';
 import { Ld, faqLd } from '../site.js';
 import Footer from '../Footer.js';
 
 const title = 'How to Check if ChatGPT Recommends Your Brand (Free, 2026)';
 const description = 'Step-by-step: how to check whether ChatGPT mentions or recommends your brand, manually or with a free tool, and how to track it over time.';
-export const metadata = { title, description, alternates: { canonical: '/how-to-check-chatgpt-brand-mentions' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, authors: [{ name: 'Kendall Sorenson' }] };
+export const metadata = { title, description, alternates: { canonical: '/how-to-check-chatgpt-brand-mentions' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, twitter: { card: 'summary_large_image', title, description }, authors: [{ name: 'Kendall Sorenson' }] };
 
 const steps = [
   ['Write 3–10 buyer questions', 'Use the words a customer would type, e.g. "What is the best project management tool for small teams?" Avoid naming your brand in the question.'],
@@ -26,11 +27,12 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>How to check if ChatGPT recommends your brand</h1>
       <p>A plain, step-by-step guide by Kendall Sorenson. Takes about 10 minutes by hand, or 30 seconds with the free checker.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section><ol>{steps.map(([n, t]) => <li key={n}><strong>{n}.</strong> {t}</li>)}</ol>
         <p>The longer guide, with the check form on the page, is <a href="/how-to-check-if-chatgpt-mentions-your-brand">how to check if ChatGPT mentions your brand</a>.</p>
-        <p><a className="cta" href="/">Run a free check</a> &nbsp; <a href={TRACKER('howto')}>Track weekly on Apify →</a></p></section>
+        <p><a className="cta" href="#checker">Run a free check</a> &nbsp; <a href={TRACKER('howto')}>Track weekly on Apify →</a></p></section>
       <section><h2>Want to compare tools?</h2><p>See the <a href="/best-ai-visibility-tools">best tools to check whether ChatGPT recommends your brand</a>, with sourced prices, the <a href="/profound-alternatives">Nov 12, 2026 Profound alternatives</a>, or the November 9, 2026 check on <a href="/ai-visibility-tracker-vs-otterly-profound-peec-semrush">AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush</a>. The <a href="/free-ai-visibility-checker">free AI visibility checker</a> page explains the snapshot. Business Hub shows your own ChatGPT totals, which is a different question: <a href="/business-hub-vs-free-ai-visibility-checker">Business Hub vs the free checker</a>. If competitors keep showing up instead of you, read <a href="/why-chatgpt-recommends-competitors">why ChatGPT recommends your competitors</a>, map <a href="/which-sites-ai-cites-in-your-niche">which sites AI cites in your niche</a>, or follow <a href="/how-to-see-which-sources-chatgpt-cites">how to see which sources ChatGPT cites</a>.</p></section>
       <section><h2>FAQ</h2>{faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}</section>
     </main>

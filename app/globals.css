@@ -178,13 +178,15 @@ header.hero h2 {
   letter-spacing: -0.01em;
   margin: 4px 0 12px;
 }
-header.hero .wrap > p {
+header.hero .wrap > p,
+header.hero #checker > p {
   color: var(--hero-muted);
   font-size: 1.125rem;
   line-height: 1.5;
   margin: 0 0 18px;
   max-width: 40rem;
 }
+header.hero #checker { margin-top: 6px; }
 .hero a { color: var(--hero-link); }
 .trust {
   display: flex;

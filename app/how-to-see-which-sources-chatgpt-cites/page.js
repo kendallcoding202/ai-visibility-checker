@@ -1,3 +1,4 @@
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER, CITATIONS } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import Footer from '../Footer.js';
@@ -9,6 +10,7 @@ export const metadata = {
   description,
   alternates: { canonical: '/how-to-see-which-sources-chatgpt-cites' },
   openGraph: { title, description, type: 'article', images: ['/opengraph-image'] },
+  twitter: { card: 'summary_large_image', title, description },
   authors: [{ name: 'Kendall Sorenson' }],
 };
 
@@ -43,6 +45,7 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>How to see which sources ChatGPT cites for a keyword</h1>
       <p>By Kendall Sorenson. A practical method you can do by hand in under an hour, then automate when you have a real prompt list.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section>
@@ -62,7 +65,7 @@ export default function Page() {
         <h2>FAQ</h2>
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
-      <p><a className="cta" href="/">Run a free check</a> &nbsp; <a href={citations}>Open AI Citation Tracker →</a></p>
+      <p><a className="cta" href="#checker">Run a free check</a> &nbsp; <a href={citations}>Open AI Citation Tracker →</a></p>
     </main>
     <Footer />
     <Ld data={faqLd(faq)} />

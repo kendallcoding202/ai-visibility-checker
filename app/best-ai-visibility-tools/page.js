@@ -1,10 +1,11 @@
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import Footer from '../Footer.js';
 
 const title = 'Best Tools to Check if ChatGPT Recommends Your Brand (2026)';
 const description = 'Honest comparison of free and paid AI visibility tools: HubSpot AEO Grader, this free checker, an Apify pay-per-answer tracker, Otterly.AI, Peec AI and Semrush. Real prices with sources, checked Nov 2026.';
-export const metadata = { title, description, alternates: { canonical: '/best-ai-visibility-tools' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, authors: [{ name: 'Kendall Sorenson' }] };
+export const metadata = { title, description, alternates: { canonical: '/best-ai-visibility-tools' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, twitter: { card: 'summary_large_image', title, description }, authors: [{ name: 'Kendall Sorenson' }] };
 
 const tools = [
   { name: 'Free AI Visibility Checker (this site)', price: 'Free, 3 checks/day', engines: 'ChatGPT (with web search)', best: 'A fast, no-signup snapshot: are you mentioned, your rank, competitors, cited sources', note: 'Disclosure: built by the author of this page. One snapshot of 3 questions, not ongoing tracking.', href: '/', src: '/' },
@@ -27,6 +28,7 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>Best tools to check whether ChatGPT recommends your brand</h1>
       <p>An honest comparison of free and paid AI visibility (GEO / AEO) tools. Prices are taken from each vendor's own page and were checked on November 1, 2026. By Kendall Sorenson.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section>
@@ -51,7 +53,7 @@ export default function Page() {
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
       <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a> · <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a> · <a href="/otterly-alternatives">Otterly alternatives</a> · <a href="/how-to-check-if-chatgpt-mentions-your-brand">How to check if ChatGPT mentions your brand</a> · <a href="/ai-visibility-for-saas">AI visibility for SaaS</a></p>
-      <p><a className="cta" href="/">Run a free check now</a></p>
+      <p><a className="cta" href="#checker">Run a free check now</a></p>
     </main>
     <Footer />
     <Ld data={faqLd(faq)} />

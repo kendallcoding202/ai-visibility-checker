@@ -1,3 +1,4 @@
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import Footer from '../Footer.js';
@@ -9,6 +10,7 @@ export const metadata = {
   description,
   alternates: { canonical: '/ai-visibility-tracker-vs-keyword' },
   openGraph: { title, description, type: 'article', images: ['/opengraph-image'] },
+  twitter: { card: 'summary_large_image', title, description },
   authors: [{ name: 'Kendall Sorenson' }],
 };
 
@@ -32,6 +34,7 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>AI Visibility Tracker vs Keyword.com</h1>
       <p>By Kendall Sorenson. Both prices were read from the vendor’s own page on Nov 12, 2026. I built the tracker.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section>
