@@ -1,3 +1,4 @@
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import Footer from '../Footer.js';
@@ -9,6 +10,7 @@ export const metadata = {
   description,
   alternates: { canonical: '/business-hub-vs-free-ai-visibility-checker' },
   openGraph: { title, description, type: 'article', images: ['/opengraph-image'] },
+  twitter: { card: 'summary_large_image', title, description },
   authors: [{ name: 'Kendall Sorenson' }],
 };
 
@@ -38,6 +40,7 @@ export default function Page() {
       <h1>Business Hub vs the free AI visibility checker</h1>
       <p>By Kendall Sorenson. OpenAI launched Businesses in ChatGPT in beta on Nov 10, 2026. Business Hub and this checker answer different questions.</p>
       <p className="muted">Updated Nov 12, 2026.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section>
@@ -80,7 +83,7 @@ export default function Page() {
         <h2>FAQ</h2>
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
-      <p><a className="cta" href="/">Run a free check</a></p>
+      <p><a className="cta" href="#checker">Run a free check</a></p>
     </main>
     <Footer />
     <Ld data={faqLd(faq)} />

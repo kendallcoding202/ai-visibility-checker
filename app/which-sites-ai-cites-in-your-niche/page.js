@@ -1,10 +1,11 @@
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER, CITATIONS } from '../links.js';
 import { Ld, faqLd } from '../site.js';
 import Footer from '../Footer.js';
 
 const title = 'How to See Which Sites Google AI Overviews and ChatGPT Cite in Your Niche';
 const description = 'A hands-on method for finding the pages Google AI Overviews, AI Mode, ChatGPT and Perplexity cite for your buyers\u2019 questions, and what to do with that list.';
-export const metadata = { title, description, alternates: { canonical: '/which-sites-ai-cites-in-your-niche' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, authors: [{ name: 'Kendall Sorenson' }] };
+export const metadata = { title, description, alternates: { canonical: '/which-sites-ai-cites-in-your-niche' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, twitter: { card: 'summary_large_image', title, description }, authors: [{ name: 'Kendall Sorenson' }] };
 
 const steps = [
   ['Write down the questions buyers actually ask', 'Pull them from sales calls, support tickets or the "People also ask" box. Phrase them the way a person would, without brand names.'],
@@ -28,6 +29,7 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>How to see which sites Google AI Overviews and ChatGPT cite in your niche</h1>
       <p>By Kendall Sorenson. A spreadsheet and an hour gets you most of the way. Here is the method, then where automation helps.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section><p>AI answers are built from a small set of pages. If you know which pages those are for your category, you know where a mention is worth the most, and you stop guessing about what to write.</p>

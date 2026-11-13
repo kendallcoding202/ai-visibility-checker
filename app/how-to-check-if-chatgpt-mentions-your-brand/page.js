@@ -1,5 +1,5 @@
-import Checker from '../Checker.js';
 import Footer from '../Footer.js';
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import { buildPrompts } from '../../lib/analyze.js';
@@ -13,6 +13,7 @@ export const metadata = {
   description,
   alternates: { canonical: '/how-to-check-if-chatgpt-mentions-your-brand' },
   openGraph: { title, description, type: 'article', images: ['/opengraph-image'] },
+  twitter: { card: 'summary_large_image', title, description },
   authors: [{ name: 'Kendall Sorenson' }],
 };
 
@@ -45,6 +46,7 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>How to check if ChatGPT mentions your brand</h1>
       <p>A manual method, then the free checker. By Kendall Sorenson. Updated Nov 12, 2026.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section>
@@ -60,10 +62,9 @@ export default function Page() {
         <ol>{brandOnly.map((prompt) => <li key={prompt}>{prompt}</li>)}</ol>
         <p>Example Co is a stand-in so you can see the wording. It is not a result from a check.</p>
       </section>
-      <section id="check">
+      <section>
         <h2>Run the check</h2>
-        <p>The form below is the checker. A brand name is enough. A category is optional. Three checks per IP per day. The result is one run of three questions.</p>
-        <Checker showPaidReport={false} showTrackingTier={false} emailCapture={false} />
+        <p>The form at the top of this page is the checker. A brand name is enough. A category is optional. Three checks per IP per day. The result is one run of three questions.</p>
       </section>
       <section>
         <h2>What the result shows</h2>

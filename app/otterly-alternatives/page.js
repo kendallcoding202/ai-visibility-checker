@@ -1,4 +1,5 @@
 import Footer from '../Footer.js';
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import { tracker } from '../../lib/costCompare.js';
@@ -11,6 +12,7 @@ export const metadata = {
   description,
   alternates: { canonical: '/otterly-alternatives' },
   openGraph: { title, description, type: 'article', images: ['/opengraph-image'] },
+  twitter: { card: 'summary_large_image', title, description },
   authors: [{ name: 'Kendall Sorenson' }],
 };
 
@@ -95,6 +97,7 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>Otterly alternatives with public prices</h1>
       <p>Prices below were read from each vendor’s own page on {CHECKED}. By Kendall Sorenson. Third-party roundups were not used.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section>
@@ -132,7 +135,7 @@ export default function Page() {
         <h2>FAQ</h2>
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
-      <p><a className="cta" href="/">Run a free check</a> &nbsp; <a href={trackerLink}>Open AI Visibility Tracker</a></p>
+      <p><a className="cta" href="#checker">Run a free check</a> &nbsp; <a href={trackerLink}>Open AI Visibility Tracker</a></p>
     </main>
     <Footer />
     <Ld data={faqLd(faq)} />

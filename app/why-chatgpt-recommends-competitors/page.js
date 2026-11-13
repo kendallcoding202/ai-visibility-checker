@@ -1,10 +1,11 @@
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER } from '../links.js';
 import { Ld, faqLd } from '../site.js';
 import Footer from '../Footer.js';
 
 const title = 'Why ChatGPT Recommends Your Competitors (and How to Find Out)';
 const description = 'A practical way to work out why ChatGPT names other brands for your buyers\u2019 questions, what it is reading, and how to tell if your fixes are working.';
-export const metadata = { title, description, alternates: { canonical: '/why-chatgpt-recommends-competitors' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, authors: [{ name: 'Kendall Sorenson' }] };
+export const metadata = { title, description, alternates: { canonical: '/why-chatgpt-recommends-competitors' }, openGraph: { title, description, type: 'article', images: ['/opengraph-image'] }, twitter: { card: 'summary_large_image', title, description }, authors: [{ name: 'Kendall Sorenson' }] };
 
 const steps = [
   ['Pick the questions that cost you deals', 'Think about what a buyer types before they have heard of you: "best invoicing app for freelancers", "cheaper alternative to X". Five to ten is plenty. Leave your own name out.'],
@@ -27,6 +28,7 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>Why ChatGPT recommends your competitors, and how to find out</h1>
       <p>By Kendall Sorenson. You can do all of this by hand in an afternoon. The tools at the end just save the repetition.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section><p>If a buyer asks ChatGPT for a tool like yours and gets three other names, it is rarely random. ChatGPT search leans on a handful of pages for each question, and the brands on those pages get named. The job is to find those pages.</p>

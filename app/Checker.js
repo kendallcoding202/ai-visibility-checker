@@ -5,7 +5,7 @@ import Result from './Result.js';
 import { EVENTS, categoryBucket, trackEvent } from '../lib/analyticsEvents.js';
 import { messageFromFailedCheck } from '../lib/checkError.js';
 
-export default function Checker({ showPaidReport = false, showTrackingTier = false, emailCapture = false }) {
+export default function Checker({ showPaidReport = false, showTrackingTier = false, emailCapture = false, source = 'home' }) {
   const start = useRef(Date.now());
   const [state, setState] = useState({ loading: false, error: null, data: null });
   const [flags, setFlags] = useState({ showPaidReport, showTrackingTier, emailCapture });
@@ -26,6 +26,7 @@ export default function Checker({ showPaidReport = false, showTrackingTier = fal
     const f = new FormData(e.currentTarget);
     const entries = Object.fromEntries(f);
     trackEvent(track, EVENTS.CHECK_SUBMITTED, {
+      source,
       has_competitors: String(entries.competitors ?? '').split(',').map((s) => s.trim()).filter(Boolean).length > 0,
       category_bucket: categoryBucket(entries.category),
       engine: 'chatgpt',

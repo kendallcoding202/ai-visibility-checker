@@ -1,3 +1,4 @@
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER, CITATIONS } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import Footer from '../Footer.js';
@@ -9,6 +10,7 @@ export const metadata = {
   description,
   alternates: { canonical: '/business-hub-vs-ai-visibility-tracker' },
   openGraph: { title, description, type: 'article', images: ['/opengraph-image'] },
+  twitter: { card: 'summary_large_image', title, description },
   authors: [{ name: 'Kendall Sorenson' }],
 };
 
@@ -51,6 +53,7 @@ export default function Page() {
       <h1>Business Hub vs AI Visibility Tracker</h1>
       <p>By Kendall Sorenson. OpenAI launched Businesses in ChatGPT in beta on Nov 10, 2026. Business Hub reports your own mention and click totals. The tracker reports who gets named, on which prompts, on which engines.</p>
       <p className="muted">Updated Nov 11, 2026.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section>
@@ -91,7 +94,7 @@ export default function Page() {
         <h2>What to use</h2>
         <ul>
           <li><a href="/#market">Who does ChatGPT recommend in your market</a> — one ChatGPT answer, the brand names it gives, no account. A snapshot, not usage totals.</li>
-          <li><a href="/#checker">Free brand check</a> — three buyer questions, whether your brand was named, rank, competitors, cited domains.</li>
+          <li><a href="#checker">Free brand check</a> — three buyer questions, whether your brand was named, rank, competitors, cited domains.</li>
           <li><a href={tracker}>AI Visibility Tracker</a> — the same kind of question, on a schedule, across the engines above, at the per-answer price above.</li>
           <li>Business Hub — your own ChatGPT mention and website-click totals after claim and Persona verification, without the prompts or a competitor ranking.</li>
         </ul>
@@ -121,7 +124,7 @@ export default function Page() {
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
 
-      <p><a className="cta" href="/#market">See who ChatGPT recommends</a> &nbsp; <a href={tracker}>Open AI Visibility Tracker →</a></p>
+      <p><a href="/#market">See who ChatGPT recommends</a> · <a href={tracker}>Open AI Visibility Tracker</a></p>
     </main>
     <Footer />
     <Ld data={faqLd(faq)} />

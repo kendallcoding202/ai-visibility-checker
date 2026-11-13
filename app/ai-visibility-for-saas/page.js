@@ -1,4 +1,5 @@
 import Footer from '../Footer.js';
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import { buildPrompts } from '../../lib/analyze.js';
@@ -13,6 +14,7 @@ export const metadata = {
   description,
   alternates: { canonical: '/ai-visibility-for-saas' },
   openGraph: { title, description, type: 'article', images: ['/opengraph-image'] },
+  twitter: { card: 'summary_large_image', title, description },
   authors: [{ name: 'Kendall Sorenson' }],
 };
 
@@ -49,6 +51,7 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>AI visibility for SaaS</h1>
       <p>Who this check is for, the questions it sends, and the fields on the result. By Kendall Sorenson. Updated Nov 12, 2026.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section>
@@ -71,7 +74,7 @@ export default function Page() {
           <tbody>{fields.map(([name, text]) => <tr key={name}><td>{name}</td><td>{text}</td></tr>)}</tbody>
         </table></div>
         <p>Raw answer text is shown in the browser that ran the check. It is not put on the share link. Results are cached for 24 hours. The limit is 3 checks per IP per day.</p>
-        <p><a className="cta" href="/how-to-check-if-chatgpt-mentions-your-brand#check">Open the check form</a></p>
+        <p><a className="cta" href="#checker">Open the check form</a></p>
       </section>
       <section>
         <h2>After one snapshot</h2>

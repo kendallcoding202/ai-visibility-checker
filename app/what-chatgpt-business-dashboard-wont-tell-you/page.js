@@ -1,3 +1,4 @@
+import InlineCheck from '../InlineCheck.js';
 import { TRACKER, CITATIONS } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import Footer from '../Footer.js';
@@ -9,6 +10,7 @@ export const metadata = {
   description,
   alternates: { canonical: '/what-chatgpt-business-dashboard-wont-tell-you' },
   openGraph: { title, description, type: 'article', images: ['/opengraph-image'] },
+  twitter: { card: 'summary_large_image', title, description },
   authors: [{ name: 'Kendall Sorenson' }],
 };
 
@@ -54,6 +56,7 @@ export default function Page() {
       <h1>What ChatGPT&apos;s new business dashboard won&apos;t tell you</h1>
       <p>By Kendall Sorenson. OpenAI launched Businesses in ChatGPT in beta on Nov 10, 2026, including Business Hub. Business Hub shows your own ChatGPT totals. This checker shows which questions, which competitors, and whether ChatGPT named you.</p>
       <p className="muted">Updated Nov 10, 2026. Originally published Nov 9, 2026, before the launch, when this page described Business Hub as unreleased testing.</p>
+      <InlineCheck />
     </div></header>
     <main className="wrap">
       <section>
@@ -109,7 +112,7 @@ export default function Page() {
         {faq.map(([q, a]) => <details key={q} open><summary>{q}</summary><p>{a}</p></details>)}
       </section>
 
-      <p><a className="cta" href="/">Run a free ChatGPT visibility check</a> &nbsp; <a href={tracker}>Open AI Visibility Tracker →</a></p>
+      <p><a className="cta" href="#checker">Run a free ChatGPT visibility check</a> &nbsp; <a href={tracker}>Open AI Visibility Tracker →</a></p>
     </main>
     <Footer />
     <Ld data={faqLd(faq)} />
