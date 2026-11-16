@@ -60,18 +60,22 @@ export default function Page() {
   return (<>
     <header className="hero"><div className="wrap">
       <h1>Free AI Visibility Checker: does ChatGPT recommend your brand?</h1>
-      <p>See who ChatGPT recommends in your market. Then check whether it names your brand, your rank, which competitors it picks and which sources it cites.</p>
+      <p>Check whether ChatGPT names your brand, where it ranks you, which competitors it picks instead, and which sources it cites. Three buyer-style questions. Free, no sign-up.</p>
       <ul className="trust" aria-label="What the free check includes">
         <li>Uses ChatGPT with web search</li>
         <li>Shows the raw answers</li>
-        <li>No sign-up for the free check</li>
+        <li>3 free checks per day</li>
       </ul>
       <h2 id="checker">Check your brand</h2>
       <Checker showPaidReport={paidReportEnabled()} showTrackingTier={trackingTierEnabled()} emailCapture={emailCaptureEnabled()} />
+      {paidReportEnabled() && <p className="muted" style={{ marginTop: '1rem' }}>After your free check, get a written report with all three raw answers, cited sources, and what to fix for $19 (one-time payment, no subscription).</p>}
       {localServiceBusinessEnabled() && <p className="muted" style={{ marginTop: '1rem' }}><a href="/local">For local service businesses (plumbers, dentists, etc.) →</a></p>}
-      <Lookup />
     </div></header>
     <main className="wrap">
+      <details className="lookup-toggle">
+        <summary><h2>See who ChatGPT recommends in your market</h2></summary>
+        <Lookup />
+      </details>
       <section>
         <h2>Why AI search visibility matters</h2>
         <p>More buyers now ask ChatGPT, Gemini and Perplexity “what's the best tool for…” instead of searching Google. If AI assistants don't mention your brand, you're invisible at the exact moment a buyer is choosing. <strong>Generative engine optimization (GEO)</strong>, also called AEO or LLM SEO, is how brands win those AI answers.</p>

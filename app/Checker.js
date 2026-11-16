@@ -6,7 +6,7 @@ import { EVENTS, categoryBucket, trackEvent } from '../lib/analyticsEvents.js';
 import { messageFromFailedCheck } from '../lib/checkError.js';
 
 export default function Checker({ showPaidReport = false, showTrackingTier = false, emailCapture = false, source = 'home' }) {
-  const start = useRef(Date.now());
+  const mounted = useRef(Date.now());
   const [state, setState] = useState({ loading: false, error: null, data: null });
   const [flags, setFlags] = useState({ showPaidReport, showTrackingTier, emailCapture });
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function Checker({ showPaidReport = false, showTrackingTier = fal
     setState({ loading: true, error: null, data: null });
     try {
       const r = await fetch('/api/check', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...entries, elapsed: Date.now() - start.current }) });
+        body: JSON.stringify({ ...entries, elapsed: Date.now() - mounted.current }) });
       const text = await r.text();
       if (!r.ok) {
         setState({ loading: false, error: messageFromFailedCheck(text), data: null });

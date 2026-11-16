@@ -38,12 +38,12 @@ export async function POST(req) {
   let body;
   try { body = await req.json(); } catch { return bad('Bad request'); }
   if (body.company) return bad('Forbidden', 403);
-  if (!(Number(body.elapsed) >= 1000)) return bad('Please try again.');
+  if (!(Number(body.elapsed) >= 1000)) return bad('Please wait a moment before submitting.');
 
   const email = normalizeEmail(body.email);
-  if (!email) return bad('Enter the confirmed email address.');
+  if (!email) return bad('Please enter a valid email address.');
   const brand = normalizeBrand(body.brand);
-  if (!brand) return bad('Run a check first, then subscribe.');
+  if (!brand) return bad('Please run a check first, then subscribe.');
 
   const day = new Date().toISOString().slice(0, 10);
   const ipOk = await bump(`checkout-ip/${day}/${hashKey(clientIp(req))}`, 12);
@@ -52,9 +52,9 @@ export async function POST(req) {
   if (!emailOk) return bad('Too many checkout attempts. Try again tomorrow.', 429);
 
   const record = await getSubscriber(email);
-  if (!record || record.status !== 'confirmed') return bad('Confirm the email for this brand before subscribing.');
+  if (!record || record.status !== 'confirmed') return bad('Please confirm your email for this brand before subscribing. Check your inbox for the confirmation link.');
   const saved = normalizeBrand(record.snapshot?.brand);
-  if (!saved || saved !== brand) return bad('Confirm the email for this brand before subscribing.');
+  if (!saved || saved !== brand) return bad('Please confirm your email for this brand before subscribing. The brand in your confirmation must match.');
   if (record.trackingActive && record.stripeSubscriptionId) {
     return bad('This address already has monthly tracking. Use the manage link in the tracking email.');
   }
