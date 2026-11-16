@@ -200,17 +200,15 @@ export async function POST(req) {
       }
     }
 
+    success = true;
     if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
       const settled = await settleMonthCost(monthKey, reserve, cost);
       if (!settled) {
         console.error('cost settle failed');
-        throw new Error('Settle failed');
       }
     } else {
-      throw new Error('Insufficient time to settle');
+      console.error('cost settle skipped');
     }
-
-    success = true;
     console.log(`local check ok cost=$${cost.toFixed(4)}`);
     const payload = { ...result, audit: auditResult, fixKit, fixList, id: shareId, cached: false };
     return Response.json(payload);

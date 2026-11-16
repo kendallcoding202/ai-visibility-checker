@@ -124,16 +124,15 @@ export async function POST(req) {
         console.error(`cache store failed name=${safeErrorName(error)}`);
       }
     }
+    success = true;
     if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
       const settled = await settleMonthCost(monthKey, reserve, cost);
       if (!settled) {
         console.error('cost settle failed');
-        throw new Error('Settle failed');
       }
     } else {
-      throw new Error('Insufficient time to settle');
+      console.error('cost settle skipped');
     }
-    success = true;
     console.log(`lookup ok cost=$${cost.toFixed(4)}`);
     return Response.json(
       { ...result, id: shareId, cached: false, ...(process.env.SHOW_COST === '1' ? { cost: money(cost) } : {}) },

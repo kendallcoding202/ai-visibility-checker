@@ -135,17 +135,16 @@ export async function POST(req) {
         console.error(`answer store failed name=${safeErrorName(error)}`);
       }
     }
+    success = true;
     // Replace the reservation with the measured cost. If the counter cannot be re-read, keep the reserve.
     if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
       const settled = await settleMonthCost(monthKey, reserve, cost);
       if (!settled) {
         console.error('cost settle failed');
-        throw new Error('Settle failed');
       }
     } else {
-      throw new Error('Insufficient time to settle');
+      console.error('cost settle skipped');
     }
-    success = true;
     console.log(`check ok cost=$${cost.toFixed(4)}`);
     const payload = publicResult(result, { id: shareId, cached: false });
     if (process.env.SHOW_COST === '1') payload.cost = cost;
