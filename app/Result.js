@@ -76,7 +76,7 @@ function FixList({ d }) {
     <p className="muted">Pages ChatGPT cited on the questions that did not name {d.brand}.</p>
     <div className="q">
       <strong>Business Hub vs this report</strong>
-      <p>Business Hub shows a business its own mention totals from ChatGPT usage. This report shows which questions ChatGPT answered without naming {d.brand}, which competitors it picked instead, and which pages it cited. Business Hub reports aggregate counts. This report lists the prompts and the gaps. <a href="/what-chatgpt-business-dashboard-wont-tell-you">Read the full comparison</a> or <a href="https://openai.com/business/businesses-in-chatgpt/" target="_blank" rel="noopener noreferrer">claim your business in ChatGPT</a>.</p>
+      <p>Business Hub shows a business its own mention totals from ChatGPT usage over the past 28 days. This report shows which competitors ChatGPT recommends instead of {d.brand}, on which questions, and which pages it cited. <a href="/what-chatgpt-business-dashboard-wont-tell-you">Read the full comparison</a> or <a href="https://openai.com/business/businesses-in-chatgpt/" target="_blank" rel="noopener noreferrer">claim your business in ChatGPT</a>.</p>
     </div>
     {fix.questions.map((q) => <div className="q" key={q.prompt}>
       <strong>{q.prompt}</strong>
