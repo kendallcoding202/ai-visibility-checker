@@ -48,6 +48,12 @@ function WebsiteAudit({ audit, businessName }) {
   const good = [];
   if (!audit.hasLocalBusinessSchema) issues.push('Missing LocalBusiness structured data');
   else good.push('Has LocalBusiness structured data');
+  if (!audit.hasBusinessName) issues.push('Business name not found on page');
+  else good.push('Business name found on page');
+  if (!audit.hasPhoneNumber) issues.push('Phone number not found on page');
+  else good.push('Phone number found on page');
+  if (!audit.hasAddress) issues.push('Address not found on page');
+  else good.push('Address found on page');
   if (!audit.hasServiceInMeta) issues.push('Service and city not in title or headings');
   else good.push('Service and city in title or headings');
   if (!audit.hasFAQ) issues.push('No FAQ section');
