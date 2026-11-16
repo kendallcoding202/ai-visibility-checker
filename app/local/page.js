@@ -10,7 +10,7 @@ export const metadata = {
 
 const faq = [
   ['How does the local business checker work?', 'Enter your business name, service type, city and state. We ask ChatGPT three customer-style questions about local businesses in your area, then detect whether your business is mentioned, where it ranks, and which directories are cited. If you provide your website, we audit it for local SEO signals.'],
-  ['Why do local businesses need AI visibility?', 'More customers now ask ChatGPT, Gemini and Perplexity "who should I call for plumbing in Denver" instead of searching Google. If AI assistants don't mention your business, you're invisible at the exact moment a customer is choosing.'],
+  ['Why do local businesses need AI visibility?', 'More customers now ask ChatGPT, Gemini and Perplexity "who should I call for plumbing in Denver" instead of searching Google. If AI assistants don\'t mention your business, you\'re invisible at the exact moment a customer is choosing.'],
   ['What does the website audit check?', 'We check your homepage, robots.txt, llms.txt, and sitemap.xml for LocalBusiness structured data, business name and address on the page, service and city in title and headings, FAQ content, whether you block AI crawlers, and whether you have an llms.txt file.'],
   ['Is it really free?', 'Yes. You get 3 free AI visibility checks per day. Website audits have a separate limit of 2 per day. Results are cached for 24 hours.'],
 ];
