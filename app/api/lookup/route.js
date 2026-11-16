@@ -126,9 +126,13 @@ export async function POST(req) {
     }
     success = true;
     if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
-      const settled = await settleMonthCost(monthKey, reserve, cost);
-      if (!settled) {
-        console.error('cost settle failed');
+      try {
+        const settled = await settleMonthCost(monthKey, reserve, cost);
+        if (!settled) {
+          console.error('cost settle failed');
+        }
+      } catch (error) {
+        console.error(`cost settle failed name=${safeErrorName(error)}`);
       }
     } else {
       console.error('cost settle skipped');

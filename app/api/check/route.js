@@ -138,9 +138,13 @@ export async function POST(req) {
     success = true;
     // Replace the reservation with the measured cost. If the counter cannot be re-read, keep the reserve.
     if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
-      const settled = await settleMonthCost(monthKey, reserve, cost);
-      if (!settled) {
-        console.error('cost settle failed');
+      try {
+        const settled = await settleMonthCost(monthKey, reserve, cost);
+        if (!settled) {
+          console.error('cost settle failed');
+        }
+      } catch (error) {
+        console.error(`cost settle failed name=${safeErrorName(error)}`);
       }
     } else {
       console.error('cost settle skipped');
