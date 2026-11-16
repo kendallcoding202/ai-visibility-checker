@@ -98,7 +98,12 @@ export async function POST(req) {
   if (website) {
     const auditRes = await reserveLocalAudit(auditIpKey, auditDayKey, auditPerIp, auditCap);
     if (!auditRes.ok) {
-      await refundSpend(ipKey, dayKey, monthKey, 0, reserve);
+      try {
+        await refundSpend(ipKey, dayKey, monthKey, 0, reserve);
+        reserved = false;
+      } catch (err) {
+        console.error(`spend refund after audit fail failed name=${err?.name}`);
+      }
       return fail(auditRes.error, auditRes.status);
     }
     auditReserved = true;
@@ -109,7 +114,11 @@ export async function POST(req) {
   try {
     const held = await heldWithinBudget(monthKey, budget);
     if (!held.ok) {
-      await refundSpend(ipKey, dayKey, monthKey, 0, reserve);
+      try {
+        await refundSpend(ipKey, dayKey, monthKey, 0, reserve);
+      } catch (err) {
+        console.error(`spend refund after budget fail failed name=${err?.name}`);
+      }
       if (auditReserved) await refundLocalAudit(auditIpKey, auditDayKey);
       reserved = false;
       auditReserved = false;
@@ -213,7 +222,11 @@ export async function POST(req) {
     console.error('local check failed', safeErrorName(e));
     if (Number.isFinite(e?.trackingCost)) cost = e.trackingCost;
     if (reserved && timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
-      await refundSpend(ipKey, dayKey, monthKey, cost, reserve);
+      try {
+        await refundSpend(ipKey, dayKey, monthKey, cost, reserve);
+      } catch (err) {
+        console.error(`spend refund after check fail failed name=${err?.name}`);
+      }
     }
     if (auditReserved) await refundLocalAudit(auditIpKey, auditDayKey);
     if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
