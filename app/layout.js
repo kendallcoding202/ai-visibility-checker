@@ -1,7 +1,7 @@
 import { Geist, Instrument_Serif } from 'next/font/google';
 import { SITE } from './site.js';
 import './globals.css';
-import { Analytics } from '@vercel/analytics/next';
+import AnalyticsWrapper from './AnalyticsWrapper.js';
 import VisitSource from './VisitSource.js';
 import SiteHeader from './SiteHeader.js';
 
@@ -50,13 +50,7 @@ export default function RootLayout({ children }) {
         <a className="skip" href="#content">Skip to content</a>
         <SiteHeader />
         <div id="content">{children}</div>
-        <Analytics beforeSend={(event) => {
-          // Don't track 404 pages to avoid bot inflation
-          if (typeof document !== 'undefined' && document.querySelector('[data-not-found]')) {
-            return null;
-          }
-          return event;
-        }} />
+        <AnalyticsWrapper />
         <VisitSource />
       </body>
     </html>
