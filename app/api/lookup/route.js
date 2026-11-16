@@ -94,11 +94,10 @@ export async function POST(req) {
 
   let cost = 0;
   let reserved = true;
+  let success = false;
   try {
     const held = await heldWithinBudget(monthKey, budget);
     if (!held.ok) {
-      await refundSpend(ipKey, dayKey, monthKey, 0, reserve);
-      reserved = false;
       return fail(held.error, held.status);
     }
 
@@ -126,12 +125,15 @@ export async function POST(req) {
       }
     }
     if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
-      try {
-        await settleMonthCost(monthKey, reserve, cost);
-      } catch (error) {
-        console.error(`cost settle failed name=${safeErrorName(error)}`);
+      const settled = await settleMonthCost(monthKey, reserve, cost);
+      if (!settled) {
+        console.error('cost settle failed');
+        throw new Error('Settle failed');
       }
+    } else {
+      throw new Error('Insufficient time to settle');
     }
+    success = true;
     console.log(`lookup ok cost=$${cost.toFixed(4)}`);
     return Response.json(
       { ...result, id: shareId, cached: false, ...(process.env.SHOW_COST === '1' ? { cost: money(cost) } : {}) },
@@ -139,10 +141,15 @@ export async function POST(req) {
     );
   } catch (e) {
     console.error('lookup failed', safeErrorName(e));
-    if (reserved && timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
-      await refundSpend(ipKey, dayKey, monthKey, cost, reserve);
-    }
     if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
     return fail('The AI check failed. Please try again in a minute.', 502);
+  } finally {
+    if (!success && reserved) {
+      try {
+        await refundSpend(ipKey, dayKey, monthKey, cost, reserve);
+      } catch (err) {
+        console.error(`refund failed ipKey dayKey monthKey name=${err?.name}`);
+      }
+    }
   }
 }

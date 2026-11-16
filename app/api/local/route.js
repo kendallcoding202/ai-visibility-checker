@@ -111,17 +111,10 @@ export async function POST(req) {
 
   let cost = 0;
   let reserved = true;
+  let success = false;
   try {
     const held = await heldWithinBudget(monthKey, budget);
     if (!held.ok) {
-      try {
-        await refundSpend(ipKey, dayKey, monthKey, 0, reserve);
-      } catch (err) {
-        console.error(`spend refund after budget fail failed name=${err?.name}`);
-      }
-      if (auditReserved) await refundLocalAudit(auditIpKey, auditDayKey);
-      reserved = false;
-      auditReserved = false;
       return fail(held.error, held.status);
     }
 
@@ -208,29 +201,35 @@ export async function POST(req) {
     }
 
     if (timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
-      try {
-        await settleMonthCost(monthKey, reserve, cost);
-      } catch (error) {
-        console.error(`cost settle failed name=${safeErrorName(error)}`);
+      const settled = await settleMonthCost(monthKey, reserve, cost);
+      if (!settled) {
+        console.error('cost settle failed');
+        throw new Error('Settle failed');
       }
+    } else {
+      throw new Error('Insufficient time to settle');
     }
 
+    success = true;
     console.log(`local check ok cost=$${cost.toFixed(4)}`);
     const payload = { ...result, audit: auditResult, fixKit, fixList, id: shareId, cached: false };
     return Response.json(payload);
   } catch (e) {
     console.error('local check failed', safeErrorName(e));
     if (Number.isFinite(e?.trackingCost)) cost = e.trackingCost;
-    if (reserved && timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
+    if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
+    return fail('The AI check failed. Please try again in a minute.', 502);
+  } finally {
+    if (!success && reserved) {
       try {
         await refundSpend(ipKey, dayKey, monthKey, cost, reserve);
       } catch (err) {
-        console.error(`spend refund after check fail failed name=${err?.name}`);
+        console.error(`refund failed ipKey dayKey monthKey name=${err?.name}`);
       }
     }
-    if (auditReserved) await refundLocalAudit(auditIpKey, auditDayKey);
-    if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
-    return fail('The AI check failed. Please try again in a minute.', 502);
+    if (!success && auditReserved) {
+      await refundLocalAudit(auditIpKey, auditDayKey);
+    }
   }
 }
 
