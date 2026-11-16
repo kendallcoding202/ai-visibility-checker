@@ -8,6 +8,7 @@ import { COST_AS_OF_LABEL, freeChecker, tracker, otterly, keyword } from '../lib
 import { emailCaptureEnabled } from '../lib/emailAddress.js';
 import { paidReportEnabled } from '../lib/paidReport.js';
 import { trackingTierEnabled } from '../lib/trackingTier.js';
+import { localServiceBusinessEnabled } from '../lib/localLimits.js';
 import DirectoryBadges from './DirectoryBadges.js';
 
 const faq = [
@@ -67,6 +68,7 @@ export default function Page() {
       </ul>
       <h2 id="checker">Check your brand</h2>
       <Checker showPaidReport={paidReportEnabled()} showTrackingTier={trackingTierEnabled()} emailCapture={emailCaptureEnabled()} />
+      {localServiceBusinessEnabled() && <p className="muted" style={{ marginTop: '1rem' }}><a href="/local">For local service businesses (plumbers, dentists, etc.) →</a></p>}
       <Lookup />
     </div></header>
     <main className="wrap">
