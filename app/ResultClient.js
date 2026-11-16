@@ -91,6 +91,45 @@ export function CitationCTA({ d }) {
     {answers} answers = ${runCost(input, CIT_PRICE).toFixed(2)}. Add your domain to <code>yourDomains</code> after pasting.</p>);
 }
 
+export function PaidReportCheckout({ brand, resultId }) {
+  const [state, setState] = useState({ loading: false, error: '' });
+  async function submit(e) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    if (f.get('company')) return;
+    setState({ loading: true, error: '' });
+    try {
+      const r = await fetch('/api/checkout-report', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          email: f.get('email'),
+          brand,
+          resultId,
+          company: f.get('company') || '',
+        }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setState({ loading: false, error: data.error || 'Checkout could not be started.' });
+        return;
+      }
+      if (data.url) window.location.href = data.url;
+    } catch {
+      setState({ loading: false, error: 'Network error. Please try again.' });
+    }
+  }
+  return (<form className="emailbox" onSubmit={submit}>
+    <h3>Get the full report, $19</h3>
+    <p>Written report with the score, all three raw answers, brands ChatGPT named, cited sources, and what to fix. Pay once. No subscription. Delivered to your email after payment.</p>
+    <label>Email<input name="email" type="email" required autoComplete="email" maxLength={254} placeholder="you@company.com" /></label>
+    <input className="hp" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+    <button disabled={state.loading}>{state.loading ? 'Opening checkout…' : 'Get the full report, $19'}</button>
+    {state.error && <p className="err" role="alert">{state.error}</p>}
+  </form>);
+}
+
 export function ReportEmail({ id, showTracking = false }) {
   const start = useRef(Date.now());
   const [state, setState] = useState({ loading: false, error: '', done: '' });

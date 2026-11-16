@@ -622,6 +622,33 @@ footer a.launched:hover { background: #1e2118; color: #f6f3ec; }
 .launched-title { font-size: .75rem; font-weight: 650; color: #f6f3ec; }
 .launched-sub { font-size: .625rem; font-weight: 650; letter-spacing: .04em; color: #C6F94E; }
 
+.lookup-toggle {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  border: 1px solid rgba(198, 249, 78, 0.2);
+  border-radius: 12px;
+  background: rgba(21, 23, 15, 0.4);
+}
+.lookup-toggle summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.lookup-toggle summary::-webkit-details-marker {
+  display: none;
+}
+.lookup-toggle summary h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text);
+}
+.lookup-toggle summary:hover h2 {
+  color: var(--primary);
+}
+.lookup-toggle[open] summary {
+  margin-bottom: 1.5rem;
+}
+
 @media (max-width: 900px) {
   .plans.three { grid-template-columns: 1fr; }
 }
