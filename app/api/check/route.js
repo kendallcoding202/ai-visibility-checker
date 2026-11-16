@@ -55,10 +55,14 @@ export async function POST(req) {
   let body;
   try { body = await req.json(); } catch { return fail('Bad request'); }
   if (body.website) return fail('Forbidden', 403);
-  if (!(Number(body.elapsed) >= 1500)) return fail('Please try again.', 400);
+  // Count from page load, not from first keystroke. A real user takes at least 2 seconds to load, read, and submit.
+  if (!(Number(body.elapsed) >= 2000)) return fail('Please wait a moment before submitting.', 400);
 
   const parsed = parseCheckInput(body);
-  if (parsed.error) return fail(parsed.error);
+  if (parsed.error) {
+    void trackEvent(track, EVENTS.CHECK_FAILED, { engine: 'chatgpt', failure_reason: 'validation' });
+    return fail(parsed.error);
+  }
   const { brand, category, competitors } = parsed;
 
   if ((process.env.OPENAI_API_KEY ?? '').length < 20) return fail('The checker is warming up. Please try again later.', 503);
@@ -69,6 +73,7 @@ export async function POST(req) {
   // A missing cache blob is a miss. A failed cache read is also a miss: the counters below still fail closed.
   const cached = await readJSON(cacheKey);
   if (cached.ok && cached.value && Date.now() - cached.value.at < CACHE_MS && cached.value.result) {
+    void trackEvent(track, EVENTS.CHECK_SUCCEEDED, { engine: 'chatgpt', cached: true });
     return Response.json(publicResult(cached.value.result, { id: shareId, cached: true }));
   }
 
@@ -82,7 +87,11 @@ export async function POST(req) {
   const budget = monthBudget(month);
   // The reservation commits only if this request still fits. Parallel requests retry on conflict.
   const reservation = await reserveSpend({ ipKey, dayKey, monthKey, perIp, cap, budget, reserve });
-  if (!reservation.ok) return fail(reservation.error, reservation.status);
+  if (!reservation.ok) {
+    const reason = reservation.status === 429 ? 'rate_limit' : 'budget_exceeded';
+    void trackEvent(track, EVENTS.CHECK_FAILED, { engine: 'chatgpt', failure_reason: reason });
+    return fail(reservation.error, reservation.status);
+  }
 
   // Reserve the slot before spending money. A timeout here still refunds: the write may have landed.
   let cost = 0;
@@ -137,6 +146,7 @@ export async function POST(req) {
     console.log(`check ok cost=$${cost.toFixed(4)}`);
     const payload = publicResult(result, { id: shareId, cached: false });
     if (process.env.SHOW_COST === '1') payload.cost = cost;
+    void trackEvent(track, EVENTS.CHECK_SUCCEEDED, { engine: 'chatgpt' });
     return Response.json(payload, { headers: cookie ? { 'set-cookie': cookie } : {} });
   } catch (e) {
     console.error('check failed', safeErrorName(e));
@@ -144,6 +154,8 @@ export async function POST(req) {
     if (reserved && timeLeft() > blobReadWorstMs() + blobWriteWorstMs()) {
       await refundSpend(ipKey, dayKey, monthKey, cost, reserve);
     }
+    const reason = isCheckTimeout(e) ? 'timeout' : 'api_error';
+    void trackEvent(track, EVENTS.CHECK_FAILED, { engine: 'chatgpt', failure_reason: reason });
     if (isCheckTimeout(e)) return fail(CHECK_TIMEOUT_ERROR, 504);
     return fail('The AI check failed. Please try again in a minute.', 502);
   }

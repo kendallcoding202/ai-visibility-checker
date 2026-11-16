@@ -1,6 +1,6 @@
 import { assertHashSalt, HashSaltError } from '../../../../lib/hash.js';
 import { constructStripeEvent } from '../../../../lib/stripeApi.js';
-import { applyStripeEvent } from '../../../../lib/trackingEvents.js';
+import { applyStripeEvent, applyPaidReportEvent } from '../../../../lib/trackingEvents.js';
 import { eventAlreadyDone, markEventDone, validEventId } from '../../../../lib/trackingRecords.js';
 
 export const runtime = 'nodejs';
@@ -35,8 +35,18 @@ export async function POST(req) {
     return Response.json({ received: true, duplicate: true }, { headers: noStore });
   }
   try {
-    const result = await applyStripeEvent(event);
-    if (!result.ok && result.retry) {
+    // Try paid report first (payment mode), then tracking (subscription mode)
+    const paidResult = await applyPaidReportEvent(event);
+    if (paidResult.applied) {
+      if (!paidResult.ok && paidResult.retry) {
+        return Response.json({ error: 'Webhook handling failed' }, { status: 500, headers: noStore });
+      }
+      await markEventDone(event.id);
+      return Response.json({ received: true }, { headers: noStore });
+    }
+    
+    const trackingResult = await applyStripeEvent(event);
+    if (!trackingResult.ok && trackingResult.retry) {
       return Response.json({ error: 'Webhook handling failed' }, { status: 500, headers: noStore });
     }
     await markEventDone(event.id);

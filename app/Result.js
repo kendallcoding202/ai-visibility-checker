@@ -1,5 +1,5 @@
 import { TRACKER } from './links.js';
-import { TrackerCTA, CitationCTA, ShareLink, ResultViewTracker, RawAnswers, ReportEmail } from './ResultClient.js';
+import { TrackerCTA, CitationCTA, ShareLink, ResultViewTracker, RawAnswers, ReportEmail, PaidReportCheckout } from './ResultClient.js';
 import TrackLink from './TrackLink.js';
 import { EVENTS } from '../lib/analyticsEvents.js';
 import { buildFixList, shortUrl } from '../lib/fixList.js';
@@ -26,9 +26,10 @@ export default function Result({ d, shared = false, showPaidReport = false, show
     <p className="runs">{runLine(d.runs, d.total)}</p>
     <p>{d.mentionedIn === 0 ? `ChatGPT didn't mention ${d.brand}${market}. Buyers asking AI are seeing your competitors instead.`
       : d.mentionedIn < d.total ? `${d.brand} shows up in some answers, but not consistently.` : `${d.brand} shows up in every answer. Nice! Keep tracking it, since AI answers change weekly.`}</p>
+    {!shared && showPaidReport && <PaidReportCheckout brand={d.brand} resultId={d.id} />}
     <Plans d={d} showPaidReport={showPaidReport} showTrackingTier={showTrackingTier} />
-    {!shared && emailCapture && <ReportEmail id={d.id} showTracking={showTrackingTier} />}
-    <p className="weekly">This is one snapshot, and AI answers shift from week to week. To see whether {d.brand} is gaining or losing ground, <TrackLink href={TRACKER('result-top')} event={EVENTS.TRACKER_CTA_CLICK} location="result-top" target="_blank" rel="noopener">track it weekly on Apify</TrackLink>. The ready-made input is <a href="#track">below</a>.</p>
+    {!shared && emailCapture && !showPaidReport && <ReportEmail id={d.id} showTracking={showTrackingTier} />}
+    <p className="weekly">This is one snapshot, and AI answers shift from week to week. To see whether {d.brand} is gaining or losing ground, <a href="#track">copy the ready-made input below and open the tracker on Apify</a>.</p>
     {d.id && <ShareLink id={d.id} brand={d.brand} score={d.score} source={shared ? 'share' : 'home'} />}
     <h3>Engines</h3>
     <div className="engines">
@@ -51,20 +52,15 @@ export default function Result({ d, shared = false, showPaidReport = false, show
 }
 
 function Plans({ d, showPaidReport, showTrackingTier }) {
-  return (<div className={planColumnClass(showPaidReport, showTrackingTier)}>
+  if (!showTrackingTier) return null;
+  return (<div className={planColumnClass(false, showTrackingTier)}>
+    {trackingTierElement(showTrackingTier, d.brand)}
     <div className="plan">
-      <h3>Ongoing plan</h3>
+      <h3>Ongoing tracking</h3>
       <p className="price">${tracker.pricePerAnswer} <span>per answer</span></p>
       <p>AI Visibility Tracker on the Apify Store. ChatGPT, Gemini, and Perplexity. No monthly fee. The Free tier price was ${tracker.pricePerAnswer} per answer on Nov 12, 2026. Bronze is 0.034 dollars, Silver is 0.03 dollars, and Gold and higher are 0.028 dollars. Failed answers are not charged.</p>
       <TrackLink className="cta" href={TRACKER('result-plan')} event={EVENTS.TRACKER_CTA_CLICK} location="result-cta" target="_blank" rel="noopener">Open AI Visibility Tracker</TrackLink>
     </div>
-    {showPaidReport && <div className="plan">
-      <h3>{PAID_REPORT_HEADING}</h3>
-      <p className="price">{PAID_REPORT_PRICE}</p>
-      <p>{PAID_REPORT_BODY} This offer is for the {d.brand} check on this page.</p>
-      <p className="muted">{PAID_REPORT_NOTE}</p>
-    </div>}
-    {trackingTierElement(showTrackingTier, d.brand)}
   </div>);
 }
 
