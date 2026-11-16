@@ -50,13 +50,14 @@ export async function POST(req) {
     throw e;
   }
 
-  // Basic bot protection: same-origin, JSON only, honeypot, minimum fill time.
+  // Basic bot protection: same-origin, JSON only, honeypot, minimum fill time from component mount.
   if (!sameOrigin(req)) return fail('Forbidden', 403);
   let body;
   try { body = await req.json(); } catch { return fail('Bad request'); }
   if (body.website) return fail('Forbidden', 403);
-  // Count from page load, not from first keystroke. A real user takes at least 2 seconds to load, read, and submit.
-  if (!(Number(body.elapsed) >= 2000)) return fail('Please wait a moment before submitting.', 400);
+  // Elapsed is from component mount. A normal person filling the form takes at least 800ms.
+  // Autofill users can submit faster, but scripted bots will fail this.
+  if (!(Number(body.elapsed) >= 800)) return fail('Please wait a moment before submitting.', 400);
 
   const parsed = parseCheckInput(body);
   if (parsed.error) {

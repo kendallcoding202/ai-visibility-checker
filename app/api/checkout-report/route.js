@@ -7,6 +7,7 @@ import { createPaidReportCheckout } from '../../../lib/stripeApi.js';
 import { paidReportEnabled } from '../../../lib/paidReport.js';
 import { track } from '@vercel/analytics/server';
 import { EVENTS, trackEvent } from '../../../lib/analyticsEvents.js';
+import { readAnswerCookie, loadRawAnswers } from '../../../lib/rawAnswers.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -46,6 +47,12 @@ export async function POST(req) {
   const resultId = String(body.resultId ?? '');
   if (!/^[a-f0-9]{24}$/.test(resultId)) return bad('Run a check first, then get the report.');
 
+  // Fetch and snapshot the check result before creating checkout
+  const cached = await readJSON(`cache/${resultId}`);
+  if (!cached.ok || !cached.value?.result) {
+    return bad('That check is no longer available. Run it again.', 400);
+  }
+
   const day = new Date().toISOString().slice(0, 10);
   const ipOk = await bump(`checkout-report-ip/${day}/${hashKey(clientIp(req))}`, 12);
   if (!ipOk) return bad('Too many checkout attempts. Try again tomorrow.', 429);
@@ -63,6 +70,35 @@ export async function POST(req) {
     const status = session.reason === 'unconfigured' ? 503 : 502;
     return bad(status === 503 ? 'Checkout is temporarily unavailable.' : 'Checkout could not be started.', status);
   }
+
+  // Fetch raw answers if available (from cookie)
+  let answers = null;
+  try {
+    const cookie = readAnswerCookie(req.headers.get('cookie'));
+    if (cookie && cookie.shareId === resultId) {
+      const raw = await loadRawAnswers(cookie.token);
+      if (raw?.shareId === resultId && Array.isArray(raw.answers)) {
+        answers = raw.answers;
+      }
+    }
+  } catch {
+    // Raw answers optional
+  }
+
+  // Snapshot the result and answers durably for webhook delivery (survives cache expiry and re-checks)
+  const snapshotKey = `paid-report-snapshot/${session.sessionId}`;
+  try {
+    await setJSON(snapshotKey, {
+      resultId,
+      result: cached.value.result,
+      answers,
+      snapshotAt: Date.now(),
+    });
+  } catch (error) {
+    console.error(`paid report snapshot failed sessionId=${session.sessionId}`);
+    // Continue anyway - webhook will try cache first, then fail gracefully
+  }
+
   try {
     await trackEvent(track, EVENTS.CHECKOUT_STARTED, { type: 'paid_report' });
   } catch { /* the count must not fail checkout */ }

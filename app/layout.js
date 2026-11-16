@@ -50,7 +50,13 @@ export default function RootLayout({ children }) {
         <a className="skip" href="#content">Skip to content</a>
         <SiteHeader />
         <div id="content">{children}</div>
-        <Analytics />
+        <Analytics beforeSend={(event) => {
+          // Don't track 404 pages to avoid bot inflation
+          if (typeof document !== 'undefined' && document.querySelector('[data-not-found]')) {
+            return null;
+          }
+          return event;
+        }} />
         <VisitSource />
       </body>
     </html>

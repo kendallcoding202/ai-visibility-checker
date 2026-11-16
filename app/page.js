@@ -59,7 +59,7 @@ export default function Page() {
   return (<>
     <header className="hero"><div className="wrap">
       <h1>Free AI Visibility Checker: does ChatGPT recommend your brand?</h1>
-      <p>Check whether ChatGPT names your brand, your rank, which competitors it picks and which sources it cites. Three buyer-style questions. Instant GEO score. No sign-up.</p>
+      <p>Check whether ChatGPT names your brand, where it ranks you, which competitors it picks instead, and which sources it cites. Three buyer-style questions. Free, no sign-up.</p>
       <ul className="trust" aria-label="What the free check includes">
         <li>Uses ChatGPT with web search</li>
         <li>Shows the raw answers</li>
