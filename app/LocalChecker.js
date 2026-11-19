@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { track } from '@vercel/analytics';
 import LocalResult from './LocalResult.js';
 import { EVENTS, trackEvent } from '../lib/analyticsEvents.js';
+import { browserChannel, channelProps } from '../lib/attribution.js';
 import { messageFromFailedCheck } from '../lib/checkError.js';
 
 const US_STATES = [
@@ -27,6 +28,7 @@ export default function LocalChecker() {
     trackEvent(track, EVENTS.CHECK_SUBMITTED, {
       category_bucket: 'local',
       engine: 'chatgpt',
+      ...channelProps(browserChannel()),
     });
 
     setState({ loading: true, error: null, data: null });
@@ -48,6 +50,13 @@ export default function LocalChecker() {
         return;
       }
       setState({ loading: false, error: null, data });
+      trackEvent(track, EVENTS.RESULT_VIEWED, {
+        named: (data.mentionedIn ?? 0) > 0,
+        source: 'home',
+        engine: 'chatgpt',
+        cached: Boolean(data.cached),
+        ...channelProps(browserChannel()),
+      });
     } catch {
       trackEvent(track, EVENTS.CHECK_ERROR, { type: 'network', engine: 'chatgpt' });
       setState({ loading: false, error: 'Network error. Please try again.', data: null });

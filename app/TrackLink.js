@@ -1,6 +1,7 @@
 'use client';
 import { track } from '@vercel/analytics';
 import { trackEvent } from '../lib/analyticsEvents.js';
+import { browserChannel, channelProps } from '../lib/attribution.js';
 
 export default function TrackLink({ href, event, location, className, children, ...rest }) {
   return (
@@ -8,7 +9,7 @@ export default function TrackLink({ href, event, location, className, children, 
       href={href}
       className={className}
       {...rest}
-      onClick={() => { trackEvent(track, event, { location }); }}
+      onClick={() => { trackEvent(track, event, { location, ...channelProps(browserChannel()) }); }}
     >{children}</a>
   );
 }

@@ -1,5 +1,8 @@
 'use client';
 import { createElement, useRef, useState } from 'react';
+import { track } from '@vercel/analytics';
+import { EVENTS, trackEvent } from '../lib/analyticsEvents.js';
+import { browserChannel, channelProps } from '../lib/attribution.js';
 import { TRACKING_CHECKOUT_BUTTON } from '../lib/trackingTier.js';
 
 function checkoutUrl(url) {
@@ -19,6 +22,10 @@ export function TrackingCheckoutForm({ brand }) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     if (form.get('company')) return;
+    trackEvent(track, EVENTS.CHECKOUT_STARTED, {
+      checkout_type: 'tracking_subscription',
+      ...channelProps(browserChannel()),
+    });
     setState({ loading: true, error: '' });
     try {
       const response = await fetch('/api/checkout', {
