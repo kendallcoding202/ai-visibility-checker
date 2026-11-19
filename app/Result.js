@@ -7,6 +7,7 @@ import { runLine } from '../lib/publicResult.js';
 import { tracker } from '../lib/costCompare.js';
 import { PAID_REPORT_BODY, PAID_REPORT_HEADING, PAID_REPORT_NOTE, PAID_REPORT_PRICE } from '../lib/paidReport.js';
 import { TrackingOffer } from './TrackingOffer.js';
+import ApifyActorLink from './ApifyActorLink.js';
 import { planColumnClass } from '../lib/trackingTier.js';
 import { trackingTierElement } from '../lib/trackingTierView.js';
 
@@ -24,6 +25,7 @@ export default function Result({ d, shared = false, showPaidReport = false, show
       {showTrackingTier ? <TrackingOffer brand={d.brand} resultId={d.id || ''} /> : null}
     </div>
     <p className="runs">{runLine(d.runs, d.total)}</p>
+    <ApifyActorLink campaign="result" />
     <p>{d.mentionedIn === 0 ? `ChatGPT didn't mention ${d.brand}${market}. Buyers asking AI are seeing your competitors instead.`
       : d.mentionedIn < d.total ? `${d.brand} shows up in some answers, but not consistently.` : `${d.brand} shows up in every answer. Nice! Keep tracking it, since AI answers change weekly.`}</p>
     {!shared && showPaidReport && <PaidReportCheckout brand={d.brand} resultId={d.id} />}

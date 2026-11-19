@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { track } from '@vercel/analytics';
 import Result from './Result.js';
 import { EVENTS, categoryBucket, trackEvent } from '../lib/analyticsEvents.js';
+import { browserChannel, channelProps } from '../lib/attribution.js';
 import { messageFromFailedCheck } from '../lib/checkError.js';
 
 export default function Checker({ showPaidReport = false, showTrackingTier = false, emailCapture = false, source = 'home' }) {
@@ -30,6 +31,7 @@ export default function Checker({ showPaidReport = false, showTrackingTier = fal
       has_competitors: String(entries.competitors ?? '').split(',').map((s) => s.trim()).filter(Boolean).length > 0,
       category_bucket: categoryBucket(entries.category),
       engine: 'chatgpt',
+      ...channelProps(browserChannel()),
     });
     setState({ loading: true, error: null, data: null });
     try {

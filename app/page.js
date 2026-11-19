@@ -5,11 +5,13 @@ import { Ld, orgLd, appLd } from './site.js';
 import TrackLink from './TrackLink.js';
 import { EVENTS } from '../lib/analyticsEvents.js';
 import { COST_AS_OF_LABEL, freeChecker, tracker, otterly, keyword } from '../lib/costCompare.js';
+import { actorTrackingUrl } from '../lib/actorLink.js';
 import { emailCaptureEnabled } from '../lib/emailAddress.js';
 import { paidReportEnabled } from '../lib/paidReport.js';
 import { trackingTierEnabled } from '../lib/trackingTier.js';
 import { localServiceBusinessEnabled } from '../lib/localLimits.js';
 import DirectoryBadges from './DirectoryBadges.js';
+import ApifyActorLink from './ApifyActorLink.js';
 
 const faq = [
   ['What is AI search visibility?', 'AI search visibility is how often AI assistants such as ChatGPT, Gemini and Perplexity mention or recommend your brand when people ask questions in your category. It is the AI-era version of ranking on Google.'],
@@ -17,7 +19,7 @@ const faq = [
   ['How does this free checker work?', 'Enter a brand name on its own, or add a category. We ask ChatGPT (an OpenAI model with live web search) three buyer-style questions, then detect whether your brand is mentioned, where it ranks, which competitors appear and which websites are cited. The score is one run of those three questions. For a manual method, read how to see which sources ChatGPT cites.'],
   ['Is it really free?', 'Yes. You get 3 free checks per day. Results are cached for 24 hours. For ongoing tracking across ChatGPT, Gemini and Perplexity with your own prompts, use the full AI Visibility Tracker. The free AI visibility checker page explains what each check includes. For sourced prices, see AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush.'],
   ['Why do results change between checks?', 'AI answers are non-deterministic and depend on wording, location and fresh web results. That is why one snapshot is a starting point, and weekly tracking shows the real trend.'],
-  ['Do you store my data?', 'We store the check result (brand, category, scores, questions, and cited domains) so a repeat check is instant and a share link works, plus a hashed counter for rate limiting. Raw answers stay with the browser that ran the check and are not put on the share link. If you ask for the report by email, we store that address until you unsubscribe. See the privacy policy. We also use Vercel Web Analytics for aggregate page views and actions. Event properties do not include your brand name, email, IP, or the text you type. Views and clicks on monthly tracking, checkout starts, and completed subscriptions are daily totals without a brand, email, or IP.'],
+  ['Do you store my data?', 'We store the check result (brand, category, scores, questions, and cited domains) so a repeat check is instant and a share link works, plus a hashed counter for rate limiting. Raw answers stay with the browser that ran the check and are not put on the share link. If you ask for the report by email, we store that address until you unsubscribe. See the privacy policy. We also use Vercel Web Analytics for aggregate page views and actions. Event properties do not include your brand name, email, IP, or the text you type. This browser tab keeps the referring site hostname and campaign tags from the link that opened the site, not the full referring URL. Views and clicks on monthly tracking, checkout starts, and completed subscriptions are daily totals without a brand, email, or IP.'],
 ];
 
 const faqLinks = [
@@ -29,7 +31,8 @@ const faqLinks = [
 function CostCompare() {
   return (<section id="cost">
     <h2>What a check costs</h2>
-    <p><strong>No monthly fee. No minimum. Pay only per check.</strong> This checker is free, {freeChecker.checksPerIpPerDay} checks per IP per day. The <a href={tracker.source}>AI Visibility Tracker</a> is ${tracker.pricePerAnswer} per answer on Apify.</p>
+    <p><strong>No monthly fee. No minimum. Pay only per check.</strong> This checker is free, {freeChecker.checksPerIpPerDay} checks per IP per day. The <TrackLink href={actorTrackingUrl('home')} event={EVENTS.TRACKER_CTA_CLICK} location="explainer" target="_blank" rel="noopener">AI Visibility Tracker</TrackLink> is ${tracker.pricePerAnswer} per answer on Apify.</p>
+    <ApifyActorLink campaign="home" />
     <ul className="costs">
       <li><strong>Otterly.AI from ${otterly.monthlyPrice}/mo</strong> ({otterly.plan}). As of {COST_AS_OF_LABEL}. <a href={otterly.source}>Source</a>.</li>
       <li><strong>Keyword.com from ${keyword.monthlyPrice.toFixed(2)}/mo</strong> ({keyword.plan}). As of {COST_AS_OF_LABEL}. <a href={keyword.source}>Source</a>.</li>
@@ -94,6 +97,7 @@ export default function Page() {
     <footer><div className="wrap">
       <p><a href="/how-to-check-if-chatgpt-mentions-your-brand">How to check if ChatGPT mentions your brand</a> · <a href="/otterly-alternatives">Otterly alternatives</a> · <a href="/ai-visibility-for-saas">AI visibility for SaaS</a></p>
       <p>Built by Kendall Sorenson.</p>
+      <ApifyActorLink campaign="footer" />
       <p>Tools: <TrackLink href={TRACKER('footer')} event={EVENTS.TRACKER_CTA_CLICK} location="footer">AI Visibility Tracker (ChatGPT, Gemini &amp; Perplexity)</TrackLink> · <TrackLink href={CITATIONS} event={EVENTS.CITATION_CTA_CLICK} location="footer">AI Citation Tracker (which sites ChatGPT, Perplexity &amp; Google AI Overviews cite)</TrackLink> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
       <p className="muted">We use Vercel Web Analytics for aggregate page views and actions. Event properties do not include your brand name, email, IP, or the text you type. <a href="/privacy">Privacy policy</a>.</p>
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>

@@ -13,7 +13,7 @@ export default function Privacy() {
   return (<>
     <header className="hero"><div className="wrap">
       <h1>Privacy policy</h1>
-      <p>This site is operated by Kendall Sorenson. Updated Nov 12, 2026.</p>
+      <p>This site is operated by Kendall Sorenson. Updated Nov 19, 2026.</p>
     </div></header>
     <main className="wrap">
       <section>
@@ -31,7 +31,7 @@ export default function Privacy() {
       </section>
       <section>
         <h2>What we do not do</h2>
-        <p>We do not sell personal information. We do not require an account. The check does not fetch a URL you type. Vercel hosts the site, stores the encrypted records, and provides aggregate analytics. Analytics events do not include your brand name, email, IP, or the text you type.</p>
+        <p>We do not sell personal information. We do not require an account. The check does not fetch a URL you type. Vercel hosts the site, stores the encrypted records, and provides aggregate analytics. Analytics events do not include your brand name, email, IP, or the text you type. This browser tab keeps the referring site's hostname and the campaign tags from the link that opened the site. The full referring URL is not stored.</p>
         <p>This site is not directed at children.</p>
       </section>
       <section>

@@ -5,6 +5,7 @@ import { track } from '@vercel/analytics';
 import { CITATION } from './links.js';
 import { trackerInput, citationInput, runCost, trackerCtaUrl, VIS_PRICE, CIT_PRICE } from '../lib/apifyInput.js';
 import { EVENTS, trackEvent } from '../lib/analyticsEvents.js';
+import { browserChannel, channelProps } from '../lib/attribution.js';
 
 export function ResultViewTracker({ d, shared = false }) {
   const sent = useRef(false);
@@ -16,6 +17,7 @@ export function ResultViewTracker({ d, shared = false }) {
       source: shared ? 'share' : 'home',
       engine: 'chatgpt',
       cached: Boolean(d.cached),
+      ...channelProps(browserChannel()),
     });
   }, [d, shared]);
   return null;
@@ -63,7 +65,7 @@ function copyNow(text) {
 function CopyAndOpen({ json, href, event, location, children }) {
   const [done, setDone] = useState(false);
   return (<a className="cta" target="_blank" rel="noopener" href={href}
-    onClick={() => { trackEvent(track, event, { location }); copyNow(json); setDone(true); setTimeout(() => setDone(false), 2500); }}>{done ? 'Input copied ✓ Apify opened in a new tab' : children}</a>);
+    onClick={() => { trackEvent(track, event, { location, ...channelProps(browserChannel()) }); copyNow(json); setDone(true); setTimeout(() => setDone(false), 2500); }}>{done ? 'Input copied ✓ Apify opened in a new tab' : children}</a>);
 }
 
 export function TrackerCTA({ d }) {
@@ -97,6 +99,10 @@ export function PaidReportCheckout({ brand, resultId }) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     if (f.get('company')) return;
+    trackEvent(track, EVENTS.CHECKOUT_STARTED, {
+      checkout_type: 'paid_report',
+      ...channelProps(browserChannel()),
+    });
     setState({ loading: true, error: '' });
     try {
       const r = await fetch('/api/checkout-report', {
