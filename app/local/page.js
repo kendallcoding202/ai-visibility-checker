@@ -62,7 +62,6 @@ export default function LocalPage() {
       <p>Built by Kendall Sorenson.</p>
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>
     </div></footer>
-    <Ld data={orgLd} />
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+    <Ld data={orgLd} /><Ld data={ld} />
   </>);
 }

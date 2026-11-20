@@ -1,26 +1,9 @@
-/** @type {import('next').NextConfig} */
-const isDev = process.env.NODE_ENV === 'development';
+import { HSTS_VALUE } from './lib/securityHeaders.js';
 
-// Honest CSP for this App Router site: Next and JSON-LD use inline scripts/styles,
-// so script-src/style-src allow 'unsafe-inline'. No unsafe-eval in production.
-// Analytics is first-party under /36aba5b8f51546bc/* and /_vercel/insights/* (covered by 'self').
-// Directory badges load images from Fazier, Smol Launch, and AIToolFinder.
-const csp = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "object-src 'none'",
-  "img-src 'self' data: blob: https://fazier.com https://smollaunch.com https://www.aitoolfinder.com",
-  "font-src 'self' data:",
-  "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
-  "connect-src 'self'",
-  'upgrade-insecure-requests',
-].join('; ');
-
+// CSP is set per request in proxy.js so script-src can carry a nonce.
+// style-src stays here only as part of that policy (unsafe-inline remains).
 const securityHeaders = [
-  { key: 'Content-Security-Policy', value: csp },
+  { key: 'Strict-Transport-Security', value: HSTS_VALUE },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },

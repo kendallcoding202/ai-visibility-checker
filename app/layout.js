@@ -1,4 +1,5 @@
 import { Geist, Instrument_Serif } from 'next/font/google';
+import { connection } from 'next/server';
 import { SITE } from './site.js';
 import './globals.css';
 import AnalyticsWrapper from './AnalyticsWrapper.js';
@@ -43,7 +44,9 @@ export const viewport = {
     { media: '(prefers-color-scheme: dark)', color: '#101412' },
   ],
 };
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  // Nonce CSP is applied while rendering. A static shell would not get that nonce.
+  await connection();
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable}`}>
       <body className={sans.className}>
