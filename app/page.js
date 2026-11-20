@@ -103,7 +103,6 @@ export default function Page() {
       <p className="muted">Not affiliated with OpenAI or Google. Results are a single AI snapshot and may vary.</p>
       <DirectoryBadges />
     </div></footer>
-    <Ld data={orgLd} /><Ld data={appLd} />
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+    <Ld data={orgLd} /><Ld data={appLd} /><Ld data={ld} />
   </>);
 }
