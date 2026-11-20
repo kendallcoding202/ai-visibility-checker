@@ -18,6 +18,7 @@ const faq = [
   ['What is GEO (generative engine optimization)?', 'GEO, also called AEO (answer engine optimization) or LLM SEO, is the practice of improving how often and how favorably AI answers mention your brand, for example by earning mentions on the sources AI cites, publishing clear comparison content and keeping your product facts consistent across the web.'],
   ['How does this free checker work?', 'Enter a brand name on its own, or add a category. We ask ChatGPT (an OpenAI model with live web search) three buyer-style questions, then detect whether your brand is mentioned, where it ranks, which competitors appear and which websites are cited. The score is one run of those three questions. For a manual method, read how to see which sources ChatGPT cites.'],
   ['Is it really free?', 'Yes. You get 3 free checks per day. Results are cached for 24 hours. For ongoing tracking across ChatGPT, Gemini and Perplexity with your own prompts, use the full AI Visibility Tracker. The free AI visibility checker page explains what each check includes. For sourced prices, see AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush.'],
+  ['Doesn\'t Business Hub replace this?', 'Business Hub shows a business its own mention totals over 28 days. This checker shows which competitors ChatGPT recommends instead of you, on which questions, and which sources it cited. Business Hub reports aggregate counts. This checker shows the prompts and per-question results. Read what ChatGPT\'s business dashboard won\'t tell you for the full comparison.'],
   ['Why do results change between checks?', 'AI answers are non-deterministic and depend on wording, location and fresh web results. That is why one snapshot is a starting point, and weekly tracking shows the real trend.'],
   ['Do you store my data?', 'We store the check result (brand, category, scores, questions, and cited domains) so a repeat check is instant and a share link works, plus a hashed counter for rate limiting. Raw answers stay with the browser that ran the check and are not put on the share link. If you ask for the report by email, we store that address until you unsubscribe. See the privacy policy. We also use Vercel Web Analytics for aggregate page views and actions. Event properties do not include your brand name, email, IP, or the text you type. This browser tab keeps the referring site hostname and campaign tags from the link that opened the site, not the full referring URL. Views and clicks on monthly tracking, checkout starts, and completed subscriptions are daily totals without a brand, email, or IP.'],
 ];
@@ -26,6 +27,7 @@ const faqLinks = [
   ['how to see which sources ChatGPT cites', '/how-to-see-which-sources-chatgpt-cites'],
   ['free AI visibility checker page', '/free-ai-visibility-checker'],
   ['AI Visibility Tracker vs Otterly, Profound, Peec AI and Semrush', '/ai-visibility-tracker-vs-otterly-profound-peec-semrush'],
+  ['what ChatGPT\'s business dashboard won\'t tell you', '/what-chatgpt-business-dashboard-wont-tell-you'],
   ['privacy policy', '/privacy'],
 ];
 function CostCompare() {
@@ -83,6 +85,11 @@ export default function Page() {
         <h2>Why AI search visibility matters</h2>
         <p>More buyers now ask ChatGPT, Gemini and Perplexity “what's the best tool for…” instead of searching Google. If AI assistants don't mention your brand, you're invisible at the exact moment a buyer is choosing. <strong>Generative engine optimization (GEO)</strong>, also called AEO or LLM SEO, is how brands win those AI answers.</p>
         <p>This free tool gives you a quick snapshot of your <strong>ChatGPT brand mentions</strong>: mention rate, ranking position, competitor share and the cited sources that shape AI answers. Business Hub shows your own ChatGPT totals. This checker shows which questions, which competitors, and whether ChatGPT named you. To measure share of voice over time across ChatGPT, Gemini and Perplexity, use the <TrackLink href={TRACKER('explainer')} event={EVENTS.TRACKER_CTA_CLICK} location="explainer">AI Visibility Tracker</TrackLink>.</p>
+      </section>
+      <section>
+        <h2>Doesn&apos;t Business Hub replace this?</h2>
+        <p>Business Hub shows a business its own mention totals from ChatGPT usage over the past 28 days. This checker shows which competitors ChatGPT recommends instead of you, on which questions, and which sources it cited. For an online business, Business Hub counts a mention when ChatGPT references the website. This checker reports whether ChatGPT named your brand in the answer text.</p>
+        <p>Read the full comparison: <a href="/what-chatgpt-business-dashboard-wont-tell-you">What ChatGPT&apos;s business dashboard won&apos;t tell you</a>.</p>
       </section>
       <section>
         <h2>Compare and learn</h2>
