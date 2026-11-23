@@ -3,6 +3,7 @@ import Result from '../../Result.js';
 import { loadPublicCache } from '../../../lib/store.js';
 import { publicResult } from '../../../lib/publicResult.js';
 import { paidReportEnabled } from '../../../lib/paidReport.js';
+import { trackingOfferActive } from '../../../lib/trackingOffer.js';
 import { trackingTierEnabled } from '../../../lib/trackingTier.js';
 import { RESULT_UNAVAILABLE_ERROR } from '../../../lib/checkError.js';
 
@@ -34,6 +35,6 @@ export default async function SharedResult({ params }) {
   return (<header className="hero"><div className="wrap">
     <h1>Does ChatGPT recommend {d.brand}?</h1>
     <p>Shared result from the free AI Visibility Checker. <a href="/" style={{ color: 'inherit', fontWeight: 700 }}>Check your own brand free →</a></p>
-    <Result d={d} shared showPaidReport={paidReportEnabled()} showTrackingTier={trackingTierEnabled()} emailCapture={false} />
+    <Result d={d} shared showPaidReport={paidReportEnabled()} showTrackingTier={trackingTierEnabled()} trackingOffer={trackingOfferActive()} emailCapture={false} />
   </div></header>);
 }

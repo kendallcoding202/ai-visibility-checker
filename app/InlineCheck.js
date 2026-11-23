@@ -1,6 +1,7 @@
 import Checker from './Checker.js';
 import { emailCaptureEnabled } from '../lib/emailAddress.js';
 import { paidReportEnabled } from '../lib/paidReport.js';
+import { trackingOfferActive } from '../lib/trackingOffer.js';
 import { trackingTierEnabled } from '../lib/trackingTier.js';
 
 export default function InlineCheck() {
@@ -12,6 +13,7 @@ export default function InlineCheck() {
         source="article"
         showPaidReport={paidReportEnabled()}
         showTrackingTier={trackingTierEnabled()}
+        trackingOffer={trackingOfferActive()}
         emailCapture={emailCaptureEnabled()}
       />
     </section>

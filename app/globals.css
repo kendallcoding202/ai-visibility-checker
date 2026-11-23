@@ -444,6 +444,20 @@ a.cta, .hero a.cta, .hero .result a.cta, .result a.cta { color: #fff; }
   letter-spacing: -0.03em;
   line-height: 1.1;
 }
+.plan .price.offer {
+  font-size: 1.45rem;
+  line-height: 1.3;
+}
+.track-offer-banner {
+  margin: 16px 0 0;
+  background: var(--accent-soft);
+  border: 1px solid #b7d9ce;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: var(--ink);
+}
+.result p.track-offer-banner,
+.hero .result p.track-offer-banner { color: var(--ink); }
 .plan .price span {
   font-family: var(--font-sans), Inter, system-ui, sans-serif;
   font-size: .875rem;
@@ -668,7 +682,7 @@ footer a.launched:hover { background: #1e2118; color: #f6f3ec; }
 @media(max-width:620px){.track-offer{flex-basis:100%}.track-offer .cta{width:100%}}
 @media (prefers-color-scheme: dark) {
   ::selection { background: #1f4d40; color: #f4f7f5; }
-  #monthly-tracking, .track-offer { border-color: #24584a; }
+  #monthly-tracking, .track-offer, .track-offer-banner { border-color: #24584a; }
   header.hero {
     background:
       radial-gradient(880px 380px at 100% -10%, rgba(143, 217, 194, .12), transparent 58%),

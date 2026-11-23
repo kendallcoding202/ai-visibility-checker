@@ -6,6 +6,7 @@ import { CITATION } from './links.js';
 import { trackerInput, citationInput, runCost, trackerCtaUrl, VIS_PRICE, CIT_PRICE } from '../lib/apifyInput.js';
 import { EVENTS, trackEvent } from '../lib/analyticsEvents.js';
 import { browserChannel, channelProps } from '../lib/attribution.js';
+import { TRACKING_OFFER_PRICE, TRACKING_TIER_PRICE } from '../lib/trackingTier.js';
 
 export function ResultViewTracker({ d, shared = false }) {
   const sent = useRef(false);
@@ -136,7 +137,7 @@ export function PaidReportCheckout({ brand, resultId }) {
   </form>);
 }
 
-export function ReportEmail({ id, showTracking = false }) {
+export function ReportEmail({ id, showTracking = false, trackingOffer = false }) {
   const start = useRef(Date.now());
   const [state, setState] = useState({ loading: false, error: '', done: '' });
   async function submit(e) {
@@ -171,7 +172,7 @@ export function ReportEmail({ id, showTracking = false }) {
     <h3>Get your full report by email</h3>
     <p>We'll email the score, the questions, who was named, and the sources. If this browser ran the check, the raw answers are included. Open the confirmation email to finish. Every email has an unsubscribe link.</p>
     <p className="muted">{showTracking
-      ? 'Weekly re-checks of this saved brand on ChatGPT with web search are $24/month after you confirm this email. Cancel anytime.'
+      ? `Weekly re-checks of this saved brand on ChatGPT with web search are ${trackingOffer === true ? TRACKING_OFFER_PRICE : TRACKING_TIER_PRICE} after you confirm this email. Cancel anytime.`
       : 'This email is the report for this check.'}</p>
     <label>Email<input name="email" type="email" required autoComplete="email" maxLength={254} placeholder="you@company.com" /></label>
     <label className="consent"><input name="consent" type="checkbox" required /> <span>I agree to receive this report by email. I can unsubscribe in any email. <a href="/privacy">Privacy policy</a>.</span></label>
