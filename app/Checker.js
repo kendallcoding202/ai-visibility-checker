@@ -6,10 +6,10 @@ import { EVENTS, categoryBucket, trackEvent } from '../lib/analyticsEvents.js';
 import { browserChannel, channelProps } from '../lib/attribution.js';
 import { messageFromFailedCheck } from '../lib/checkError.js';
 
-export default function Checker({ showPaidReport = false, showTrackingTier = false, emailCapture = false, source = 'home' }) {
+export default function Checker({ showPaidReport = false, showTrackingTier = false, trackingOffer = false, emailCapture = false, source = 'home' }) {
   const mounted = useRef(Date.now());
   const [state, setState] = useState({ loading: false, error: null, data: null });
-  const [flags, setFlags] = useState({ showPaidReport, showTrackingTier, emailCapture });
+  const [flags, setFlags] = useState({ showPaidReport, showTrackingTier, trackingOffer, emailCapture });
   useEffect(() => {
     let cancel = false;
     fetch('/api/flags', { cache: 'no-store' }).then((r) => r.json()).then((data) => {
@@ -17,6 +17,7 @@ export default function Checker({ showPaidReport = false, showTrackingTier = fal
       setFlags({
         showPaidReport: Boolean(data.paidReport),
         showTrackingTier: Boolean(data.trackingTier),
+        trackingOffer: Boolean(data.trackingOffer),
         emailCapture: Boolean(data.emailCapture),
       });
     }).catch(() => {});
@@ -69,6 +70,6 @@ export default function Checker({ showPaidReport = false, showTrackingTier = fal
       <span className="muted">A brand name is enough. No account and no website. 3 free checks per day. We ask ChatGPT (with web search) 3 buyer-style questions.</span>
     </form>
     {state.error && <p className="err" role="alert">{state.error}</p>}
-    {d && <Result d={d} showPaidReport={flags.showPaidReport} showTrackingTier={flags.showTrackingTier} emailCapture={flags.emailCapture} />}
+    {d && <Result d={d} showPaidReport={flags.showPaidReport} showTrackingTier={flags.showTrackingTier} trackingOffer={flags.trackingOffer} emailCapture={flags.emailCapture} />}
   </>);
 }

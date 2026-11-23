@@ -1,5 +1,6 @@
 import Footer from '../Footer.js';
 import { PAID_REPORT_PRICE } from '../../lib/paidReport.js';
+import { trackingOfferActive, TRACKING_OFFER_PRICE } from '../../lib/trackingOffer.js';
 import { TRACKING_TIER_PRICE } from '../../lib/trackingTier.js';
 import { freeChecker, tracker } from '../../lib/costCompare.js';
 
@@ -37,6 +38,7 @@ export default function Page() {
           <h2>Monthly tracking</h2>
           <p className="price">{TRACKING_TIER_PRICE}</p>
           <p>One saved brand, re-checked weekly on ChatGPT with web search (the same three questions). Each result is emailed with the run count and the raw answers. Requires a free check and a confirmed email for that brand, then Stripe checkout. Cancel anytime.</p>
+          {trackingOfferActive() ? <p>{TRACKING_OFFER_PRICE}</p> : null}
         </article>
         <article className="plan" id="apify-tracker">
           <h2>AI Visibility Tracker on Apify</h2>
