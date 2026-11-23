@@ -20,7 +20,13 @@ export default function sitemap() {
     changeFrequency: 'yearly',
     priority: 0.3,
   });
-  for (const path of ['/profound-alternatives', '/business-hub-vs-free-ai-visibility-checker', '/ai-visibility-tracker-vs-keyword', '/how-to-check-if-chatgpt-mentions-your-brand', '/otterly-alternatives', '/ai-visibility-for-saas']) {
+  pages.push({
+    url: `${SITE}/profound-alternatives`,
+    lastModified: new Date('2026-11-23'),
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  });
+  for (const path of ['/business-hub-vs-free-ai-visibility-checker', '/ai-visibility-tracker-vs-keyword', '/how-to-check-if-chatgpt-mentions-your-brand', '/otterly-alternatives', '/ai-visibility-for-saas']) {
     pages.push({
       url: SITE + path,
       lastModified: new Date('2026-11-12'),
