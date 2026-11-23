@@ -28,5 +28,11 @@ export default function sitemap() {
       priority: 0.7,
     });
   }
+  pages.push({
+    url: `${SITE}/pricing`,
+    lastModified: new Date('2026-11-23'),
+    changeFrequency: 'monthly',
+    priority: 0.8,
+  });
   return pages;
 }

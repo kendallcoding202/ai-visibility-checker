@@ -15,6 +15,7 @@
 - [Business Hub vs the free checker](https://aivisibilitychecker.app/business-hub-vs-free-ai-visibility-checker): Business Hub's own ChatGPT totals compared with this site's three-question snapshot. OpenAI's cited pages do not state a price for Business Hub.
 - [Profound alternatives](https://aivisibilitychecker.app/profound-alternatives): public prices read from each vendor's pricing page on Nov 12, 2026. Profound's paid plan is omitted because that page does not publish a dollar amount.
 - [AI Visibility Tracker vs Keyword.com](https://aivisibilitychecker.app/ai-visibility-tracker-vs-keyword): $0.0375 per answer compared with Keyword.com AI Visibility at $9.80/month, read Nov 12, 2026.
+- [Pricing](https://aivisibilitychecker.app/pricing): free check at $0 (3 checks a day, no account and no card), a $19 one-time report, monthly tracking at $24/month, and the Apify tracker at $0.0375 per answer on the Free tier. Prices checked Nov 23, 2026.
 - [Privacy policy](https://aivisibilitychecker.app/privacy): what a check stores, how report email works, and how to unsubscribe.
 - Market lookup on the homepage: enter a category or market and see which brands ChatGPT names. No account. Shares the checker's daily limits and monthly budget.
 

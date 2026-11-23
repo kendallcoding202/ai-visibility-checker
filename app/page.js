@@ -95,7 +95,7 @@ export default function Page() {
       </section>
     </main>
     <footer><div className="wrap">
-      <p><a href="/how-to-check-if-chatgpt-mentions-your-brand">How to check if ChatGPT mentions your brand</a> · <a href="/otterly-alternatives">Otterly alternatives</a> · <a href="/ai-visibility-for-saas">AI visibility for SaaS</a></p>
+      <p><a href="/pricing">Pricing</a> · <a href="/how-to-check-if-chatgpt-mentions-your-brand">How to check if ChatGPT mentions your brand</a> · <a href="/otterly-alternatives">Otterly alternatives</a> · <a href="/ai-visibility-for-saas">AI visibility for SaaS</a></p>
       <p>Built by Kendall Sorenson.</p>
       <ApifyActorLink campaign="footer" />
       <p>Tools: <TrackLink href={TRACKER('footer')} event={EVENTS.TRACKER_CTA_CLICK} location="footer">AI Visibility Tracker (ChatGPT, Gemini &amp; Perplexity)</TrackLink> · <TrackLink href={CITATIONS} event={EVENTS.CITATION_CTA_CLICK} location="footer">AI Citation Tracker (which sites ChatGPT, Perplexity &amp; Google AI Overviews cite)</TrackLink> · <a href={ADS}>Google Ads Transparency &amp; Ad Library Scraper</a></p>
