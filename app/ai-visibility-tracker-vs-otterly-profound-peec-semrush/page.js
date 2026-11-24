@@ -2,6 +2,7 @@ import InlineCheck from '../InlineCheck.js';
 import { TRACKER, CITATIONS } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import Footer from '../Footer.js';
+import { PAID_REPORT_PRICE } from '../../lib/paidReport.js';
 
 const title = 'AI Visibility Tracker vs Otterly vs Profound vs Peec AI vs Semrush (2026)';
 const description = 'Honest comparison of AI Visibility Tracker (Apify), Otterly.AI, Profound, Peec AI and Semrush AI Visibility Toolkit: prices, engines, who each fits, checked Nov 9 2026.';
@@ -96,6 +97,7 @@ export default function Page() {
     <header className="hero"><div className="wrap">
       <h1>AI Visibility Tracker vs Otterly vs Profound vs Peec AI vs Semrush</h1>
       <p>An honest side-by-side for people comparing AI search visibility / GEO tools. Prices and engine lists were read from each vendor’s public pricing page on {FETCHED}. By Kendall Sorenson.</p>
+      <p><a className="cta" href="#checker">Run the free check</a>{' '}After the free check, the full written report is {PAID_REPORT_PRICE}.</p>
       <InlineCheck />
     </div></header>
     <main className="wrap">
@@ -175,7 +177,8 @@ export default function Page() {
       </section>
 
       <p>Related: <a href="/what-chatgpt-business-dashboard-wont-tell-you">what ChatGPT&apos;s new business dashboard won&apos;t tell you</a> · <a href="/profound-alternatives">Profound alternatives, prices re-read Nov 12, 2026</a> · <a href="/otterly-alternatives">Otterly alternatives, prices read Nov 12, 2026</a> · <a href="/business-hub-vs-ai-visibility-tracker">Business Hub vs AI Visibility Tracker</a></p>
-      <p><a className="cta" href="#checker">Run a free ChatGPT visibility check</a> &nbsp; <a href={tracker}>Open AI Visibility Tracker on Apify →</a></p>
+      <p><a className="cta" href="#checker">Run the free check</a>{' '}After the free check, the full written report is {PAID_REPORT_PRICE}.</p>
+      <p><a href={tracker}>Open AI Visibility Tracker on Apify →</a></p>
     </main>
     <Footer />
     <Ld data={faqLd(faq)} />
