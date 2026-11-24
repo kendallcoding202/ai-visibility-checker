@@ -6,6 +6,7 @@ import { CITATION } from './links.js';
 import { trackerInput, citationInput, runCost, trackerCtaUrl, VIS_PRICE, CIT_PRICE } from '../lib/apifyInput.js';
 import { EVENTS, trackEvent } from '../lib/analyticsEvents.js';
 import { browserChannel, channelProps } from '../lib/attribution.js';
+import { PAID_REPORT_BODY, PAID_REPORT_PRICE } from '../lib/paidReport.js';
 import { TRACKING_OFFER_PRICE, TRACKING_TIER_PRICE } from '../lib/trackingTier.js';
 
 export function ResultViewTracker({ d, shared = false }) {
@@ -128,11 +129,11 @@ export function PaidReportCheckout({ brand, resultId }) {
     }
   }
   return (<form className="emailbox" onSubmit={submit}>
-    <h3>Get the full report, $19</h3>
-    <p>Written report with the score, all three raw answers, brands ChatGPT named, cited sources, and what to fix. Pay once. No subscription. Delivered to your email after payment.</p>
+    <h3>Get the full report, {PAID_REPORT_PRICE}</h3>
+    <p>{PAID_REPORT_BODY} Delivered to your email after payment.</p>
     <label>Email<input name="email" type="email" required autoComplete="email" maxLength={254} placeholder="you@company.com" /></label>
     <input className="hp" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-    <button disabled={state.loading}>{state.loading ? 'Opening checkout…' : 'Get the full report, $19'}</button>
+    <button disabled={state.loading}>{state.loading ? 'Opening checkout…' : `Get the full report, ${PAID_REPORT_PRICE}`}</button>
     {state.error && <p className="err" role="alert">{state.error}</p>}
   </form>);
 }

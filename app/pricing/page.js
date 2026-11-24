@@ -42,7 +42,7 @@ export default function Page() {
         <article className="plan" id="one-time-report">
           <h2>One-time report</h2>
           <p className="price">{PAID_REPORT_PRICE}</p>
-          <p>A written report of one check: the score, the three raw answers, the brands ChatGPT named, the cited sources, and what to fix. Pay once through Stripe. No subscription.</p>
+          <p>A written report of one check, grouped by buying stage (Learn, Compare, and Buy): the score, the three raw answers, the brands ChatGPT named, the cited sources, and what to fix. Download it as a PDF. Pay once through Stripe. No subscription.</p>
         </article>
         <article className="plan" id="monthly-tracking">
           <h2>Monthly tracking</h2>
