@@ -3,7 +3,7 @@ import { createElement, useRef, useState } from 'react';
 import { track } from '@vercel/analytics';
 import { EVENTS, trackEvent } from '../lib/analyticsEvents.js';
 import { browserChannel, channelProps } from '../lib/attribution.js';
-import { TRACKING_CHECKOUT_BUTTON } from '../lib/trackingTier.js';
+import { trackingCheckoutLabel } from '../lib/trackingTier.js';
 
 function checkoutUrl(url) {
   try {
@@ -15,7 +15,7 @@ function checkoutUrl(url) {
   }
 }
 
-export function TrackingCheckoutForm({ brand }) {
+export function TrackingCheckoutForm({ brand, offerActive = false }) {
   const start = useRef(Date.now());
   const [state, setState] = useState({ loading: false, error: '' });
   async function submit(e) {
@@ -55,6 +55,6 @@ export function TrackingCheckoutForm({ brand }) {
       createElement('input', { name: 'email', type: 'email', required: true, autoComplete: 'email', maxLength: 254, placeholder: 'you@company.com' })),
     createElement('p', { className: 'muted' }, 'Uses the email you confirmed for this brand.'),
     createElement('input', { className: 'hp', name: 'company', tabIndex: -1, autoComplete: 'off', 'aria-hidden': true }),
-    createElement('button', { disabled: state.loading }, state.loading ? 'Opening checkout…' : TRACKING_CHECKOUT_BUTTON),
+    createElement('button', { disabled: state.loading }, state.loading ? 'Opening checkout…' : trackingCheckoutLabel(offerActive === true)),
     state.error ? createElement('p', { className: 'err', role: 'alert' }, state.error) : null);
 }

@@ -4,7 +4,8 @@ import { TRACKER } from '../links.js';
 import { Ld, faqLd, orgLd } from '../site.js';
 import { buildPrompts } from '../../lib/analyze.js';
 import { tracker } from '../../lib/costCompare.js';
-import { TRACKING_TIER_BODY, TRACKING_TIER_HEADING, TRACKING_TIER_PRICE } from '../../lib/trackingTier.js';
+import { trackingOfferActive } from '../../lib/trackingOffer.js';
+import { trackingIncludedAnswer } from '../../lib/trackingTier.js';
 
 const title = 'How to check if ChatGPT mentions your brand';
 const description = 'Check by hand whether ChatGPT mentions your brand, or use the free checker on this site. The checker asks three buyer-style questions with web search and reports one run.';
@@ -28,13 +29,16 @@ const steps = [
   ['Ask again', 'Run the same question in another new chat. One answer is one snapshot. How often the name appears depends on how many times you asked.'],
 ];
 
-const faq = [
-  ['Can I check ChatGPT brand mentions without an account?', 'Yes. You can ask in ChatGPT yourself, or use the checker on this page. The checker needs a brand name. It does not need an account or a website URL. The limit is 3 checks per IP per day.'],
-  ['Does the checker use my questions?', 'No. If you enter a category, it sends the three questions shown on this page, with your category filled in. Those questions do not include your brand name. If you leave the category blank, the three questions name the brand and ask for alternatives.'],
-  ['What does monthly tracking include?', `${TRACKING_TIER_HEADING} is ${TRACKING_TIER_PRICE} when that plan is offered. ${TRACKING_TIER_BODY}`],
-];
+function pageFaq() {
+  return [
+    ['Can I check ChatGPT brand mentions without an account?', 'Yes. You can ask in ChatGPT yourself, or use the checker on this page. The checker needs a brand name. It does not need an account or a website URL. The limit is 3 checks per IP per day.'],
+    ['Does the checker use my questions?', 'No. If you enter a category, it sends the three questions shown on this page, with your category filled in. Those questions do not include your brand name. If you leave the category blank, the three questions name the brand and ask for alternatives.'],
+    ['What does monthly tracking include?', trackingIncludedAnswer(trackingOfferActive())],
+  ];
+}
 
 export default function Page() {
+  const faq = pageFaq();
   const howTo = {
     '@context': 'https://schema.org',
     '@type': 'HowTo',
@@ -73,7 +77,7 @@ export default function Page() {
       </section>
       <section>
         <h2>Checking the same brand again</h2>
-        <p>{TRACKING_TIER_HEADING} is {TRACKING_TIER_PRICE} when that plan is offered. {TRACKING_TIER_BODY} The <a href="/privacy">privacy policy</a> describes the same offer.</p>
+        <p>{trackingIncludedAnswer(trackingOfferActive())} The <a href="/privacy">privacy policy</a> describes the same offer.</p>
         <p>A separate product, the <a href={TRACKER('mentions-guide')}>AI Visibility Tracker</a>, charges ${tracker.pricePerAnswer} per answer on the Apify Free tier and can run ChatGPT, Gemini, and Perplexity. It is not the monthly plan above.</p>
       </section>
       <section>
