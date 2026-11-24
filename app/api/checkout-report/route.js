@@ -8,6 +8,7 @@ import { paidReportEnabled } from '../../../lib/paidReport.js';
 import { track } from '@vercel/analytics/server';
 import { EVENTS, trackEvent } from '../../../lib/analyticsEvents.js';
 import { readAnswerCookie, loadRawAnswers } from '../../../lib/rawAnswers.js';
+import { newReportToken, saveReportAccess } from '../../../lib/paidReportAccess.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -85,16 +86,27 @@ export async function POST(req) {
     // Raw answers optional
   }
 
-  // Snapshot the result and answers durably for webhook delivery (survives cache expiry and re-checks)
+  // Snapshot the result and answers durably for webhook delivery (survives cache expiry and re-checks).
+  // The download token is not a Stripe field and is not logged.
   const snapshotKey = `paid-report-snapshot/${session.sessionId}`;
+  let pdfToken = '';
+  try {
+    const token = newReportToken();
+    const saved = await saveReportAccess({ token, sessionId: session.sessionId, resultId });
+    if (saved) pdfToken = token;
+  } catch {
+    console.error(`paid report access failed sessionId=${session.sessionId}`);
+  }
   try {
     await setJSON(snapshotKey, {
       resultId,
       result: cached.value.result,
       answers,
       snapshotAt: Date.now(),
+      origin,
+      ...(pdfToken ? { pdfToken } : {}),
     });
-  } catch (error) {
+  } catch {
     console.error(`paid report snapshot failed sessionId=${session.sessionId}`);
     // Continue anyway - webhook will try cache first, then fail gracefully
   }
