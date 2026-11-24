@@ -76,8 +76,8 @@ function FixList({ d }) {
     <h3>How to get into answers that skipped {d.brand}</h3>
     <p className="muted">Pages ChatGPT cited on the questions that did not name {d.brand}.</p>
     <div className="q">
-      <strong>Claim your business in Business Hub</strong>
-      <p>After you claim and verify your business, OpenAI&apos;s Business Hub lets you update your ChatGPT listing and see aggregate mention and click totals for the past 28 days. It does not show the questions, competitors, or cited pages in this check. <a href="https://openai.com/business/businesses-in-chatgpt/" target="_blank" rel="noopener noreferrer">Claim your business in ChatGPT</a>.</p>
+      <strong>Business Hub vs this report</strong>
+      <p>Business Hub shows a business its own mention totals from ChatGPT usage over the past 28 days. This report shows which competitors ChatGPT recommends instead of {d.brand}, on which questions, and which pages it cited. <a href="/what-chatgpt-business-dashboard-wont-tell-you">Read the full comparison</a> or <a href="https://openai.com/business/businesses-in-chatgpt/" target="_blank" rel="noopener noreferrer">claim your business in ChatGPT</a>.</p>
     </div>
     {fix.questions.map((q) => <div className="q" key={q.prompt}>
       <strong>{q.prompt}</strong>
