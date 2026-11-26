@@ -625,6 +625,26 @@ footer a.launched {
   text-decoration: none;
 }
 footer a.launched:hover { background: #1e2118; color: #f6f3ec; }
+
+.report h1 { margin: 0 0 8px; font-size: 2rem; }
+.report .kicker {
+  margin: 0 0 6px;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+.report-meta { color: var(--ink); }
+.stage-summary { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 8px; }
+.stage-summary li {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.report form.card { margin-top: 18px; }
+.report form.card h2 { margin: 0; }
 .launched-mark {
   flex: none;
   width: 28px;

@@ -72,7 +72,7 @@ export default function Page() {
       </ul>
       <h2 id="checker">Check your brand</h2>
       <Checker showPaidReport={paidReportEnabled()} showTrackingTier={trackingTierEnabled()} trackingOffer={trackingOfferActive()} emailCapture={emailCaptureEnabled()} />
-      {paidReportEnabled() && <p className="muted" style={{ marginTop: '1rem' }}>After your free check, get a written report with all three raw answers, cited sources, and what to fix for $19 (one-time payment, no subscription).</p>}
+      {paidReportEnabled() && <p className="muted" style={{ marginTop: '1rem' }}>After your free check, get a written report grouped by buying stage, with all three raw answers, cited sources, and what to fix, for $19. Download it as a PDF. One-time payment, no subscription.</p>}
       {trackingOfferActive() && <p className="muted" style={{ marginTop: '1rem' }}>{TRACKING_OFFER_HOME}</p>}
       {localServiceBusinessEnabled() && <p className="muted" style={{ marginTop: '1rem' }}><a href="/local">For local service businesses (plumbers, dentists, etc.) →</a></p>}
     </div></header>

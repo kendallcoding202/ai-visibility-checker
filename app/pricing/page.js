@@ -5,15 +5,25 @@ import { TRACKING_TIER_PRICE } from '../../lib/trackingTier.js';
 import { freeChecker, tracker } from '../../lib/costCompare.js';
 
 const title = 'AI Visibility Checker pricing';
-const description = `Free check, a one-time report at ${PAID_REPORT_PRICE}, and monthly tracking at ${TRACKING_TIER_PRICE}. The Apify tracker is $${tracker.pricePerAnswer} per answer on the Free tier. Prices checked Nov 23, 2026.`;
-export const metadata = {
-  title,
-  description,
-  alternates: { canonical: '/pricing' },
-  openGraph: { title, description, type: 'website', images: ['/opengraph-image'] },
-  twitter: { card: 'summary_large_image', title, description },
-  authors: [{ name: 'Kendall Sorenson' }],
-};
+
+export function pricingDescription() {
+  const lead = `Free check, a one-time report at ${PAID_REPORT_PRICE}, and monthly tracking at ${TRACKING_TIER_PRICE}.`;
+  const tail = ` The Apify tracker is $${tracker.pricePerAnswer} per answer on the Free tier. Prices checked Nov 23, 2026.`;
+  if (!trackingOfferActive()) return `${lead}${tail}`;
+  return `${lead} New subscribers pay ${TRACKING_OFFER_PRICE}. That price applies at checkout until Nov 30, 2026, 11:59 PM MT.${tail}`;
+}
+
+export function generateMetadata() {
+  const description = pricingDescription();
+  return {
+    title,
+    description,
+    alternates: { canonical: '/pricing' },
+    openGraph: { title, description, type: 'website', images: ['/opengraph-image'] },
+    twitter: { card: 'summary_large_image', title, description },
+    authors: [{ name: 'Kendall Sorenson' }],
+  };
+}
 
 export default function Page() {
   return (<>
@@ -32,7 +42,7 @@ export default function Page() {
         <article className="plan" id="one-time-report">
           <h2>One-time report</h2>
           <p className="price">{PAID_REPORT_PRICE}</p>
-          <p>A written report of one check: the score, the three raw answers, the brands ChatGPT named, the cited sources, and what to fix. Pay once through Stripe. No subscription.</p>
+          <p>A written report of one check, grouped by buying stage (Learn, Compare, and Buy): the score, the three raw answers, the brands ChatGPT named, the cited sources, and what to fix. Download it as a PDF. Pay once through Stripe. No subscription.</p>
         </article>
         <article className="plan" id="monthly-tracking">
           <h2>Monthly tracking</h2>
